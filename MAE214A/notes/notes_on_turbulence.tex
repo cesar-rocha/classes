@@ -48,7 +48,7 @@
   }%
 }
 
-\title{Notes on turbulence}
+\title{Notes on turbulence and mixing}
 \author{Cesar B Rocha}
 \date{\today}
 
@@ -57,6 +57,83 @@
 \include{mysymbols}
 
 \maketitle
+
+This are notes I've been writing for my self study as part of the class ``Turbulence and Mixing'' (MAE 214A), taught by Prof. Sutanu Sarkar at UC San Diego. The class covers essentially homogeneous three-dimensional turbulence but I'm also self-studying two-dimensional and quasi-two-dimensional turbulence. 
+
+I claim no originality to the content of these notes.  In particular, I'm loosely following Sutanu's class notes, and the following books and notes
+
+\begin{itemize}
+
+    \item \textit{Turbulent flows} by Pope;
+
+    \item \textit{A first course in turbulence} by Tennekes and Lumley;
+
+    \item \textit{Turbulence} by Frisch;
+
+    \item \textit{The theory of homogeneous turbulence} by Batchelor;
+
+    \item \textit{Notes on turbulence} by McWilliams.
+
+\end{itemize}
+
+\section{Introduction}
+
+\subsection{What is turbulence?}
+
+Turbulence is certainly a field in which the maxims ``To define it is to limit it'' is valid. Indeed, we must avoid the temptation of formally defining turbulence. Instead, we shall collect some characteristics common to turbulent flows
+
+\begin{enumerate}
+
+    \item {\bf Large Reynolds number}
+        \subitem We will define the Reynolds number ($\Re$), and contrast different interpretations. Here it suffices the loose scaling definition as the ration of the non-linear advective terms to viscous term. This readily suggests that turbulent flows are a consequence of non-linearities of the equations of motion. In the opposite limit, that of of low $\Re$, the equations of motions become asymptotically linear, and one can typically make progress analytically. In contrasts, we rarely can solve for turbulent flows analytically, and studies on turbulence almost always resort to experiments both in the laboratory or on computers. An important implication of non-linearity is a remarkable sensitivity to initial and boundary conditions.
+    \item {\bf Irregularity}
+        \subitem Turbulent flows are spatially irregular and evolve chaotically. This characteristic is frequently observed in natural phenomena. For example, measurements of velocity the turbulent planetary boundary layer at a fixed point display irregular temporal behavior. The same is true for chimney flows that often one can see; the regular flow eventually breaks into a chaotic motion.
+
+    \item {\bf Three-dimensional vorticity}
+        \subitem Turbulent flows are typically three-dimensionally rotational. The absence of vorticity can certainly be used to characterize non-turbulent flows. For example, quasi-linear surface gravity waves in the ocean can combine to give rise to patterns that are irregular. But these flows are definitely not turbulent (they lack vorticity).
+    
+    \item {\bf Wide range of  scales}
+        \subitem It is really hard to find particular scales consistent with turbulent motions. Indeed, turbulent flows span a wide range of temporal and spatial scales: from the very large to tiny dissipative spatial scales; from very short to significantly long time scales.
+
+    \item {\bf Transport and mixing}
+        \subitem Turbulent flows effectively transport and mixes mass, momentum, and scalars. Transport and mixing in turbulent flows are typically orders of magnitude larger than purely molecular processes.
+
+
+    \item {\bf Coherent structures}
+        \subitem There is some order in the midst of disorder. For that reason, statistical theories are not always successful. 
+\end{enumerate}
+
+
+\subsection{Methods of study}
+
+\begin{enumerate}
+
+        \item Statistical theory of idealized turbulence (isotropic, homogeneous).
+
+        \item Phenomenological theory of turbulence. This is a semi-empirical approach also known as one-point modeling.
+
+        \item Characterization of coherent structures.
+
+        \item Two-point statistical models (correlations and spectra).
+
+        \item Larger eddy simulations. These are computational simulations in which only the largest scales of the turbulent flow are explicitly resolved.
+
+        \item Direct numerical simulations (DNS). This is the gold standard of study of turbulence, in which computational simulations are used to resolved all scales of motions explicitly. Needless to say, DNSs can be very computationally expensive.
+
+\end{enumerate}
+
+\subsection{Application}
+Applications of turbulence studies are every where. Here are some examples
+
+\begin{enumerate}
+    \item Plane design: Estimation of drag on a wing;
+    \item Mixing rates in a chemical reactor;
+    \item Parameterization of small-scale motions in climate models.
+\end{enumerate}
+
+\section{The Navier-Stokes Equations}
+We will typically use index notation since its compact and shrinks the algebra. We will eventually rewrite some terms in vector notation to facilitate physical interpretation. Throughout we use summation convention: when two repeated indices appear together, summation over that index in implied unless otherwise stated. 
+
 
 \end{document}
 
