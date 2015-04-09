@@ -115,7 +115,7 @@ where $k$ is the wavenumber. \eqref{eq:oned_ns} is an eigenproblem with eigenval
 \label{fig:eigs_nu}
 \end{figure}
 
-One may be tempted to use implicit methods since they are unconditionally stable. However, from an implementation point of view, the implicit methods applied to the non-linear terms in \eqref{eq:ns} would lead to non-linear algebraic equations to be solved every time step, which can be very computationally demanded. 
+One may be tempted to use implicit methods since they are unconditionally stable. However, from an implementation point of view, the implicit methods applied to the non-linear terms in \eqref{eq:ns} would lead to non-linear algebraic equations to be solved every time step, which can be very computationally costly. 
 
 For the advective terms we typically use two main schemes:
 
@@ -124,6 +124,55 @@ For the advective terms we typically use two main schemes:
     \item Single-step, multiple sub-steps (e.g. Runge-Kutta methods).
 \end{itemize}
 Adams-Bashforth (AB) methods are more memory demanding, whereas Runge-Kutta (RK) schemes require more flops. The most efficient method depends on computer architecture. In recent computers memory, not CPU, is the main limitations, so we may use RK methods.
+
+
+\subsection{Runge-Kutta methods}
+Runge-Kutta (RK) are explicit, single-step, multi-sub-steps, schemes. The general form of an RK scheme for a non-linear equation 
+\beq
+\p_t u = F(u,t)\com
+\eeq
+is
+\beq
+\label{eq:rk_general}
+u^{n+1} = u^n + \dt \left(b_1 k_1 + \ldots + b_M k_M\right)
+\eeq
+
+\begin{align}
+    \label{eq:rk_ks}
+    k_1 &= F(u^n,t^n)\com \nonumber \\
+k_2 &= F(u^n+a_{21}k_1\dt,t^n + c_2 \dt)\com \nonumber \\
+    &\vdots \nonumber \\
+    k_{M} &= F(u^n+a_{21}k_1\dt + \ldots + a_{M,M-1}k_{M-1}\dt,t^n , c_2 \dt + \ldots + c_M\dt)\per
+\end{align}
+
+
+To systematically keep track of the coefficients, we introduce the Butcher table
+\begin{table}
+\label{butcher_table}
+\caption{The Butcher table.}
+\centering
+\begin{tabular}{l| c c c c c c c }
+    c$_2$ & a$_{2,1}$ & 0 & \ldots & & 0 \\
+    c$_3$ & a$_{3,1}$ & a$_{3,2}$ & 0 & \ldots & $\vdots$ \\
+    $\vdots$ & $\vdots$ & $\ddots$ & $\ddots$  \\
+    c$_M$ & a$_{M,1}$ & a$_{M,2}$ & &\ldots &a$_{M,M-1}$\\
+\hline
+\end{tabular}
+\end{table}
+
+\subsubsection{RK2, the simplest example}
+With M=2 we have
+\beq
+\label{eq:rk2}
+u^{n+1} = u^n + \dt \left(b_1 k_1 + b_2k_2\right)\com
+\eeq
+with
+\begin{align}
+k_1 &= F(u^n,t^n ) \com \nonumber \\
+k_2 &= F(u^n + a_{2,1} k_1 \dt, t^n +c_2 \dt )\per
+\end{align}
+There are four parameters $a_{2,1}$, $b_1$, $b_2$, and $c_2$. We choose these parameters to maximize the order of accuracy. 
+
 
 \end{document}
 
