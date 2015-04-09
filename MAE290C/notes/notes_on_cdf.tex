@@ -1,0 +1,130 @@
+
+\documentclass[11pt]{article}
+
+%% WRY has commented out some unused packages %%
+%% If needed, activate these by uncommenting
+\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+%\geometry{letterpaper}                   % ... or a4paper or a5paper or ... 
+\geometry{a4paper,left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+%\geometry{landscape}                % Activate for rotated page geometry
+%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+
+%for figures
+%\usepackage{graphicx}
+
+\usepackage{color}
+\definecolor{mygreen}{RGB}{28,172,0} % color values Red, Green, Blue
+\definecolor{mylilas}{RGB}{170,55,241}
+%% for graphics this one is also OK:
+\usepackage{epsfig}
+
+%% AMS mathsymbols are enabled with
+\usepackage{amssymb,amsmath}
+
+%% more options in enumerate
+\usepackage{enumerate}
+\usepackage{enumitem}
+
+%% insert code
+\usepackage{listings}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage{hyperref}
+
+%% colors
+\usepackage{graphicx,xcolor,lipsum}
+
+
+\usepackage{mathtools}
+
+\usepackage{graphicx}
+\newcommand*{\matminus}{%
+  \leavevmode
+  \hphantom{0}%
+  \llap{%
+    \settowidth{\dimen0 }{$0$}%
+    \resizebox{1.1\dimen0 }{\height}{$-$}%
+  }%
+}
+
+\title{Notes on computational fluid dynamics}
+\author{Cesar B Rocha}
+\date{\today}
+
+\begin{document}
+
+\include{mysymbols}
+
+\maketitle
+
+This are notes I've been writing for my self study as part of the class ``Computational Fluid Dynamics'' (MAE 290C), taught by Prof. Juan C. del Alamo in Winter 2015. I'm also including material beyond the class syllabus.
+
+
+I claim no originality to the content of these notes.  In particular, I'm loosely following del Alamo's class notes, and the following books
+
+\begin{itemize}
+
+    \item \textit{Spectral methods in fluid dynamics} by Canuto et al.;
+
+    \item \textit{Computational techniques in fluid dynamics} by Fletcher et al.;
+
+    \item \textit{Numerical Renaissance} by Bewley.
+
+\end{itemize}
+
+\section{Introduction}
+We will study methods for solving  the Navier-Stokes (NS) equations
+
+\beq
+\label{eq:ns}
+\p_t \vec{u} + \vec{u}\cdot \nabla \vec{u} = -\frac{\nabla p}{\rho} + \nu \lap \vec{u}\com
+\eeq
+where the laplacian is
+\beq
+\label{eq:lap_defn}
+\lap \defn \nabla \cdot \nabla
+\eeq
+The momentum equation \eqref{eq:ns} is complemented by the conservation of mass
+\beq
+\label{eq:cons_mass}
+\nabla\cdot\vec{u} = 0\per
+\eeq
+To close the system, we will also need a thermodynamic equation, which we will introduce later.
+
+The advective term $\vec{u}\cdot\nabla\vec{u}$ gives a hyperbolic flavor to the NS equations. Its quadratic non-linearity typically prohibits analytic solutions. It gives rise to fascinating phenomena like turbulence. In contrast the linear viscous term $\nu\lap\vec{u}$ gives a parabolic flavour the NS equations.
+
+\section{Temporal discretizations of the NS equations}
+We consider a one-dimensional linear version of \eqref{eq:ns}, and drop the pressure gradient term for simplicity,
+\beq
+\label{eq:oned_ns}
+\p_t u + c \,\p_x u = \nu \p_{xx}^2 u\com
+\eeq
+where $c$ is a constant speed. Fourier transforming in the $x$-direction we obtain
+\beq
+\label{eq:oned_ns_h}
+\p_t\hat{u} =\underbrace{ (-\ii c\,k + \nu k^2)}_{\defn \lambda} \hat{u}\com
+\eeq
+where $k$ is the wavenumber. \eqref{eq:oned_ns} is an eigenproblem with eigenvalue $\lambda$. Decaying solutions have $\Re\left(\lambda\right) < 0$, and numerical schemes must represent this behavior. Figure \ref{fig:eigs_nu} shows the eigenvalue as a function of $\nu$. A $\nu$ increases the real part of the eigenvalue becomes more negative, whereas for very small $\nu$ the eigenvalue are almost purely imaginary. This example illustrates one of the challenges for time marching numerical schemes. These schemes should have stability regions that comprise large negative real number and the imaginary axis. 
+
+\begin{figure}[ht]
+\begin{center}
+\includegraphics[width=19pc,angle=0]{figs/eigs_linear_1d_ns.eps}
+\end{center}
+\caption{The eigenvalue $\lambda$ as function of the parameter $\nu$ with fixed speed $c = .5$.}
+\label{fig:eigs_nu}
+\end{figure}
+
+One may be tempted to use implicit methods since they are unconditionally stable. However, from an implementation point of view, the implicit methods applied to the non-linear terms in \eqref{eq:ns} would lead to non-linear algebraic equations to be solved every time step, which can be very computationally demanded. 
+
+For the advective terms we typically use two main schemes:
+
+\begin{itemize}
+\item Multi-step (e.g. Adams-Bashfort methods);
+    \item Single-step, multiple sub-steps (e.g. Runge-Kutta methods).
+\end{itemize}
+Adams-Bashforth (AB) methods are more memory demanding, whereas Runge-Kutta (RK) schemes require more flops. The most efficient method depends on computer architecture. In recent computers memory, not CPU, is the main limitations, so we may use RK methods.
+
+\end{document}
+
+
