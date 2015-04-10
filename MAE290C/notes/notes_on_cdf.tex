@@ -129,6 +129,7 @@ Adams-Bashforth (AB) methods are more memory demanding, whereas Runge-Kutta (RK)
 \subsection{Runge-Kutta methods}
 Runge-Kutta (RK) are explicit, single-step, multi-sub-steps, schemes. The general form of an RK scheme for a non-linear equation 
 \beq
+\label{eq:gov_eqn}
 \p_t u = F(u,t)\com
 \eeq
 is
@@ -171,7 +172,56 @@ with
 k_1 &= F(u^n,t^n ) \com \nonumber \\
 k_2 &= F(u^n + a_{2,1} k_1 \dt, t^n +c_2 \dt )\per
 \end{align}
-There are four parameters $a_{2,1}$, $b_1$, $b_2$, and $c_2$. We choose these parameters to maximize the order of accuracy. 
+There are four parameters $a_{2,1}$, $b_1$, $b_2$, and $c_2$. We choose these parameters to maximize the order of accuracy of the scheme. We expand $k_2$ about $k_1$
+\beq
+\label{eq:k2_about_k1}
+k_2 = k_1 + a_{21} k_1 \dt \,\p_u F (u^n,t^n) + c_2 \dt \p_t \, F + \ord(\dt^2)\per
+\eeq
+Thus
+\beq
+\label{eq:un_rk2}
+u^{n+1} = u^n + \dt\left[(b_1 + b_2) F(u^n,t^n) + b_2 a_{2,1} \dt\, \p_u F(u^n,t^n) + b_2 c_2 \dt\, \p_t F(u^n,t^n) \right]
+\eeq
+The Taylor expansion of $u^{n+1}$ about $u^n$ is
+\begin{align}
+\label{eq:un_taylor}
+u^{n+1} = u^n + \dt& \p_t u |^n + \frac{\dt^2}{2} \p_{tt}^n u | ^n + \ord(\dt^3) =\nonumber\\ & u^n + \dt \p_t u |^n +\p_t F(u^n,t^n)+\p_u F(u^n,t^n)F(u^n,t^n) + \ord(\dt^3)  \com
+\end{align}
+where the equality follows from the governing equation \eqref{eq:gov_eqn}. Matching terms in \eqref{eq:un_taylor} and \eqref{eq:un_rk2} gives
+\beq
+\label{eq:sys_rk2}
+\begin{cases}
+b_1 + b_2 = 1; \\
+b_2 c_2 = \frac{1}{2};\\
+b_2 a_{2,1} = \frac{1}{2}.\\
+\end{cases} 
+\eeq
+The system \eqref{eq:sys_rk2} is underdetermined: there are 4 unknowns but only 3 equations. Choosing $c_2 \equiv c$ as a free parameter, we obtain
+\beq
+\label{eq:param_rk2}
+a_1 = c\com \qquad b_2 = \frac{1}{2c}\com \qqand b_1 = 1 - \frac{1}{2c}\per
+\eeq
+The parameter $c$ can be chosen to give the best accuracy. Typically $\tfrac{1}{2}\leq c\leq 1$. The linear stability is independent of $c$. For the linear problem $F = \lambda u$. Thus
+\beq
+\label{eq:stab_rk2}
+u^{n+1} = u^n \left(1 + \lambda\dt + \frac{(\lambda\dt)^2}{2}\right)\per
+\eeq
+Stability requires
+\beq
+\label{eq:stab_constraint_rk2}
+\sigma = \left|1 + \lambda\dt + \frac{(\lambda\dt)^2}{2} \right| \leq 1\per
+\eeq
+
+\begin{figure}[ht]
+\begin{center}
+\includegraphics[width=12pc,angle=0]{figs/stability_region_rk2.png}
+\includegraphics[width=12pc,angle=0]{figs/stability_region_rk3.png}
+\includegraphics[width=12pc,angle=0]{figs/stability_region_rk4.png}
+\end{center}
+\caption{Stability region for Runge-Kutta schemes.}
+\label{fig:eigs_nu}
+\end{figure}
+
 
 
 \end{document}
