@@ -1,0 +1,169 @@
+\documentclass[11pt]{article}
+
+
+%% WRY has commented out some unused packages %%
+%% If needed, activate these by uncommenting
+\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+%\geometry{letterpaper}                   % ... or a4paper or a5paper or ... 
+\geometry{a4paper,left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+%\geometry{landscape}                % Activate for rotated page geometry
+%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+
+%for figures
+%\usepackage{graphicx}
+
+\usepackage{color}
+\definecolor{mygreen}{RGB}{28,172,0} % color values Red, Green, Blue
+\definecolor{mylilas}{RGB}{170,55,241}
+%% for graphics this one is also OK:
+\usepackage{epsfig}
+
+%% AMS mathsymbols are enabled with
+\usepackage{amssymb,amsmath}
+
+%% more options in enumerate
+\usepackage{enumerate}
+\usepackage{enumitem}
+
+%% insert code
+\usepackage{listings}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage{hyperref}
+
+
+% Default fixed font does not support bold face
+\DeclareFixedFont{\ttb}{T1}{txtt}{bx}{n}{12} % for bold
+\DeclareFixedFont{\ttm}{T1}{txtt}{m}{n}{12}  % for normal
+
+% Custom colors
+\usepackage{color}
+\definecolor{deepblue}{rgb}{0,0,0.5}
+\definecolor{deepred}{rgb}{0.6,0,0}
+\definecolor{deepgreen}{rgb}{0,0.5,0}
+
+
+% Python style for highlighting
+\newcommand\pythonstyle{\lstset{
+language=Python,
+basicstyle=\ttm,
+otherkeywords={self},             % Add keywords here
+keywordstyle=\ttb\color{deepblue},
+emph={MyClass,__init__},          % Custom highlighting
+emphstyle=\ttb\color{deepred},    % Custom highlighting style
+stringstyle=\color{deepgreen},
+frame=tb,                         % Any extra options here
+showstringspaces=false            % 
+}}
+
+% Python environment
+\lstnewenvironment{python}[1][]
+{
+\pythonstyle
+\lstset{#1}
+}
+{}
+
+% Python for external files
+\newcommand\pythonexternal[2][]{{
+\pythonstyle
+\lstinputlisting[#1]{#2}}}
+
+% Python for inline
+\newcommand\pythoninline[1]{{\pythonstyle\lstinline!#1!}}
+
+%\usepackage{epstopdf}
+%\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+
+%% To save typing, create some shortcuts
+\newcommand{\ord}{\mbox{ord}}
+\newcommand{\Ai}{\mbox{Ai}}
+\newcommand{\Bi}{\mbox{Bi}}
+\newcommand{\half}{\tfrac{1}{2}}
+\newcommand{\defn}{\stackrel{\text{def}}{=}}
+%% Use Roman font for special numbers and differentials:
+\newcommand{\ii}{\mathrm{i}}
+\newcommand{\dd}{\mathrm{d}}
+\newcommand{\ee}{\mathrm{e}}
+\newcommand{\su}{\mathsf{u}}
+\newcommand{\sv}{\mathsf{v}}
+
+\newcommand{\dstar}{{\star\star}}
+\newcommand{\dt}{\Delta t}
+\newcommand{\dx}{\Delta x}
+\newcommand{\sL}{\mathsf{L}}
+
+
+\newcommand{\com}{\, ,}
+\newcommand{\per}{\, .}
+
+\newcommand{\noi}{\noindent}
+
+% space in equations
+\newcommand{\qqand}{\qquad \text{and} \qquad}
+\newcommand{\qand}{\quad \text{and} \quad}
+
+
+\def\beq{\begin{equation}}
+\def\eeq{\end{equation}}
+
+
+%% stop typing all of epsilon and delta
+\newcommand{\ep}{\ensuremath {\epsilon}}
+\newcommand{\de}{\ensuremath {\delta}}
+
+%% colors
+\usepackage{graphicx,xcolor,lipsum}
+
+
+\usepackage{mathtools}
+
+\usepackage{graphicx}
+\newcommand*{\matminus}{%
+  \leavevmode
+  \hphantom{0}%
+  \llap{%
+    \settowidth{\dimen0 }{$0$}%
+    \resizebox{1.1\dimen0 }{\height}{$-$}%
+  }%
+}
+
+
+\title{MAE29C, Homework Assignment 1}
+\author{Cesar B Rocha}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section*{Problem 1}
+The linear equation to solve is
+\beq
+\label{eq:pb1_eqn1}
+\frac{\dd u}{\dd t} = -\underbrace{\left(\ii \frac{c \pi}{\Delta x} + \frac{\nu \pi^2}{\Delta x^2}\right)}_{\defn \lambda}\,u\per
+\eeq
+The RKW3 scheme for this linear problem is
+
+\begin{align}
+u^{n+1} = u^\dstar - \lambda \dt(\alpha_3 u^\star + \beta_3 u^{n+1})\com \nonumber \\
+u^\dstar = u^\star - \lambda \dt(\alpha_2 u^\star + \beta_2 u^\dstar)\com \nonumber \\
+u^\star = u^n - \lambda \dt (\alpha_1 u^n + \beta_1 u^\star)\com
+\end{align}
+where
+\begin{align}
+\beta_1 = \frac{37}{160}\com\qquad \beta_2 = \frac{5}{24}\com\qqand \beta_3 = \frac{1}{6}\com \nonumber \\
+\alpha_1 = \frac{29}{96}\com\qquad \alpha_2 = -\frac{3}{40}\com\qqand \alpha_3 = \frac{1}{6}\per
+\end{align}
+Hence we solve the problem in the following order\begin{align}
+u^\star = \frac{1 - \lambda \alpha_1 \dt}{1+\lambda \beta_1 \dt} u^n \com\qquad u^\dstar = \frac{1 - \lambda \alpha_2 \dt}{1+\lambda \beta_2 \dt} u^\star \com\qqand u^{n+1} = \frac{1 - \lambda \alpha_3 \dt}{1+\lambda \beta_3 \dt} u^\dstar \com
+\end{align}
+where  we have to store only two variables per substep, or we can compute every substep in place. We implement this scheme to solve \eqref{eq:pb1_eqn1} with $\pi c \dt/\dx = 0.5$, and $\text{Re}_{\dx} \defn c \dx/\nu = 1$. Hence
+\beq
+\lambda\dt = \ii \frac{1}{2} + \frac{\pi}{2}\per
+\eeq
+
+
+\end{document}
+
+
