@@ -211,6 +211,17 @@ Stability requires
 \label{eq:stab_constraint_rk2}
 \sigma = \left|1 + \lambda\dt + \frac{(\lambda\dt)^2}{2} \right| \leq 1\per
 \eeq
+Along the real axis, the stability the stability constrain \eqref{eq:stab_constraint_rk2} is
+\beq
+\label{eq:stab_real_rk2}
+ 1 + \lambda_r \dt + \frac{(\lambda_r\dt)^2}{2} \leq 1\com
+\eeq
+which gives
+\beq
+-2 \leq \lambda_r \dt \leq 0\per
+\eeq
+Along the imaginary axis, the stability region only touches $\lambda_i=0$. Figure \ref{fig:stab_region} shows the linear stability region for he RK2 scheme.
+
 
 \begin{figure}[ht]
 \begin{center}
@@ -219,10 +230,129 @@ Stability requires
 \includegraphics[width=12pc,angle=0]{figs/stability_region_rk4.png}
 \end{center}
 \caption{Stability region for Runge-Kutta schemes.}
-\label{fig:eigs_nu}
+\label{fig:stab_region}
 \end{figure}
 
 
+\subsection{RK4}
+Derivation of higher-order RK schemes is straightforward but clumsy. A popular scheme is RK4
+
+\beq
+\label{rk4}
+u^{n+1} = u^n+ \frac{\dt}{6}(  k_1 + 2 k_2 + 2 k_3 + k_4)\com 
+\eeq
+where
+\begin{align}
+k_1 &= F(u^n,t^n ) \com \nonumber \\
+k_2 &= F(u^n + \half k_1 \dt, t^n + \half \dt )\com \nonumber \\
+k_3 &= F(u^n + \half k_2 \dt, t^n + \half \dt )\com \nonumber \\
+k_4 &= F(u^n + k_3 \dt, t^n + \dt )\per
+\end{align}
+This RK4 is one of my favorite time marching  schemes. It is easy to implement, and has good stability properties (see figure \ref{fig:stab_region}).
+
+\subsection{A low-storage RK3 scheme}
+
+To simply notation we write
+\beq
+\label{eq:lin_nlin}
+\p_t u = \sL(u) + \sH(u)\com
+\eeq
+where $\sL$ comprises the linear terms and $\sH$ contains the nonlinear terms. The low-storage RKW3 scheme is in the form
+
+\beq
+\label{eq:rkw3}
+u^{n+1} = u^\dstar + \dt [\sL(\alpha_3 u^\star + \beta_3 u^{n+1})] + \gamma_3 \sH(u^\dstar) + \xi_2 \sH(u^\star)\com
+\eeq
+where
+\beq
+\label{eq:rkw3_aux}
+u^\star = u^n + \dt [\sL(\alpha_1 u^n + \beta_1 u^\star) + \gamma_1 \sH(u^n)]\com
+\eeq
+and
+\beq
+\label{eq:rkw3_aux2}
+u^\dstar = u^\star + \dt [\sL(\alpha_2 u^\star + \beta_2 u^\dstar) + \gamma_2 \sH(u^\star) + \xi_1 \sH(u^n)]\com
+\eeq
+with
+\beq
+\label{eq:rkw3_gammas}
+\gamma_1 = \frac{8}{15}\com\qquad \gamma_2 = \frac{5}{12}\com \qqand \gamma_3 = \frac{3}{4}\com
+\eeq
+\beq
+\label{eq:rkw3_betas}
+\beta_1 = \frac{37}{160}\com\qquad \beta_2 = \frac{5}{24}\com\qqand \beta_3 = \frac{1}{6}\com
+\eeq
+\beq
+\label{eq:rkw3_alphas}
+\alpha_1 = \frac{29}{96}\com\qquad \alpha_2 = -\frac{3}{40}\com\qqand \alpha_3 = \frac{1}{6}\com
+\eeq
+and
+\beq
+\label{eq:rkw3_xis}
+\xi_1 = -\frac{17}{60}\com\qqand \xi_2 = -\frac{5}{12}\per
+\eeq
+
+%Here we only present the results. A popular RK3 scheme is
+%\beq
+%\label{rk3}
+%u^{n+1} = u^n+ \dt(b_1  k_1 + b_2 k_2 + b_3 k_3)\com 
+%\eeq
+%where
+%\begin{align}
+%k_1 &= F(u^n,t^n ) \com \nonumber \\
+%k_2 &= F(u^n + a_{2,1} k_1 \dt, t^n +c_2 \dt )\com \nonumber \\
+%    k_3 &= F(u^n + a_{2,1} k_1 \dt + a_{3,1} k_1 \dt + a_{3,2} k_2 \dt + , t^n +c_2 \dt + c_3 \dt)\com
+%\end{align}
+%with
+%\beq
+%b_1=\frac{1}{4}\com \qquad b_2 = 0\com\qqand b_3 = \frac{3}{4}\com
+%\eeq
+%and
+%\beq
+%a_{2,1} = \frac{8}{15} \com\qquad a_{3,1} = \frac{1}{4}\com \qqand a_{3,2} = \frac{5}{12}\com
+%\eeq
+%and
+%\beq
+%c_2 = \frac{8}{15} \qqand c_3 = \frac{2}{3}\per
+%\eeq
+
+\section{$\theta$-schemes}
+For the linear viscous terms, it is customary to use implicit schemes. The $\theta$-schemes avoid rapid oscillations for large $\lambda \dt$, while Crank-Nicolson's second-order. These schemes have the form
+\beq
+\label{eq:th_schemes}
+u^{n+1} = \dt [(1-\theta)F^n + \theta F^{n+1}]\per
+\eeq
+Notice that CN  is recovered with $\theta = \tfrac{1}{2}$, and implicit Euler is obtain with $\theta = 1$. Typically $\tfrac{1}{2}\leq\theta\leq 1$. 
+
+\subsection*{Linear stability}
+The growth factor is
+\beq
+\label{eq:lin_stab_th}
+\sigma = \frac{1 + (1-\theta)\lambda \dt}{1 - \theta \lambda \dt} \per
+\eeq
+Thus
+\beq
+\lim_{\lambda\dt\to-\infty} \sigma = -\frac{1-\theta}{\theta} \leq 1 \per
+\eeq
+With $\theta = \tfrac{3}{4}$, the limit above is $-\tfrac{1}{3}$, a third of CN's limit. 
+
+\subsection*{Order of accuracy}
+From the $\theta$-scheme we have
+\beq
+\frac{u^{n+1}}{u^n} = 1 + \lambda\dt + \theta \lambda^2 \dt^2 + \mathcal{O}(\lambda^3\dt^3).
+\eeq
+Comparing with the expansion for the exponential $\ee^{\lambda t}$, we conclude that
+\beq
+\text{Err}_\theta \sim \left(\frac{1}{2}-\theta\right)(\lambda \dt)^2\per 
+\eeq
+With $\theta = \tfrac{3}{4}$ the error is
+\beq
+\text{Err}_{3/4} \sim \frac{1}{4}(\lambda \dt)^2\com
+\eeq
+which is half of the error of the implicit Euler scheme.
+
+% Spectral methods
+\section{Spectral methods}
 
 \end{document}
 
