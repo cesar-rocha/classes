@@ -411,9 +411,112 @@ The coefficient $\hat{u}_n$ is then found by projection of the true solution on 
 \end{tabular}
 \end{table}
 
+\end{enumerate}
+
+\subsection*{Fourier spectral methods}
+We will focus on the most used class of methods, namely the Fourier spectral methods. In Fourier methods, the set $\{\sb_n\}$ is formed by complex exponentials $\{\exp(\ii \kappa_n x_j)\}$ where
+\beq
+\label{eq:eigs_fourier}
+\kappa_n \defn \frac{2\pi n}{L}\com\qquad n = -\frac{\nmax}{2}\com-\frac{\nmax}{2}+1\com\ldots\com\frac{\nmax}{2}-2\com-\frac{\nmax}{2}-1\per
+\eeq
+The inverse transform is defined by a truncated Fourier series
+\beq
+\label{eq:idft}
+u(x_j) = \sum_{n=-\nmax/2}^{\nmax/2-1}\!\!\! \hat{u}_n\,\ee^{\ii \kappa_n x_j}\com
+\eeq
+where $\hat{u}_n$ is the $n$'th Fourier coefficient, which is generally complex-valued. Notice that the series \eqref{eq:idft} implies that $u$ is periodic with period $L$
+\beq
+\label{eq:idft}
+u\left(-\tfrac{L}{2}\right) = u\left(\tfrac{L}{2}\right)\per
+\eeq
+The discrete Fourier transform (DFT) as
+\beq
+\label{eq:dft}
+\hat{u}_n = \frac{1}{\nmax} \sum_{j=-\nmax/2}^{\nmax/2-1}\!\! u_j \ee^{-\ii \kappa_n x_j}\per
+\eeq
+We emphasize that one should sum only up to $\nmax/2-1$ since the $u$ is periodic, so that the data at $x_{\nmax/2}$ add no information to the problem.
+
+
+\subsubsection*{Properties of the DFT}
+The discrete Fourier pair \eqref{eq:idft}-\eqref{eq:dft} satisfy the desired properties discussed above. This is the reason for the popularity of Fourier methods. The set $\{\exp(\ii \kappa_n x_j)\}$ forms a complete orthogonal basis on any interval of size $L$ (e.g. $[0,L]$, $[-L/2,L/2]$, etc). Moreover, there exists the FFT algorithm performs the DFT very efficiently. In particular, the FFTW implementation in Fortran and C is very popular.  A summary of important properties is
+
+\begin{enumerate}
+    \item As mentioned above the complex exponential are orthogonal with respect to the simplest inner product
+        \beq
+            \label{eq:orthogonality}
+            <\ee^{\ii \kappa_n x}\ee^{\ii \kappa_m x }> \defn \frac{1}{L}\int_{0}^{L}\ee^{\ii \kappa_n x}\ee^{\ii \kappa_m x } \dd x = \delta_{mn}\per
+        \eeq
+    \item The function $u$ is periodic with period $L$
+        \beq
+            \label{eq:periodicity_phys}
+            u(0) =  \sum_{n=-\nmax/2}^{\nmax/2-1}\!\!\! \hat{u}_n\ee^{\ii \kappa_n\times 0} =  \sum_{n=-\nmax/2}^{\nmax/2-1}\!\!\! \hat{u}_n \ee^{\ii \kappa_n \times L} =  u(L) 
+        \eeq
+
+    \item The Fourier coefficients are periodic with period $\nmax$
+        \beq
+        \label{eq:periodicity_spec}
+        \hat{u}_{n+\nmax} = \frac{1}{\nmax} \sum_{j=-\nmax/2}^{\nmax/2-1}\!\! u_j \ee^{-\ii\, \frac{2\pi}{L}(n+\nmax) \frac{j\, L}{\nmax}} = \frac{1}{\nmax} \sum_{j=-\nmax/2}^{\nmax/2-1}\!\! u_j \ee^{-\ii \,2\pi \frac{n\,j}{\nmax}} = \hat{u}_n \per
+        \eeq
+
+
+    \item The zeroth mode represents the average of the function. With $\kappa_0 = 0$, we have
+        \beq
+            \label{eq:zeroth}
+            \hat{u}_0 = \frac{1}{\nmax}\sum_{j=-\nmax/2}^{\nmax}\!\! u_j\per
+        \eeq
+        Note that some implementations of the DFT do not divide by $\nmax$ in the definition \eqref{eq:idft}. This is simply a matter of definition; one must alway check DocStrings and algorithm manuals to make sure which convention in being used.
 
 \end{enumerate}
-    
+   
+\subsubsection*{Truncation error, aliasing, and other potential problems}
+The definition of the inverse DFT assumes that $u$ has nice properties such as continuity of the function and its derivatives. It the function is discontinuous, then Gibbs oscillation might be introduce Gibbs oscillation, which amount for a $10\%$ error near the discontinuities. The rapid Gibss oscillations can be significantly reduced by using filters.   
+
+A potential problem in spectral methods is aliasing of unresolved high-frequency modes. These modes alias back into low-frequency modes. For linear problems this is not an issue provided that the initial conditions do not contain unresolved high-frequency content. For non-linear problems, such as the NS equations, high-frequency modes are introduced every time step.
+
+\subsubsection*{Parseval's theorem}
+The Parseval's relation essentially says that the total energy in physical space is equal to the total energy in Fourier space
+\beq
+\label{eq:parseval}
+\sum_{j=0}^{\nmax-1} u_ju_j^* = \nmax \sum_{n=-\nmax/2}^{\nmax/2-1}\!\! \frac{|\hat{u}_n|^2}{2}\per
+\eeq
+The proof of this relationship is simple. We introduce the inverse DFT definition \eqref{eq:idft} into \eqref{eq:parseval}
+\begin{align}
+\label{eq:parseval_1}
+\sum_{j=0}^{\nmax-1} u_ju_j^* &= \sum_{j=0}^{\nmax-1} \left( \sum_{n=-\nmax/2}^{\nmax/2-1}\hat{u}_n \ee^{\ii \kappa_n x_j} \right) \left( \sum_{m=-\nmax/2}^{\nmax/2-1}\hat{u}_m^* \ee^{-\ii \kappa_m x_j} \right) \nonumber\\
+                              & =\sum_{n=-\nmax/2}^{\nmax/2-1}\sum_{m=-\nmax/2}^{\nmax/2-1}\hat{u}_n \hat{u}_m^*\underbrace{\left(\sum_{j=0}^{\nmax-1} \ee^{\ii(\kappa_n -\kappa_m)x_j}\right)}_{= \nmax \delta_{nm}}\per
+\end{align}
+
+
+\subsubsection*{Truncation error}
+To study the truncation error associated with a finite $\nmax$ in \eqref{eq:idft} we consider the true solution
+\beq
+\label{eq:ift}
+u_e = \sum_{n=-\infty}^{\infty}\! \tilde{u}_n \ee^{\ii \kappa_n x_j}\com
+\eeq
+where the Fourier coefficient is
+\beq
+\label{eq:ft}
+\tilde{u}_n = \frac{1}{L}\int_0^{L}\! u_e(x)\ee^{\ii \kappa_n x}\per
+\eeq
+Notice that, by aliasing, we have
+\beq
+\label{eq:uhat_alias}
+\hat{u}_n = \tilde{u}_n + \sum_{m=-\infty}^{\infty} \tilde{u}_{n+m\nmax}\per
+\eeq
+Thus
+\beq
+\label{eq:idft_2}
+u_j = \sum_{n=-\nmax/2}^{\nmax/2-1}\left(\tilde{u}_n + \sum_{m=-\infty}^{\infty}\tilde{u}_{n+m\nmax}\right)\ee^{\ii \kappa_n x_j}\com
+\eeq
+and the $L_2$-norm of the error is
+\beq
+\label{eq:error_idft}
+\frac{1}{L} \int_0^{L}\left|u_e(x)- \sum_{n=-\nmax/2}^{\nmax/2-1}\!\!\! \hat{u}_n\,\ee^{\ii \kappa_n x_j}\right|^2 \dd x = \underbrace{\sum_{|n|>\nmax/2} |\tilde{u}_n|^2}_{\text{truncation error}} + \underbrace{\sum_{-n=\nmax/2}^{\nmax/2-1}\left| \sum_{m=-\infty}^{\infty}\tilde{u}_{n+m\nmax}\right|^2}_{\text{aliasing error}}\per
+\eeq
+
+\subsubsection*{Convergence of the inverse DFT}
+
+
 \end{document}
 
 
