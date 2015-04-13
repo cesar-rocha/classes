@@ -130,7 +130,7 @@ showstringspaces=false            %
 }
 
 
-\title{MAE29C, Homework Assignment 1}
+\title{MAE290C, Homework Assignment 1}
 \author{Cesar B Rocha}
 \date{\today}
 
@@ -143,6 +143,8 @@ The linear equation to solve is
 \label{eq:pb1_eqn1}
 \frac{\dd u}{\dd t} = -\underbrace{\left(\ii \frac{c \pi}{\Delta x} + \frac{\nu \pi^2}{\Delta x^2}\right)}_{\defn \lambda}\,u\per
 \eeq
+
+\subsection*{Set up}
 The RKW3 scheme for this linear problem is
 
 \begin{align}
@@ -156,13 +158,342 @@ where
 \alpha_1 = \frac{29}{96}\com\qquad \alpha_2 = -\frac{3}{40}\com\qqand \alpha_3 = \frac{1}{6}\per
 \end{align}
 Hence we solve the problem in the following order\begin{align}
-u^\star = \frac{1 - \lambda \alpha_1 \dt}{1+\lambda \beta_1 \dt} u^n \com\qquad u^\dstar = \frac{1 - \lambda \alpha_2 \dt}{1+\lambda \beta_2 \dt} u^\star \com\qqand u^{n+1} = \frac{1 - \lambda \alpha_3 \dt}{1+\lambda \beta_3 \dt} u^\dstar \com
+u^\star = \frac{1 -  \alpha_1 \lambda\dt}{1+ \beta_1 \lambda\dt} u^n \com\qquad u^\dstar = \frac{1 -  \alpha_2 \lambda\dt}{1+\beta_2\lambda  \dt} u^\star \com\qqand u^{n+1} = \frac{1 - \alpha_3 \lambda \dt}{1+\beta_3 \lambda \dt} u^\dstar \com
 \end{align}
-where  we have to store only two variables per substep, or we can compute every substep in place. We implement this scheme to solve \eqref{eq:pb1_eqn1} with $\pi c \dt/\dx = 0.5$, and $\text{Re}_{\dx} \defn c \dx/\nu = 1$. Hence
+where  we have to store only two variables per substep, or we can compute every substep in place.
+
+\subsection*{Exact solution}
+For this simple problem we have the exact solution
 \beq
-\lambda\dt = \ii \frac{1}{2} + \frac{\pi}{2}\per
+u_e (t) = \ee^{-\lambda t}\com
+\eeq
+where for the given fixed parameters
+\beq
+\pi c \dt/\dx = 0.5\com\qqand \text{Re}_{\dx} \defn c \dx/\nu = 1\com
+\eeq
+we have
+\beq
+\label{eq:lamdt}
+\lambda\dt = \frac{1}{2} \left( \pi + \ii \right)\com\qquad \text{or}\qquad \lambda = \frac{1}{2\dt}\left(\pi + \ii\right)\per
+\eeq
+Notice that $u$ is complex-value. Its real part gives an exponential decay, whereas its complex part is associated with phase changes.
+
+\subsection*{Numerical solution}
+We implement this scheme to solve \eqref{eq:pb1_eqn1} with \eqref{eq:lamdt} in Fortran 90. We choose $\dt = 0.5$, and also compute the exact solution for reference. Figure \ref{fig:pb1} shows the magnitude and phase of solutions  of the solutions. For the given parameters, the solution decays very fast for $t<2$. At $t=0$ the solution magnitude is almost zero within machine double precision. The numerical scheme solves the magnitude very accurately: the relative root-mean-square difference is about $2\%$. However, the is a significant phase error. This error in phase increases with time. 
+
+\begin{figure}[ht]
+\begin{center}
+\includegraphics[width=15pc,angle=0]{pb1_mag.png}
+\includegraphics[width=15pc,angle=0]{pb1_phase.png}
+\end{center}
+\caption{A comparison between the numerical solution to \eqref{eq:pb1_eqn1} using the RKW3 scheme against the exact solution. The inset shows a zoom-in for $t<2$. Notice that the numerical solution captures the magnitude very accurately, but not the phase.}
+\label{fig:pb1}
+\end{figure}
+
+
+\begin{lstlisting}
+program pb1
+
+    ! MAE 290C, Homework 1
+    ! Cesar B Rocha, crocha@ucsd.edu
+
+    implicit none
+    real (kind=8) :: u0,dt,pi,tmax,t
+    complex (kind=16) :: lamdt,u,ue,ii
+    integer :: nmax,n
+    logical :: debug
+
+    ! flags
+    debug = .true.
+
+    ! set up output file
+    open(unit=12, file="aoutput.txt", action="write", status="replace")
+
+    ! pi
+    pi = acos(-1.d0)
+
+    ! time-related parameters
+    dt = .5
+    tmax = 10.d0
+    nmax = ceiling(tmax/dt)
+
+    ! complex constants
+    ii = cmplx(0.d0,1.d0)
+    lamdt = cmplx(pi/2.d0,0.5d0)
+
+    if (debug) then
+        print 11, dt, nmax
+        11 format("dt=",f25.15,", nmax=", i10)
+    endif
+
+    ! initialize variables
+    t = 0.d0
+    u0 = 1.d0
+    u = cmplx(u0,0.d0)
+    ue =  exp(-n*lamdt)
+
+    write(12,*)  "#time          real(ue)      imag(ue)      real(u)        imag(u)"
+    write(12,*) t,real(ue),aimag(ue),real(u),aimag(u)
+
+    do n=1,nmax
+        t = t+dt
+        call stepforward(u,lamdt)
+        ue = exp(-n*lamdt)
+        write(12,*) t,real(ue),aimag(ue),real(u),aimag(u)
+    enddo
+
+end program pb1
+
+!------------------------------------------------------------
+! subroutine to step forward using RKW3
+!------------------------------------------------------------
+
+subroutine stepforward(u,lamdt)
+
+    implicit none
+
+    ! subroutine arguments
+    complex (kind=16), intent(in) :: lamdt
+    complex (kind=16), intent(inout) :: u
+
+    ! local variables
+    real (kind=8), parameter :: a1 = 29.d0/96.d0, a2 = -3.d0/40.d0, & 
+                                    a3 = 1.d0/6.d0
+    real (kind=8), parameter :: b1 = 37.d0/160.d0, b2 = 5.d0/24.d0, & 
+                                    b3 = 1.d0/6.d0
+
+    ! step forward, computing updates in place
+    u = ( (1.d0-lamdt*a1)/(1.d0 + lamdt*b1) )*u 
+    u = ( (1.d0-lamdt*a2)/(1.d0 + lamdt*b2) )*u 
+    u = ( (1.d0-lamdt*a3)/(1.d0 + lamdt*b3) )*u 
+
+end subroutine stepforward
+\end{lstlisting}
+
+
+\section*{Problem 2}
+The initial value problem to solve is
+\beq
+\label{eq:pb2_eqn}
+\frac{\dd u}{\dd t} = - u^n\com \qquad \text{with} \qquad u(0) =1\com
+\eeq
+where $n\ge1$ is a natural number.
+
+\subsection*{Exact solution}
+The exact solution consistent with the initial condition is
+\beq
+u_{e}(t) = \ee^{-t}\com\qqand n=1\com
+\eeq
+and
+\beq
+u_e(t) = \frac{1}{[1 +(n-1)t]^{1/(n-1)}}\com\qqand n>1 \per
 \eeq
 
+\subsection*{Numerical solution}
+A RK2 scheme, corresponding to choosing $c=1$ in our class notes, is
+\beq
+\label{eq:rk2}
+u_{i+1} = u_i + \frac{\dt}{2} \left(b_1 k_1 + b_2 k_2\right)\com
+\eeq
+with
+\begin{align}
+    k_1 =  u_i^n \com\qqand k_2 =  (u_i + \dt\, a_{2,1} k_1)^n\com
+\end{align}
+where the subscript $i$ denotes the $i$'th time step, whereas the superscript $n$ denotes power of $n$ as in the exact problem \eqref{eq:pb2_eqn}. Also the constants are
+\beq
+\label{eq:param_rk2}
+a_{2,1} = c\com \qquad b_2 = \frac{1}{2c}\com \qqand b_1 = 1 - \frac{1}{2c}\com
+\eeq
+where $c$ is a free parameter. A measure of the absolute error in the numerical solutions can be defined as the square-root of the $L_2$-norm of the difference to the exact solution:
+\beq
+\label{eq:error_defn}
+\text{Err}(c) = \sqrt{\int_0^{t_{max}}\!\!\! [u_e(t)-u_{rk}(c,t)]^2\dd t}\per
+\eeq
+We evaluate the integral in \eqref{eq:error_defn} using the trapezoidal rule.
+
+Figure \ref{fig:pb2_1} shows an example of solutions to \eqref{eq:pb2_eqn}. The numerical solution using RK2 scheme performs very well; there is no visual distinction between exact and numerical solutions. Solutions with other values of $c$ are essentially equal to the solution in Figure \ref{fig:pb2_1} ($c=1$). Indeed, the error in the numerical solution is nearly independent of the value of the free parameter $c$; from $n=.1$ through $c=5$ the error increases by less than $1\%$.
+
+\begin{figure}[ht]
+\begin{center}
+\includegraphics[width=15pc,angle=0]{pb2/pb2_100.png}
+\end{center}
+\caption{Solution to \eqref{eq:pb2_eqn}  for values of n from $1$ through $5$. The solid thick lines are the exact solutions, and the dashed lines the numerical solutions using a RK2 scheme with $c=2$.}
+\label{fig:pb2_1}
+\end{figure}
+
+\begin{figure}[ht]
+\begin{center}
+\includegraphics[width=25pc,angle=0]{pb2/pb2_error.png}
+\end{center}
+\caption{Error in numerical solution to \eqref{eq:pb2_eqn} as a function of the free parameter $c$.}
+\label{fig:pb2_error}
+\end{figure}
+
+\begin{lstlisting}
+program pb2
+
+    ! MAE 290C, Homework 1, Problem 2
+    ! Cesar B Rocha, crocha@ucsd.edu
+
+    implicit none
+
+    real (kind=8) :: ue, urk, t, err, tmax, c(6)
+    real (kind=8), parameter :: dt = 0.001, u0=1.d0
+    integer :: n, k, kmax, nmax,i
+    logical :: debug
+    character (1) :: ns
+    character (2) :: cs2
+    character (3) :: cs3
+    character (30) :: fno
+
+    ! flags
+    debug = .true.
+
+    ! time
+    tmax = 5.d0
+    kmax = ceiling(tmax/dt)
+
+    ! free parameter
+    c = (/.10d0,0.25d0,0.5d0,0.75d0,1.d0,5.d0/)
+
+    ! max power
+    nmax = 5
+
+    do i=1,size(c)
+
+        do n=1,nmax
+
+            ! set up output file
+            write (ns,"(i1)") n
+            if (c(i)<1.d0) then
+                write (cs2,"(i2)") ceiling(c(i)*100)
+                fno = 'output/pb2_'//ns//'_0'//cs2//'.out'
+            else
+                write (cs3,"(i3)") ceiling(c(i)*100)
+                fno = 'output/pb2_'//ns//'_'//cs3//'.out'
+
+            endif
+            
+            !print *,fno
+            open(unit=12, file=fno, action="write", status="replace")
+
+            ! initialize variable
+            t = 0.d0
+            ue = u0
+            urk = u0
+
+            do k=1,kmax
+
+                write(12,*) t,ue,urk
+                !print *, t,ue,urk
+            
+                ! update ue and uk
+                call exact(ue,t,n)
+                call stepforward_rk2(urk,dt,c(i),n)
+
+                ! update time
+                t = t + dt
+
+            enddo
+
+        enddo
+
+    enddo
+
+end program pb2
+
+!-------------------------------------------------
+! subroutines 
+!-------------------------------------------------
+
+! calculate the exact soln
+subroutine exact(ue,t,n)
+
+    implicit none
+    
+    ! subroutine arguments
+    real (kind=8), intent(in) :: t
+    real (kind=8), intent(inout) :: ue
+    integer, intent(in) :: n
+        
+    if (n==1) then
+        ue = exp(-t)
+    else
+        ue = 1.d0 / ( (1 + (n-1)*t)**(1.d0/(n-1)) )
+    endif
+
+end subroutine exact
+
+! step forward using RKW2
+subroutine stepforward_rk2(urk,dt,c,n)
+
+    implicit none
+
+    ! subroutine arguments
+    real (kind=8), intent(in) :: c, dt
+    real (kind=8), intent(inout) :: urk
+    integer, intent(in) :: n
+
+    ! local variables
+    real (kind=8) :: a21, b1, b2, k1, k2
+    
+    ! compute parameters given c
+    a21 = c
+
+    b2 = 1.d0/2.d0/c
+    b1 = 1.d0 - 1.d0/2.d0/c
+
+    k1 = -(urk**n)
+    k2 = -( (urk + dt*a21*k1)**n )
+
+    ! update urk in place
+    urk = urk + dt*(b1*k1 + b2*k2)
+
+end subroutine stepforward_rk2
+\end{lstlisting}
+
+
+\section*{Problem 3}
+The problem to solve is
+\beq
+\label{eq:pb3_eqn}
+\frac{\dd u}{\dd t} = \underbrace{\frac{\nu \pi^2}{\dx^2}}_{\defn \lambda} u\com
+\eeq
+with $u(0)=1$.
+\subsection*{Exact solution}
+The exact solution is
+\beq
+u_e = \ee^{\lambda t}\per
+\eeq
+\subsection*{Numerical solution}
+The solution using a $\theta$-scheme is
+\beq
+\label{eq:th_soln}
+u^{n+1} = u^n +  \lambda \dt [(1-\theta) u^n + \theta u^{n+1}]\per
+\eeq
+Hence
+\beq
+\label{eq:th_soln2}
+u^{n+1} = \frac{1 + \lambda \dt (1-\theta)}{1-\lambda \dt \, \theta}\,u^n\per
+\eeq
+Implicit Euler is recovered with $\theta=1$, and Crank-Nicolson uses $\theta=1/2$. We implement this scheme in Fortran 90 to solve \eqref{eq:pb3_eqn} with $\lambda \dt = -0.1,-0.5,-1.0,-2.0,-4.0,-8.0$.
+
+Before we even start to analyze the results, we anticipate problems with the numerical schemes to particular values of $\lambda \dt$. With $\lambda \dt = -2$ the numerical solutions \eqref{eq:th_soln2}  is identically zero for the Crank-Nilcolson scheme ($\theta = 1/2$); for this combination of parameter the nominator on the right of \eqref{eq:th_soln2} is identically zero, which is obviously inaccurate. Similarly, with $\lambda \dt = -4$ the numerical solutions identically zero for the $\theta = 3/4$ scheme. These are pathologies of the numeric solution for these specific parameters.
+
+Crank-Nicolson perform better for $|\lambda \dt| < 1$ (see figure \ref{fig:pb3}). This is because Crank-Nicolson is second-order accuracy, as opposed to the first-order accurate implicit Euler scheme; the error of the $\theta=3/4$ has is half of the error of the Implicit Euler scheme. For   $|\lambda \dt| > 2$, Crank-Nicolson become inaccurate. This is expected because, for Crank-Nicolson, we have
+\beq
+\frac{u^{n+1}}{u^n} = \frac{1+\lambda \dt}{1-\lambda \dt}\per
+\eeq
+For large negative $\lambda \dt$ the growth factor above approached -1. Hence, the solution oscillated between positive and negative values, a behavior absent in the exact solution. Thus, Crank-Nicolson becomes qualitatively misleading for large $|\lambda \dt|$. For these parameter, the $\theta=3/4$ scheme outperforms Crank-Nilcolson (see the last two panel in figure \ref{fig:pb3}). 
+
+\begin{figure}[ht]
+\begin{center}
+\includegraphics[width=12pc,angle=0]{pb3/pb3_01.png}\includegraphics[width=12pc,angle=0]{pb3/pb3_05.png}\includegraphics[width=12pc,angle=0]{pb3/pb3_10.png}
+\includegraphics[width=12pc,angle=0]{pb3/pb3_20.png}\includegraphics[width=12pc,angle=0]{pb3/pb3_40.png}\includegraphics[width=12pc,angle=0]{pb3/pb3_80.png}
+\end{center}
+\caption{A comparison of different implicit schemes for solving \eqref{eq:pb3_eqn} for 10 time-steps with $\dt=0.01$ and various values of $\lambda \dt$. Also shown is the exact solution (blue line) evaluated at the discrete time-steps.}
+\label{fig:pb3}
+\end{figure}
 
 \end{document}
 
