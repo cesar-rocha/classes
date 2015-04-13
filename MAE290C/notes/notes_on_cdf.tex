@@ -199,7 +199,7 @@ b_2 a_{2,1} = \frac{1}{2}.\\
 The system \eqref{eq:sys_rk2} is underdetermined: there are 4 unknowns but only 3 equations. Choosing $c_2 \equiv c$ as a free parameter, we obtain
 \beq
 \label{eq:param_rk2}
-a_1 = c\com \qquad b_2 = \frac{1}{2c}\com \qqand b_1 = 1 - \frac{1}{2c}\per
+a_{2,1} = c\com \qquad b_2 = \frac{1}{2c}\com \qqand b_1 = 1 - \frac{1}{2c}\per
 \eeq
 The parameter $c$ can be chosen to give the best accuracy. Typically $\tfrac{1}{2}\leq c\leq 1$. The linear stability is independent of $c$. For the linear problem $F = \lambda u$. Thus
 \beq
@@ -320,7 +320,7 @@ and
 For the linear viscous terms, it is customary to use implicit schemes. The $\theta$-schemes avoid rapid oscillations for large $\lambda \dt$, while Crank-Nicolson's second-order. These schemes have the form
 \beq
 \label{eq:th_schemes}
-u^{n+1} = \dt [(1-\theta)F^n + \theta F^{n+1}]\per
+u^{n+1} = u^n + \dt [(1-\theta)F^n + \theta F^{n+1}]\per
 \eeq
 Notice that CN  is recovered with $\theta = \tfrac{1}{2}$, and implicit Euler is obtain with $\theta = 1$. Typically $\tfrac{1}{2}\leq\theta\leq 1$. 
 
@@ -353,7 +353,67 @@ which is half of the error of the implicit Euler scheme.
 
 % Spectral methods
 \section{Spectral methods}
+Spectral methods are the golden choice for numerical methods. In problems with simple geometry we express the solution as a linear combination of basis functions
+\beq
+\label{eq:lin_comb_basis}
+u(x_j,t) = \sum_{n=1}^\nmax \hat{u}_n(t) \sb_n(x_j)\com
+\eeq
+where $b_n(x)$ is the $n$'th basis function. A few desired properties for the basis are
 
+\begin{enumerate}
+
+        
+\item Orthogonality 
+    \subitem This property ensures accuracy. The basis formed by the set $\{b_n\}$ usually derives from a Sturm-Liouville problem on the domain of interest. The basis functions are typically orthogonal with respect to an inner product $<>$:
+\beq
+\label{eq:orthogonality}
+<\sb_n\,\sb_m> = \alpha_{mn}\,\delta_{mn}\com
+\eeq
+where $\delta$ is the Kronecker delta, and $\alpha$ is a normalization constant, usually taken to be 1.
+
+The coefficient $\hat{u}_n$ is then found by projection of the true solution on the $n$'th basis function:
+\beq
+\label{eq:projec}
+\hat{u_p} = <\sb_p\,u(x,t)>\per
+\eeq
+
+\item Derivatives are known analytically
+    \subitem This property allows easy computation of derivatives, e.g.
+    \beq
+        \label{eq:deriv_basis}
+        \p_x u(x_j,t) = \sum_{n=1}^\nmax \hat{u}_n \p_x \sb_n\per
+    \eeq
+    We assume that the series for the derivative converges within the domain. This is always the case when $u(x,t)$ is periodic and sufficiently smooth within the domain. If $u(x,t)$ has cornes, discontinuities, etc differentiating term-by-term may result in a nonconvergent series. We will return to this issue later.
+
+\item A computational efficient way to transform form the physical domain to the spectral domain.
+    \subitem We should be able to easily and efficiently compute $u$ form $\hat{u}_n$, and vice-versa. An example of transform is
+    \beq
+        \label{eq:ex_transform}
+        \hat{u}_n(t) = \frac{1}{\nmax} \sum_{j=1}^{\nmax-1} u(x_j,t) \sb_n(x_j)\com
+    \eeq
+    Evaluation of the sum in above requires $\mathcal{O}(\nmax)$ operations for every $n$. Thus the cost of the transform is  $\mathcal{O}(\nmax^2)$. For a spectral method to be efficient we should be able to come up with algorithms that reduce this cost, and that can be implemented in parallel. For instance, the celebrated Fast Fourier Transform (FFT)
+    reduces this cost to $\mathcal{O}(\nmax \log_2 \nmax)$. This results in a significant reduction of number of operations for large $\nmax$ (see table \ref{tab:nlogn}). For instance, for $\nmax=256$ this results in a saving of $\sim80\%$! Turbulence simulations would not be possible without the  FFT.
+
+\begin{table}
+\label{tab:nlogn}
+\caption{A comparison of $\nmax^2$ versus $5\nmax\log_2\nmax$}
+\centering
+\begin{tabular}{l| c c }
+    $\nmax$ & $5 \nmax\log_2\nmax$ & $\nmax$ \\
+    \hline
+    8 & 120 & 64 \\
+    16 & 320 & 256\\
+    32 & 800 & 1024\\
+    64 & 1920 & 4096\\
+    128 & 4480 & 16384\\
+    256 & 10240 & 65536\\
+\hline
+\end{tabular}
+\end{table}
+
+
+\end{enumerate}
+    
 \end{document}
 
 
