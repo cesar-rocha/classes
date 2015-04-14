@@ -58,7 +58,7 @@
 
 \maketitle
 
-This are notes I've been writing for my self study as part of the class ``Turbulence and Mixing'' (MAE 214A), taught by Prof. Sutanu Sarkar at UC San Diego. The class covers essentially homogeneous three-dimensional turbulence but I'm also self-studying two-dimensional and quasi-two-dimensional turbulence. 
+This are notes I've been writing for my self study as part of the class ``Turbulence and Mixing'' (MAE 214A), taught by Prof. Sutanu Sarkar in Winter 2015. The class covers essentially homogeneous three-dimensional turbulence but I'm also self-studying two-dimensional and quasi-two-dimensional turbulence. 
 
 I claim no originality to the content of these notes.  In particular, I'm loosely following Sutanu's class notes, and the following books and notes
 
@@ -80,7 +80,7 @@ I claim no originality to the content of these notes.  In particular, I'm loosel
 
 \subsection{What is turbulence?}
 
-Turbulence is certainly a field in which the maxims ``To define it is to limit it'' is valid. Indeed, we must avoid the temptation of formally defining turbulence. Instead, we shall collect some characteristics common to turbulent flows
+Turbulence is certainly a field in which the maxims ``To define it is to limit it'' is valid. Indeed, we must avoid the temptation of formally defining turbulence. Instead, we shall collect some characteristics common to turbulent flows:
 
 \begin{enumerate}
 
@@ -134,7 +134,78 @@ Applications of turbulence studies are every where. Here are some examples
 \section{The Navier-Stokes Equations}
 We will typically use index notation since its compact and shrinks the algebra. We will eventually rewrite some terms in vector notation to facilitate physical interpretation. Throughout we use summation convention: when two repeated indices appear together, summation over that index in implied unless otherwise stated. 
 
+The momentum equation is
+\beq
+\label{eq:momentum}
+\p_t u_i + u_j\p_{x_j} u_i = \rho^{-1} \p_{x_j} \sigma_{ij}\com
+\eeq
+where the stress tensor is given by
+\beq
+\label{eq:stress}
+\sigma_{ij} = -p \delta_{ij} + 2\mu \,s_{ij}\com
+\eeq
+with $p$ the thermodynamic pressure, and the stain rate
+\beq
+\label{eq:strain}
+s_{ij} = \frac{1}{2}\left(\p_{x_j}u_i + \p_{x_i}u_j\right)\per
+\eeq
+Also in \eqref{eq:stress} $\mu$ is the dynamic viscosity.  Thus, the more usual form of the NS equations is
+\beq
+\label{eq:ns_momentum}
+\p_t u_i + u_j\p_{x_j} u_i = \rho^{-1} \p_{x_j} p + \nu \p_{x_j}\p_{x_i} u_i\com
+\eeq
+where $\nu \defn \mu/\rho$ is the kinematic viscosity. We will deal with incompressible fluids. Thus the mass conservation reduces to the solenoidal condition
+\beq
+\label{eq:mass}
+\p_{x_j} u_j = 0\per
+\eeq
+With \eqref{eq:mass} we note that then nonlinear advective term can be rewritten as 
+\beq
+\label{eq:reynolds_decomp}
+u_j \p_{x_j} u_i = \p_{x_j} (u_i u_j) \per
+\eeq
+
+
+\subsection*{Reynolds decomposition}
+We introduce the decomposition
+\beq
+\label{eq:decomp}
+u_i = U_i + u'_i\com
+\eeq
+where the mean velocity is
+\beq
+\label{eq:mean_u}
+U_i = <u_i>  \defn \frac{1}{T}\int_0^T u_i \dd t\com
+\eeq
+with the arbitrary period $T$. Defining a good average is an art. Sometimes it is better to think in terms of ensemble mean. Notice that by definition $<u'_i> = 0$
+
+We introduce similar decompositions for the pressure. The idea is to introduce the decomposition \eqref{eq:decomp} into  the NS equations, and average over time. The linear terms are easy. For instance, mass conservations gives
+\beq
+\label{eq:mass_avg}
+\p_{x_j} U_j = 0\com\qqand \p_{x_j} u_j = 0\per
+\eeq
+The average of the nonlinear term is
+\begin{align}
+\label{eq:avg_nl}
+<(U_i + u'_i)(U_j + u_j')> &= <U_i\,U_j> + <U_i \,u'_j> + <U_j \,u'_i> + <u'_i\,u'_j> \nonumber \\
+    & =U_i\,U_j +  <u'_i\,u'_j>\per
+\end{align}
+Thus, the average momentum equation is
+\beq
+\label{eq:momentum_avg}
+\p_t U_i + U_j \p_{x_j} U_i =  \rho^{-1} \p_{x_j} P + \nu \p_{x_j}\p_{x_j} U_i - \p_{x_j}<u'_i\,u'_j>\per
+\eeq
+The last term in  represents the mean eddy transport of fluctuating momentum. It is generally nonzero because the velocity fluctuations are typically correlated. The velocity correlation is termed the Reynolds stress
+\beq
+\label{eq:rey_stress}
+\sigma'_{ij} \defn - <u'_i\,u'_j>\per
+\eeq
+This decomposition reveals a problem that is in the heart of turbulence. Because of the nonlinearity of the advective term in \eqref{eq:ns_momentum} one cannot write a closed equation for average fields. Indeed, this is termed the closure problem.  If one tries to write equations for $<u'_i\,u'_j>$, one finds that it depends on higher order terms, say $<u'_i\,u'_j\,u'_k>$.
+
+\subsection*{Eddy viscosity}
+
 
 \end{document}
+
 
 
