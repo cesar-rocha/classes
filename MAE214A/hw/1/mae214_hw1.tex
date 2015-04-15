@@ -1,0 +1,160 @@
+\documentclass[11pt]{article}
+
+
+%% WRY has commented out some unused packages %%
+%% If needed, activate these by uncommenting
+\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+%\geometry{letterpaper}                   % ... or a4paper or a5paper or ... 
+\geometry{a4paper,left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+%\geometry{landscape}                % Activate for rotated page geometry
+%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+
+%for figures
+%\usepackage{graphicx}
+
+\usepackage{color}
+\definecolor{mygreen}{RGB}{28,172,0} % color values Red, Green, Blue
+\definecolor{mylilas}{RGB}{170,55,241}
+%% for graphics this one is also OK:
+\usepackage{epsfig}
+
+%% AMS mathsymbols are enabled with
+\usepackage{amssymb,amsmath}
+
+%% more options in enumerate
+\usepackage{enumerate}
+\usepackage{enumitem}
+
+%% insert code
+\usepackage{listings}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage{hyperref}
+
+
+% Default fixed font does not support bold face
+\DeclareFixedFont{\ttb}{T1}{txtt}{bx}{n}{12} % for bold
+\DeclareFixedFont{\ttm}{T1}{txtt}{m}{n}{12}  % for normal
+
+% Custom colors
+\usepackage{color}
+\definecolor{deepblue}{rgb}{0,0,0.5}
+\definecolor{deepred}{rgb}{0.6,0,0}
+\definecolor{deepgreen}{rgb}{0,0.5,0}
+
+
+% Python style for highlighting
+\newcommand\pythonstyle{\lstset{
+language=Python,
+basicstyle=\ttm,
+otherkeywords={self},             % Add keywords here
+keywordstyle=\ttb\color{deepblue},
+emph={MyClass,__init__},          % Custom highlighting
+emphstyle=\ttb\color{deepred},    % Custom highlighting style
+stringstyle=\color{deepgreen},
+frame=tb,                         % Any extra options here
+showstringspaces=false            % 
+}}
+
+% Python environment
+\lstnewenvironment{python}[1][]
+{
+\pythonstyle
+\lstset{#1}
+}
+{}
+
+% Python for external files
+\newcommand\pythonexternal[2][]{{
+\pythonstyle
+\lstinputlisting[#1]{#2}}}
+
+% Python for inline
+\newcommand\pythoninline[1]{{\pythonstyle\lstinline!#1!}}
+
+%\usepackage{epstopdf}
+%\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+
+
+
+%% colors
+\usepackage{graphicx,xcolor,lipsum}
+
+
+\usepackage{mathtools}
+
+\usepackage{graphicx}
+\newcommand*{\matminus}{%
+  \leavevmode
+  \hphantom{0}%
+  \llap{%
+    \settowidth{\dimen0 }{$0$}%
+    \resizebox{1.1\dimen0 }{\height}{$-$}%
+  }%
+}
+
+
+\title{MAE214, Homework Assignment 1}
+\author{Cesar B Rocha}
+\date{\today}
+
+\begin{document}
+
+\include{mysymbols}
+
+\maketitle
+
+\section*{Problem 1}
+
+\begin{enumerate}[label=(\alph*)]
+
+    \item With constant density $\rho$ and uniform viscosity $\nu$, the vorticity equation is
+        \beq
+            \label{eq:vort}
+            \frac{\p \omega_i}{\p t}   + u_j \frac{\p \omega_i}{\p x_j} = \underbrace{\omega_j\frac{\p u_i}{\p x_j}}_{(I)} \,+\,\underbrace{\nu \frac{\p^2 \omega_i}{\p x_j^2}}_{(II)}\com
+        \eeq
+        where the vorticity is defined as the curl of the velocity
+        \beq
+            \label{eq:curl_v}
+            \omega_i \defn \eijk \frac{\p u_k}{\p x_j}\com
+        \eeq
+        where $\eijk$ is the alternating tensor. Also in \eqref{eq:vort} (I) represents the vorticity generation due to vortex stretching, and (II) is the viscous diffusion of vorticity. In two-dimensional flows, the stretching term is identically zero (I).  To see this, we note that in two dimensions the vorticity \eqref{eq:curl_v} is nonzero only in the direction normal to the plane of the flow. Suppose the plane is defined in the $x_1$-$x_2$ direction, then the only nonzero term in the vorticity is $\omega_3$. The stretching reduces to $\omega_3 \p_{x_3}u_i$, where $i=1,2$. But is independent of $x_3$ because the flow is two-dimensional, and therefore the stretching term vanishes identically. Thus in the absence of  viscosity the vorticity $\omega_3$ is materially conserved in two-dimensions. 
+
+    To form an enstrophy equation we dot the vorticity equation \eqref{eq:vort} with $\omega_i$ to obtain
+    \beq
+        \label{ens1}
+        \frac{\p}{\p t} \frac{\omega_i^2}{2} + u_j \frac{\p}{\p x_j}\frac{\omega_i^2}{2} = \omega_i \omega_j \frac{\p u_i}{\p x_j} + \nu \omega_i \frac{\p^2 \omega_i}{\p x_j^2} \com
+    \eeq
+    or after rearranging and working a bit on the last term
+    \beq
+        \label{ens2}
+        \frac{\p \omega_i^2}{\p t} + u_j \frac{\p\omega_i^2}{\p x_j} = \underbrace{\omega_i \omega_j \frac{\p^2 u_i}{\p x_j}}_{(I)} + \underbrace{\nu \frac{\p \omega_i^2}{\p x_j^2}}_{(II)} \underbrace{- 2 \nu \left(\frac{\p \omega_i}{\p x_j}\right)^2}_{(III)}\per
+    \eeq
+    The first term on the right of \eqref{ens2} is the enstrophy generation due to the straining field. To see that we note that $\omega_i \omega_j$ is symmetric. Thus
+    \beq
+        \label{strain}
+        \omega_i \omega_j \frac{\p u_i}{\p x_j} = \omega_i \omega_j s_{ij}\com
+    \eeq
+    where the rate of strain tensor is
+    \beq
+        s_{ij} \defn \frac{1}{2}\left(\frac{\p u_i}{\p x_j} + \frac{\p u_j}{\p x_i}\right)\per
+    \eeq
+    The second term (II) is the divergence of the viscous flux enstrophy. This term only redistributes enstrophy. To see this, we note that in a bounded region with no flux at the boundaries, this term integrates to zero. 
+
+    Finally, the last term is negative definite (provided $\nu>0$; no negative viscosity here!), and it represents the viscous dissipation of enstrophy.
+
+    Because there is no stretching term in two-dimensional flows, there is no enstrophy generation due to straining fields (I). In the absence of viscosity, the two-dimensional flow conserves total enstrophy defined as the area integral of the vorticity squared
+    \beq
+        \label{eq:tot_ens}
+        Z \defn \int \int \omega_3^2 \dd S\com
+    \eeq
+    provided the is no flux of vorticity across the boundaries. This follows directly from the material conservation of vorticity in two dimensions with $\nu =0$.
+
+\end{enumerate}
+
+
+
+\end{document}
+
+
