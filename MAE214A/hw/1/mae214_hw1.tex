@@ -131,7 +131,7 @@ showstringspaces=false            %
         \label{ens2}
         \frac{\p \omega_i^2}{\p t} + u_j \frac{\p\omega_i^2}{\p x_j} = \underbrace{\omega_i \omega_j \frac{\p^2 u_i}{\p x_j}}_{(I)} + \underbrace{\nu \frac{\p \omega_i^2}{\p x_j^2}}_{(II)} \underbrace{- 2 \nu \left(\frac{\p \omega_i}{\p x_j}\right)^2}_{(III)}\per
     \eeq
-    The first term on the right of \eqref{ens2} is the enstrophy generation due to the straining field. To see that we note that $\omega_i \omega_j$ is symmetric. Thus
+    The first term (I) on the right of \eqref{ens2} is the enstrophy generation due to the straining field. To see that we note that $\omega_i \omega_j$ is symmetric. Thus
     \beq
         \label{strain}
         \omega_i \omega_j \frac{\p u_i}{\p x_j} = \omega_i \omega_j s_{ij}\com
@@ -151,9 +151,258 @@ showstringspaces=false            %
     \eeq
     provided the is no flux of vorticity across the boundaries. This follows directly from the material conservation of vorticity in two dimensions with $\nu =0$.
 
+\item The buoyancy term $-g\rho/\rho_0 \hat{x}_3$, or in index notation $-g\rho/\rho_0 \delta_{i3}$, where $\delta$ is the Kronecker delta. The curl of this term is
+    \beq
+        \label{eq:curl_buoy}
+        \eijk \frac{\p}{\p x_j}\left(-\frac{\rho}{\rho_0}g \delta_{k3}\right) = \varepsilon_{ij3}  \frac{\p}{\p x_j}\left(-\frac{\rho}{\rho_0}g \right)\per
+    \eeq
+     The nonzero components of \eqref{eq:curl_buoy} are
+     \begin{align}
+     i=1,j=2:\qquad -\frac{g}{\rho_0} \frac{\p \rho}{\p x_2} \hat{x}_2\nonumber \\
+     i=2,j=1:\qquad  \frac{g}{\rho_0} \frac{\p \rho}{\p x_1}\hat{x}_1\per
+    \end{align}
+    Thus this term is, in vector notation,
+    \beq
+        \frac{g}{\rho_0} \hat{x}_3 \times \nabla_{H} \rho\com 
+    \eeq
+    where $\nabla_H$ represents the horizontal gradient operator. Notice that this term is nonzero not because of $g$ itself (body force alone does not generate vorticity), but because of the nonuniform density $\rho$. This term accounts for the generation of vorticity due to the existence of horizontal buoyancy gradients.
+
+    The enstrophy equation also has an extra term that represents the generation of enstrophy due to horizontal buoyancy gradients
+    \beq
+        -2 \omega_i \varepsilon_{ij3}  \frac{\p}{\p x_j}\left(\frac{\rho}{\rho_0}g \right)\per
+    \eeq
+    Notice, however, that if we are considering nonuniform density we also have additional terms stemming from the pressure gradient force when computing the curl of the momentum equation. In other words
+    \beq
+    \nabla \times \left(\frac{\nabla p}{\rho}\right) = -\frac{\nabla \rho \times \nabla p}{\rho^2} = -\frac{1}{\rho^2}\eijk \frac{\p \rho}{\p x_j}\frac{\p p}{\p x_k} \neq 0
+    \eeq
+    for nonuniform density. This term represents the production of vorticity due to the baroclinicity of the flow (that is, the misalignment between density and pressure surfaces). The associated enstrophy production due to baroclinicity is
+    \beq
+       -\frac{\omega_i}{\rho^2}\eijk \frac{\p \rho}{\p x_j}\frac{\p p}{\p x_k} \neq 0\per
+    \eeq
+    
+    
+    If the departures from density are much smaller than the background density $\rho_0$, one could approximation the $\rho$ in the equation above with $\rho_0$ (this is known as the Boussinesq approximation).  
+
+    \end{enumerate}
+
+
+\section*{Problem 2 -- Pope exercise 4.5}
+In this problem we consider the results from a experiment for a flow in which $\p <U_1>/\p_{x_2}$ is the only nonzero component of the velocity gradient. The measured Reynolds stress tensor normalized by the eddy kinetic energy is
+\beq
+            \label{eq:reynolds}
+\frac{<u_i u_j>}{k} =  \left[ \begin{matrix}
+        1.08 & -0.32 & 0. \\
+        -0.32 & 0.40 & 0 \\
+        0 & 0 & 0.52
+\end{matrix} \right]\per
+\eeq
+
+\begin{enumerate}[label=(\alph*)]
+    \item The normalized anisotropy (a.k.a the deviatoric tensor)  is
+        \begin{align}
+            \frac{<u_i u_j>}{k} - \frac{1}{3}\delta_{ij} &=  \left[ \begin{matrix}
+        1.08 & -0.32 & 0. \\
+        -0.32 & 0.40 & 0 \\
+        0 & 0 & 0.52
+\end{matrix} \right] - \frac{1}{3} \left[ \begin{matrix}
+        1 & 0 & 0. \\
+        0 & 1 & 0 \\
+        0 & 0 & 1
+\end{matrix} \right] \nonumber \\  &= \left[ \begin{matrix}
+        0.74666667 & -0.32 & 0 \\
+        -0.32 &  0.06666667 &  0   \\
+0 &  0 &0.18666667\end{matrix} \right]\per
+    \end{align}
+
+    \item The correlation between the eddy velocity components $u_1$ and $u_2$ is
+        \beq
+            r_{12} = \frac{<u_1 u_2>}{\sqrt{<u_1^2><u_2^2>}} = -0.48686449556014766\per
+            \eeq
+
+
+    \item First, we note that because the last row of \eqref{eq:reynolds} is already in diagonal form, we do not need to consider a third dimension. Instead, we can work with the matrix
+        \beq
+      \sD_2 \defn        \left[ \begin{matrix}
+        1.08 & -0.32 \\
+        -0.32 & 0.40 
+\end{matrix} \right]\com
+        \eeq
+    and look for the rotation matrix
+    \beq
+    \sR \defn
+        \left[ \begin{matrix}
+        \cos \theta & \sin \theta \\
+        -\sin \theta & \cos \theta 
+\end{matrix} \right]
+    \eeq
+    that diagonalizes the problem. That is $\sR \sU_2 = \sD \sR^\sT$, where $\sD$ is a diagonal matrix. To find the angle $\theta$, we simply demand that the off-diagonal terms of $\sD = \sR \sU_2 \sR^\sT$ be zero. This requires
+    \beq
+        -0.32 \cos^2\theta + 0.68 \cos\theta\sin\theta + 0.32 \sin^2\theta = 0\per
+    \eeq
+    We solve the transcendental equation above using Newton's method. Depending on the initial guess, the solution converge to $\theta = 1.119  \,(68.37^\circ)$. The diagonalized Reynolds stress is
+    \beq
+    \left[ \begin{matrix}
+        0.23 & 0 & 0. \\
+        0 & 1.21 & 0 \\
+        0 & 0 & 0.52
+\end{matrix} \right]\per            
+    \eeq
+
+    \item The mean rate of strain tensor is
+        \beq
+        \sS =  \left[ \begin{matrix}
+        0 & \p U_1/\p x_2 & 0. \\
+         \p U_1/\p x_2 & 0 & 0 \\
+        0 & 0 & 0
+\end{matrix} \right]
+        \eeq
+        Using the same procedure employed above we obtain the condition for digitalization
+        \beq
+            \frac{\p U_1}{\p x_2}\left(\cos^2\theta - \sin^2\theta \right) = 0\per
+        \eeq
+        Here we can solve analytically to obtain $\theta= \pi/4 \, (45^\circ)$. The diagonalized mean rate of strain tensor is
+        \beq
+        \sS =  \left[ \begin{matrix}
+        \p U_1/\p x_2 & 0 & 0. \\
+         0 & -\p U_1/\p x_2 & 0 \\
+            0 & 0 & 0 
+\end{matrix} \right] \per
+        \eeq
+
+
+    \item Clearly, one of the eigenvalues of \eqref{eq:reynolds} is $0.52$. To find the other two we solve the quadratic equation
+        \beq
+            (1.08 - \lambda)(0.4 - \lambda) - 0.32^2 = 0\per
+        \eeq
+        We obtain $\lambda^+ \approx 0.27309$ and $\lambda^- \approx 1.20690$. Thus the eigenvalues of the Reynolds tensor   \eqref{eq:reynolds}  are $\{0.27309, 0.52000,  1.20690\}$.
+
 \end{enumerate}
 
+\section*{Problem 3}
 
+\begin{enumerate}[label=(\alph*)]
+    
+    \item We begin with the observation that this is a two-dimensional problem. The horizontal coordinate is $x$, and the vertical coordinate is $y$. The Navier-Stokes equations are
+        \begin{align}
+            \label{ns}
+            \p_t u + u\p_x u + v\p_y u &= -\rho^{-1}\p_x p + \nu  \left(\p^2_{xx}u +\p^2_{yy}u\right)\com\nonumber\\
+            \p_t v + u\p_x v + v\p_y v &= -\rho^{-1}\p_y p + \nu  \left(\p^2_{xx}v +\p^2_{yy}v\right)\com\nonumber\\
+            \p_x u + \p_y v& = 0\per
+        \end{align}
+        We will look for steady solution, so the first assumption is that $(i)$ \textit{the steady state can be achieve}. This assumption is easily verified by the existence of solutions to the steady equations. The second assumption is that $(ii)$ \textit{the Reynolds number is large}
+        \beq
+        \Re \defn \frac{U L}{\nu} >>> 1\per
+        \eeq
+        This loosely mean that the viscosity $\nu$ is very small, and we might be tempted to ignore the viscous terms  in \eqref{ns}. But clearly those terms have the highest order spatial derivatives, and $\nu = 0$ is a singular limit. Hence, there must be a region next to the boundary where the viscous term contributes to the leading order momentum balance. In this region the scale of variations is $\mathcal{O(\delta)}$, and we might anticipate that viscous terms balance the inertial terms. Using $U$ as the characteristic scale of the velocity $u$, L for the variations in the $x$-direction and $\delta$ for the spatial scales of variations in the $y$-direction, we obtain
+        \beq
+        \label{delta}
+        \delta \sim \sqrt{\frac{\nu L}{U}}\com \qquad \text{and hence} \qquad\frac{\delta}{L} \sim \frac{1}{\sqrt{\Re}}\per
+        \eeq
+    That is, the boundary layer thickness is inversely proportion to the square-root of the Reynolds number. We use this information to rescale the Navier-Stokes equations to obtain the boundary layer approximate equations. To obtain these approximation systematically, we use nondimensional variables. First we notice that outside the boundary layer the dominant balance is between inertia and the pressure gradient force. Thus, an estimate for the pressure scale is
+    \beq
+    \label{P}
+        P = \rho U^2\per
+    \eeq
+    We now introduce nondimensional dependent variables 
+    \beq
+    \label{scales}
+    \ndu \defn \frac{u}{U}\com\qquad \ndv \defn \frac{v}{U}\com\qqand \np \defn \frac{p}{P}\com
+    \eeq
+    where we use $\breve .$ to denote nondimensional quantity. Introducing the scales \eqref{scales} in the steady version of \eqref{ns}, and using  \eqref{delta} and \eqref{P}, we obtain the nondimensional steady NS equations 
+        \begin{align}
+            \label{ns_nd}
+            \ndu\p_{\nx} \ndu + \ndv\p_{\ny} \ndu &= -\p_{\nx} \np + \Re^{-1} \p^2_{\nx\nx}\ndu +\p^2_{\ny\ny}\ndu\com\nonumber\\
+            \Re^{-1} \left(\ndu\p_{\nx} \ndv + \ndv\p_{\ny} \ndv\right) &= -\p_{\ny} \np + \Re^{-2} \p^2_{\nx\nx}\ndv +  \Re^{-1} \p^2_{\nx\nx}\ndv\com\nonumber\\
+                                                                        &\p_{\nx} \ndu + \p_{\ny} \ndv = 0\per
+        \end{align}
+        Thus using assumption $(ii)$ we obtain the boundary layer equations
+        \begin{align}
+            \label{ns__bl}
+            \ndu\p_{\nx} \ndu + \ndv\p_{\ny} \ndu &= -\p_{\nx} \np + \p^2_{\ny\ny}\ndu\com\nonumber\\
+                                                  & 0 = -\p_{\ny} \np \nonumber \com\\
+             &\p_{\nx} \ndu + \p_{\ny} \ndv = 0\com
+        \end{align}
+        or in keeping the same terms in dimensional the equation \eqref{ns} 
+\begin{align}
+            \label{ns_bl}
+           u\p_x u + v\p_y u &= -\rho^{-1}\p_x p + \nu  \p^2_{yy}u\com\nonumber\\
+         0 &= -\rho^{-1}\p_y p \nonumber\com \\
+           &\p_x u + \p_y v= 0\per
+\end{align}
+
+\item A solution (dependent variable) is self-similar if it is independent of a particular combination of dependent parameters. For instance the nondimensional profile of a jet is self-similar if the is independent of down-stream direction; the profile of the jet collapse to a single, self-similar curve under a particular nondimensionalization. It is possible to find self-similar solutions whenever there is no external length scales imposed to the problem. For the boundary layer initial value problem we can imagine that the flow will become self-similar provided we are a distance significantly away from the initial contact location. While the thickness of the boundary layer may increase with downstream distance ($x$), the shape of the solution with approximate scaling may collapse to a single curve.
+
+We assume the self-similar velocity
+\beq
+\label{eq:self_similar_vel}
+g(\eta) \defn \frac{u(x,y)}{U}\com\qquad \text{with} \qquad \eta \defn \frac{y}{\delta(x)}\com
+\eeq
+and streamfunction
+\beq
+\label{eq:self_similar_sf}
+f(\eta) \defn \frac{\psi(x,y)}{U \delta(x)}\per
+\eeq
+If self-similar solutions exist, we must be able to derive a differential equation for $g$ or $f$ which is only depends on the similarity independent variable $\eta$.
+
+The definition of the streamfunction follows from the two-dimensional nondivergence  in \eqref{ns_bl}
+\beq
+\label{sf}
+u \defn -\frac{\p \psi}{\p x}\com\qqand v \defn \frac{\p \psi}{\p y}\per
+\eeq
+Using \eqref{sf} the $x$-momentum equation \eqref{ns__bl} becomes
+\beq
+\label{blasius1}
+\p_y\psi \p_x\p_y\psi - \p_x\psi\p_y\p_y\psi = - \nu \p^3_{yyy} \psi\per
+\eeq
+The boundary conditions are no-slip at the boundary
+\beq
+\label{eq:bc}
+u = \p_y \psi = 0\com \qquad \text{at} \qquad y=0\com
+\eeq
+and the matching condition
+\beq
+\label{eq:match}
+u = \p_y \psi = U\com \qquad \text{for} \qquad y >> \delta\com
+\eeq
+that is the flow matches the free-stream velocity outside the boundary layer.
+
+We now write the governing equation  \eqref{blasius1} is terms of similarity variables. First we note that
+\beq
+\p_y \psi = \p_y\left[U \delta(x) f(\eta)\right] = U f'\com
+\eeq
+\beq
+\p^2_{yy} \psi = \frac{U}{\delta}  f''\com\qqand \p^3_{yyy}\psi = \frac{U}{\delta^2}f''' \per
+\eeq
+where $f' = \dd f / \dd \eta$. Similarly
+\beq
+\p_x \psi = \p_x\left[U \delta(x) f(\eta)\right] = U \delta' f - U \frac{f'}{\delta}y \delta' = U\delta'\left(f - f'\eta\right)\com
+\eeq
+where $\delta' = \dd \delta/\dd x$. Hence
+\beq
+\p^2_{yx} \psi = U\delta' \p_y \left(f' - f'\eta\right) =  -U \frac{\delta'}{\delta}\eta f''
+\eeq
+Using these expression in \eqref{blasius1} we obtain
+\beq
+-U^2 \frac{\delta'}{\delta}\eta f f''= \nu \frac{U}{\delta^2}f'''\com
+\eeq
+which simplifies to
+\beq
+\label{blasius}
+-\frac{U \delta \delta'}{\nu} f f'' = f'''\per
+\eeq
+As discussed above, for similarity solutions to exit, the must be no dependence on dimensional variables. This is only possible if the coefficient in the equation above is constant.  The constant is arbitrary. Both Batchelon and Kundu choose it to be $1/2$ for algebraic convenience. Using the same constant as in those textbooks, we obtain the Blasius equation
+\beq
+\label{blasius2}
+ f'''+ \frac{1}{2} f f'' = 0\per
+\eeq
+The boundary conditions in terms of $f$ follow from \eqref{eq:bc}
+\beq
+f' = 0\com
+\eeq
+
+
+
+\end{enumerate}
 
 \end{document}
 
