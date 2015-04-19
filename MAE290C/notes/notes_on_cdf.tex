@@ -469,7 +469,7 @@ The discrete Fourier pair \eqref{eq:idft}-\eqref{eq:dft} satisfy the desired pro
 \end{enumerate}
    
 \subsubsection*{Truncation error, aliasing, and other potential problems}
-The definition of the inverse DFT assumes that $u$ has nice properties such as continuity of the function and its derivatives. It the function is discontinuous, then Gibbs oscillation might be introduce Gibbs oscillation, which amount for a $10\%$ error near the discontinuities. The rapid Gibss oscillations can be significantly reduced by using filters.   
+The definition of the inverse DFT assumes that $u$ has nice properties such as continuity of the function and its derivatives. If the function is discontinuous, then Gibbs oscillation might be introduce Gibbs oscillation, which amount for a $10\%$ error near the discontinuities. The rapid Gibss oscillations can be significantly reduced by using filters.   
 
 A potential problem in spectral methods is aliasing of unresolved high-frequency modes. These modes alias back into low-frequency modes. For linear problems this is not an issue provided that the initial conditions do not contain unresolved high-frequency content. For non-linear problems, such as the NS equations, high-frequency modes are introduced every time step.
 
@@ -515,7 +515,78 @@ and the $L_2$-norm of the error is
 \eeq
 
 \subsubsection*{Convergence of the inverse DFT}
+Integrating \eqref{eq:ft} by parts we obtain
+\begin{align}
+\label{eq:error_trunc}
+\tilde{u}_n =\frac{1}{L}\int_0^L\! u_e(x) \ee^{\ii \kappa_n x} dx &= -\frac{1}{L}\int_0^L  \frac{u_e'(x) \ee^{\ii\kappa_n }}{\ii \kappa_n} \dd x \nonumber \\ &  = \frac{1}{L} \int_0^L \frac{u_e''(x) \ee^{\ii \kappa_n x}}{(\ii \kappa_n)^2} \dd x\per
+\end{align}
+We can continue the process above as long as the derivate are smooth and periodic. Hence
+\beq
+\label{eq:trunc_error_bound}
+|\tilde{u}_n|^2 \lesssim (\Delta x)^{-2p}\com
+\eeq
+for all $p \in \mathbb{N}$. Thus for smooth functions in physical space, spectral methods beats the most accurate finite differences scheme. Spectral accuracy is also know as exponential accuracy. A rule of thumb is that for a given data spacing $\Delta x$, a spectral scheme with $3\Delta x$ does a better job than second-order finite-differences scheme.
 
+\subsubsection*{Gibbs phenomenon}
+Consider the step function
+\beq
+\label{eq:step}
+S_e(x) = \begin{cases}
+            1\com & 0\leq x < \pi\,;\\
+0\com & \pi \leq x < 2 \pi\per
+         \end{cases}
+\eeq
+A truncated Fourier series representation is
+\beq
+\label{eq:step_trunc}
+S_{T}(x) = \sum_{n=-\nmax/2}^{\nmax/2} \!\!\tilde{S}_n \ee^{-\ii n x}\com
+\eeq
+where the Fourier coefficients are
+\beq
+\label{eq:step_hat}
+\tilde{S}_n = \frac{1}{2\pi} \int_0^\pi\!\! S_e(x) \ee^{\ii n x} \dd x\per
+\eeq
+Thus
+\begin{align}
+\label{eq:step_trunc_2}
+S_T(x) =  \sum_{n=-\nmax/2}^{\nmax/2} \!\!\left( \frac{1}{2\pi} \int_0^\pi\!\! S_e(\xi) \ee^{-\ii n \xi}
+\dd \xi \right) \ee^{\ii n x} = \frac{1}{2\pi} \int_0^\pi \underbrace{S_e(\xi)}_{= 1}
+        \underbrace{\left(\sum_{n=-\nmax/2}^{\nmax/2} \ee^{\ii n (x-\xi)} \right)}_{\defn\sDN} \dd \xi\com
+\end{align}
+where $\sDN$ is the Dirichlet Kernel
+\beq
+\label{eq:dk_defn}
+\sDN(z) = \begin{cases}
+    \sin\left({\nmax+1\over 2} z\right):& \text{if} \qquad z \neq 2\pi j\,; \\
+    \nmax + 1:&\text{if}  \qquad z = 2\pi j\per
+        \end{cases}
+\eeq
+Figure \ref{fig:dk} shows the Dirichlet kernel for truncation indices $\nmax$ from 1 through 11. As $\nmax$ increases the kernel distributionally approaches a delta function at $z = 0$.
+
+
+\begin{figure}[ht]
+\begin{center}
+    \includegraphics[width=20pc,angle=0]{figs/dirichlet_kernel}
+\end{center}
+\caption{The Dirichlet kernel \eqref{eq:dk_defn} for various truncation indices $\nmax$.}
+\label{fig:dk}
+\end{figure}
+
+We can rewrite the truncated series  \eqref{eq:step_trunc_2} by changing variables with $y\defn x - \xi$
+\beq
+S_T(x) = \frac{1}{2\pi} \int_{x-\pi}^x \sDN(y) \dd y = \frac{1}{2\pi} \left[ \int_0^x \sDN(y) \dd y
++ \underbrace{\int_{-\pi}^0 \sDN(y)\dd y}_{\approx \pi} 
++ \underbrace{\int_{x-\pi}^{\pi}\sDN(y)\dd y}_{<< 1} \right]   \per
+\eeq
+We have
+\beq
+\int_0^x \sDN(y) \dd y \approx 1.08949 \pi\com\qquad \text{for} \qquad x \qquad \text{small}\per
+\eeq
+So that in the vicinity of the discontinuity at $x=0$ we have
+\beq
+S_T(x) \approx 1.09\per
+\eeq
+That is, the truncated series $S_T$ overshoots the exact value by about $9\%$. This phenomenon is the Gibbs oscillation.
 
 \end{document}
 
