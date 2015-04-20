@@ -716,8 +716,49 @@ Notice that the worst case scenario is $n=m=-\nmax/2$:
 \beq
 -\frac{\nmax}{2} -\frac{\nmax}{2} = \frac{\nmax}{2} \pm \mathrm{M} \Rightarrow \mathrm{M} = \frac{3}{2}\nmax\per
 \eeq
-The computational cost of zero padding is $\mathcal{O}(3/2)^n$, where $n$ is the number of dimensions. 
+The computational cost of zero padding is $\mathcal{O}(3/2)^n$, where $n$ is the number of dimensions. Thus zero padding can be quite expensive, particularly in two- or three-dimensions. 
 
+\subsubsection*{Phase shift}
+Consider the product of $u$ and $v$ computed at the original grid
+\beq
+\label{eq:prod_orig_grid}
+w(x) = u(x)v(x)\com
+\eeq
+and the products computed in a grid shifted by $\xi$
+\beq
+\label{eq:prod_shifted_grid}
+w(x+\Delta x) = u(x+\xi)v(x+\xi)\per
+\eeq
+The DFT of \eqref{eq:prod_orig_grid} is
+\beq
+\label{eq:alias1}
+\hat{w}_{o,k} =    \sum_{n=-\nmax/2}^{\nmax/2-1}\sum_{m=-\nmax/2}^{\nmax/2-1}\hat{u}_n\hat{v}_m +  \sum\!\!\!\!\!\!\!\!\!\sum_{m+n=k\pm \nmax}\!\!\!\!\!\!\hat{u}_n\hat{v}_m\com
+\eeq
+whereas the DFT of \eqref{eq:prod_shifted_grid} is
+\beq
+\label{eq:alias2}
+\hat{w}_{\xi,k} =    \sum_{n=-\nmax/2}^{\nmax/2-1}\sum_{m=-\nmax/2}^{\nmax/2-1}\hat{u}_n\hat{v}_m + \ee^{\pm\ii 
+\nmax \xi} \sum\!\!\!\!\!\!\!\!\!\sum_{m+n=k\pm \nmax}\!\!\!\!\!\!\hat{u}_n\hat{v}_m\per
+\eeq
+The idea is to combine \eqref{eq:alias1} and \eqref{eq:alias2} in such a way as to eliminate the aliasing terms
+\beq
+\hat{w}_{k} = \frac{\hat{w}_{o,k} + \hat{w}_{\xi,k}}{2} =  
+\hat{w}_{\xi,k} =    \sum_{n=-\nmax/2}^{\nmax/2-1}\sum_{m=-\nmax/2}^{\nmax/2-1}\hat{u}_n\hat{v}_m + \frac{1+ \ee^{\pm\ii \nmax \xi}}{2} \sum\!\!\!\!\!\!\!\!\!\sum_{m+n=k\pm \nmax}\!\!\!\!\!\!\hat{u}_n\hat{v}_m\per
+\eeq
+Hence 
+\beq
+\ee^{\pm\ii \nmax \xi} = -1 \Rightarrow \xi\nmax = \pm \pi  \Rightarrow \xi = \frac{\pi}{\nmax}
+= \frac{\Delta x}{2}\per
+\eeq
+Thus the algorithm for phase shifting is
+\begin{enumerate}
+    \item Perform the pseudo-spectral without shift;
+    \item Shift the Fourier coefficients $\hat{u}_k$ and $\hat{v}_k$ in Fourier space by multiplying by
+            $\exp(\ii \nmax \Delta x /2)$. Then perform the pseudo-spectral calculation for this shifted 
+            coefficients;
+    \item Take the average of (1) and (2), and march the system forward.
+\end{enumerate}
+    The cost of the phase shifting is $\nmax \log_2 \nmax$, and therefore keeps the same order of operations as the aliased calculation. It may be advantageous if $\nmax$ is too large, since is does not require more memory than the original problem. 
 
 \end{document}
 
