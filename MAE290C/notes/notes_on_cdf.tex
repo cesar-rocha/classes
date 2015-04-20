@@ -588,6 +588,137 @@ S_T(x) \approx 1.09\per
 \eeq
 That is, the truncated series $S_T$ overshoots the exact value by about $9\%$. This phenomenon is the Gibbs oscillation.
 
+\begin{figure}[ht]
+\begin{center}
+    \includegraphics[width=20pc,angle=0]{figs/step_function}
+\end{center}
+\caption{The representation of a step function by Fourier series under various truncation. Notice the Gibbs phenomenon near the discontinuity.}
+\label{fig:step}
+\end{figure}
+
+
+\subsection*{Filters}
+To remove undesired Gibbs oscillations that may arise from discontinuities present in the initial conditions or developed by the equation (e.g., Burger's equation) we can use filters. The filtering process can operate in two levels
+\begin{enumerate}
+    \item Level of equation
+        \subitem We introduce an additional term, e.g., artificial viscosity or hyperviscosity, that will filter out highwanumber variability. For instance, in the one-dimensional Burger equation, we can add a fourth-order hyperviscosity
+        \beq
+            \label{eq:burgers_1d_hv}
+            \p_t u + u\p_x u = D \p^4_{x^4} u\per
+        \eeq
+        In Fourier space the solution to the linear hyperviscouss term is $\exp(-k^4 D t)$, which makes clear its low-pass character.
+
+    \item Level of solution
+        \subitem Once the solution is obtained, one can filter out highwavenumber oscillations using selective filters. A celebrated example is the use of the Lanczos $\sigma$-factos. In this approach, one substitute the original Fourier series by
+        \beq
+            \label{eq:lanczos_fact}
+            u_j = \sum_{n=-N/2}^{N/2-1} \sigma_n \hat{u}_n \ee^{\ii k_n x_j}\com
+        \eeq    
+        where $\sigma_n$ is a filter coefficient in the form
+        \beq
+            \label{eq_sigma}
+            \sigma_n = \sigma(\theta)\com\qquad \theta\defn \frac{2\pi n}{\nmax}\per
+        \eeq
+        The factor $\sigma(\theta)$ must satisfy the properties
+        \begin{enumerate}
+            \item Reality;
+            \item Symmetry about $\theta = 0$; 
+            \item $p-1$ continuous differentiable  for $p\ge 1$;
+            \item 
+                \subitem $\sigma(\theta) = 0$, if $|\theta|\ge \pi$;
+                \subitem $\sigma(0) = 1$  (do not change the average);;
+                \subitem $\sigma^{(j)} = 0$, for $1\le\j\le p-1$.
+        \end{enumerate}
+
+    Some examples of filter in the level of equation include
+    \begin{itemize}
+        \item Lanczos filter
+            \subitem $\sigma(0) = 1$;
+            \subitem $\sigma(\theta) = \frac{\sin \theta}{\theta}$.
+              \item Raised cosine
+            \subitem $\sigma(\theta) = (1+\cos\theta)/2$.
+        \item Sharpened raised cosine
+            \subitem $\sigma(\theta) = \sigma_0^4(\theta)\left[35-84\sigma_0(\theta
+                    )+70\sigma_0(\theta)^2 - 20\sigma_0(\theta)^2\right]$,
+            \subitem where $\sigma_0$ is the raised cosine filter.
+        \item Exponential filter of order $p$ (generalized viscosity)
+            \subitem $\sigma(\theta)=\ee^{-\alpha\theta ^p}$,
+            \subitem where $\alpha$ is an arbitrary parameter.
+    \end{itemize}
+    Figure \ref{fig:step_filters} shows the step function truncated series with $\nmax=9$, and various filtered solutions.
+
+\begin{figure}[ht]
+\begin{center}
+    \includegraphics[width=20pc,angle=0]{figs/step_function_filters}
+\end{center}
+\caption{The representation of a step function by Fourier series with $\nmax=9$ and various filtered solutions.}
+\label{fig:step_filters}
+\end{figure}
+
+\subsubsection*{Aliasing}
+The calculation of Fourier transform of nonlinear terms of terms with nonconstant coefficients is very expensive. Consider the two variables 
+\beq
+u_e(x) = \sum_{-\nmax/2}^{\nmax/2}\tilde{u}_n \ee^{\ii n x}\com\qqand
+v_e(x) = \sum_{-\nmax/2}^{\nmax/2}\tilde{v}_n \ee^{\ii n x}\com
+\eeq
+and their product
+\beq
+\label{eq:product}
+w_e(x) = u_e(x)v_e(x) = \sum_{-\nmax/2}^{\nmax/2}\sum_{-\nmax/2}^{\nmax/2}\tilde{u}_n\tilde{v}_m \ee^{\ii (n+m) x}\com\qqand
+\eeq
+Hence
+\beq
+\tilde{w}_k = \frac{1}{2\pi}\int_{\pi}^{\pi} \sum_{-\nmax/2}^{\nmax/2}\sum_{-\nmax/2}^{\nmax/2}\tilde{u}_n\tilde{v}_m \ee^{\ii (n+m-k) x} \dd x
+=  \sum_{-\nmax/2}^{\nmax/2}\sum_{-\nmax/2}^{\nmax/2} \tilde{u}_n\tilde{v}_m \underbrace{\frac{1}{2\pi}\int_{\pi}^{\pi}  \ee^{\ii (n+m-k) x}\dd x}_
+{=\begin{cases}
+        1:& \text{if} \qquad m+n = k;\\
+        0:& \text{otherwise}.
+ \end{cases}
+    }
+\eeq
+Thus for series with $\nmax$ truncation index, the multiplication in physical space is equivalent to convolution in Fourier space. Computation of convolution sums requires $\mathcal{O}(\nmax^2)$ operations. The alternative is to use the so-called pseudo-spectral methods that quires $\mathcal{O}(\nmax\log_2\nmax)$. In pseudo-spectral methods we compute the products in physical space, and then transform the products to Fourier space to march the system forward, then transform the variables back to physical space to compute the products, and so on.  The problem with this approach is that is introduces aliasing. To see that, note that the discrete Fourier transform   of \eqref{eq:product} is
+\begin{align}
+\label{eq:dft_wk}
+\hat{w}_k =& \frac{1}{\nmax}\sum_{j=-\nmax/2}^{\nmax/2-1}\left(\sum_{n=-\nmax/2}^{\nmax/2-1}
+\sum_{m=-\nmax/2}^{\nmax/2-1}\hat{u}_n\hat{v}_m \ee^{\ii (m+n)x_j}\right)\ee^{-\ii k x_j}\nonumber \\
+= & \sum_{n=-\nmax/2}^{\nmax/2-1}
+\sum_{m=-\nmax/2}^{\nmax/2-1}\hat{u}_n\hat{v}_m  {\frac{1}{\nmax}\sum_{j=-\nmax/2}^{\nmax/2-1}\ee^{\ii (m+n-k)x_j}}\per
+\end{align}
+Now recall that
+\beq
+ {\frac{1}{\nmax}\sum_{j=-\nmax/2}^{\nmax/2-1}\ee^{\ii (m+n-k)x_j}}
+=\begin{cases}
+        1:& \text{if} \qquad m+n = k + pN\com\, p=0,1,2,\ldots;\\
+        0:& \text{otherwise}.
+ \end{cases}
+\eeq
+Thus
+\beq
+\label{eq:alias}
+\hat{w}_k =    \sum_{n=-\nmax/2}^{\nmax/2-1}\sum_{m=-\nmax/2}^{\nmax/2-1}\hat{u}_n\hat{v}_m +  \sum\!\!\!\!\!\!\!\!\!\sum_{m+n=k\pm \nmax}\!\!\!\!\!\!\hat{u}_n\hat{v}_m  + \sum\!\!\!\!\!\!\!\!\!\!\sum_{m+n=k\pm 2\nmax}\!\!\!\!\!\hat{u}_n\hat{v}_m \ldots\per
+\eeq
+The first term on the right of \eqref{eq:alias} is the discrete Fourier transform  of the product $u v$. The double sums represent aliasing terms. These terms are due to unresolved high frequency modes that project back into the lower frequency modes. 
+\end{enumerate}
+For quadratic nonlinearity we only need to consider the first term on the right of \eqref{eq:alias}. The extrema alias frequencies are
+\beq
+(m+n)_{max} = \nmax-2\com\qqand (m+n)_{min} = -\nmax\per
+\eeq
+Thus we only need to consider frequencies from $-3\nmax/2$ through $3\nmax/2$. 
+
+\subsection*{Dealiasing}
+There are two main techniques used to remove the aliased frequencies due to nonlinearities. 
+
+\subsubsection*{Zero padding}
+We use discrete Fourier series for $u$, $v$, and $w$ with $\mathrm{M}\ge 3\nmax/2$, and set $\hat{u}_n = \hat{v}_m = 0$ for $m\ge\nmax/2$ before going to physical domain. We also set $\hat{w}_n$ for $n\ge \nmax/2$ 
+ after going back to Fourier space.
+
+Notice that the worst case scenario is $n=m=-\nmax/2$:
+\beq
+-\frac{\nmax}{2} -\frac{\nmax}{2} = \frac{\nmax}{2} \pm \mathrm{M} \Rightarrow \mathrm{M} = \frac{3}{2}\nmax\per
+\eeq
+The computational cost of zero padding is $\mathcal{O}(3/2)^n$, where $n$ is the number of dimensions. 
+
+
 \end{document}
 
 
