@@ -137,7 +137,7 @@ We will typically use index notation since its compact and shrinks the algebra. 
 The momentum equation is
 \beq
 \label{eq:momentum}
-\p_t u_i + u_j\p_{x_j} u_i = \rho^{-1} \p_{x_j} \sigma_{ij}\com
+\p_t u_i + u_j\p_{x_j} u_i = \rho^{-1} \p_{x_j} \sigma_{ij} - \rho^{-1}\p_{x_3}\Psi\com
 \eeq
 where the stress tensor is given by
 \beq
@@ -149,10 +149,10 @@ with $p$ the thermodynamic pressure, and the stain rate
 \label{eq:strain}
 s_{ij} = \frac{1}{2}\left(\p_{x_j}u_i + \p_{x_i}u_j\right)\per
 \eeq
-Also in \eqref{eq:stress} $\mu$ is the dynamic viscosity.  Thus, the more usual form of the NS equations is
+Also in \eqref{eq:stress} $\mu$ is the dynamic viscosity, and the gravity force $\Psi = \rho g x_3$.  Thus, the more usual form of the NS equations is
 \beq
 \label{eq:ns_momentum}
-\p_t u_i + u_j\p_{x_j} u_i = \rho^{-1} \p_{x_j} p + \nu \p_{x_j}\p_{x_i} u_i\com
+\p_t u_i + u_j\p_{x_j} u_i = \rho^{-1} \p_{x_j} p + \nu \p_{x_j}\p_{x_j} u_i\com
 \eeq
 where $\nu \defn \mu/\rho$ is the kinematic viscosity. We will deal with incompressible fluids. Thus the mass conservation reduces to the solenoidal condition
 \beq
@@ -163,6 +163,12 @@ With \eqref{eq:mass} we note that then nonlinear advective term can be rewritten
 \beq
 \label{eq:reynolds_decomp}
 u_j \p_{x_j} u_i = \p_{x_j} (u_i u_j) \per
+\eeq
+
+It is convenient define the modified pressure
+\beq
+\label{eq:mod_pressure}
+p = -p\delta_{ij} + \Psi\per
 \eeq
 
 
@@ -198,14 +204,215 @@ Thus, the average momentum equation is
 The last term in  represents the mean eddy transport of fluctuating momentum. It is generally nonzero because the velocity fluctuations are typically correlated. The velocity correlation is termed the Reynolds stress
 \beq
 \label{eq:rey_stress}
-\sigma'_{ij} \defn - <u'_i\,u'_j>\per
+\sigma'_{ij} \defn - \rho <u'_i\,u'_j>\per
 \eeq
 This decomposition reveals a problem that is in the heart of turbulence. Because of the nonlinearity of the advective term in \eqref{eq:ns_momentum} one cannot write a closed equation for average fields. Indeed, this is termed the closure problem.  If one tries to write equations for $<u'_i\,u'_j>$, one finds that it depends on higher order terms, say $<u'_i\,u'_j\,u'_k>$.
 
-\subsection*{Eddy viscosity}
+We can form an equation for the turbulent velocity $\tu_i$ by subtracting the equation for the total flow  \eqref{eq:ns_momentum} from the average momentum equation \eqref{eq:momentum_avg}
+\beq
+\label{eq:ns_turb}
+\p_t \tu_i + u_j \p_{x_j} \tu_i = -\rho^{-1}\p_{x_i}p' + \nu \p_{x_j}\p_{x_j}\tu_i -\tu_j \p_{x_j} U_i
++ \p_{x_j}<\tu_i\tu_j>\per
+\eeq
 
+\subsection*{Eddy viscosity}
+To make progress, we will have to close the system. The most used method is to write the Reynolds stresses as a function of $U_i$. This is inspired by the apparent similarity between the viscous and Reynolds stresses. It is important to realize that this is a crude representation, and that $\tau'_{ij}$ depend fundamentally on the properties of the flows, whereas viscous stresses do not. The parameterize expression is 
+\beq
+\label{eq:eddy_viscosity}
+\tau'_{ij} = K \p_{x_i} U_j\com
+\eeq
+and is called eddy viscosity. The eddy viscous coefficient $K$ is typically orders of magnitude larger than the molecular viscosity $\nu$.
+
+\subsection*{Passive scalar}
+We can also write an equation for the passive scale $\phi$
+\beq
+\label{eq:pass_scalar}
+\p_t \phi + u_j \p_{x_j} \phi = \gamma \p_{x_jx_j}^2\phi\com
+\eeq
+where $\gamma$ is the scaler diffusivity. Similarly to the procedure used above in the equations of motions, we can introduce a Reynolds-like decomposition, to obtain the mean passive scalar equation
+\beq
+\label{eq:pass_scalar_mean}
+\p_t \Phi + U_j \p_{x_j} \Phi = \gamma \p_{x_jx_j}^2\Phi - \p_{x_j}{<u'_j\,\phi'>}\per
+\eeq
+Again, assumptions have to be made to close the system.
+
+\subsection*{The role of pressure}
+Taking the divergence of the momentum equation \eqref{eq:ns_momentum} we obtain a Poisson problem for pressure
+\beq
+\label{eq:pressure}
+\p_{x_j}\p_{x_j}p = - \rho \p_{x_j} u_i \p_{x_i} u_j\per
+\eeq
+Hence the pressure can be diagnosed from the flow $u_i$, provided boundary conditions are prescribed.
+
+\subsection*{The vorticity equation}
+The vorticity is defined as the curl of the velocity
+\beq
+\label{eq:vort_defn}
+\omega_i = \eijk \p_{x_j} u_k\per
+\eeq
+We can form an equation for $\omega_i$ by taking the curl of the momentum equation \eqref{eq:ns_momentum}. The final result is
+\beq
+\label{eq:vort_eqn}
+\p_t \omega_i + u_j \p_{x_j}\omega_i = \omega_j\p_{x_j}u_i + \nu \p_{x_j x_j} \omega_i\per
+\eeq
+We can form an enstrophy equation by dotting the equation above with $\omega_i$, to obtain
+\beq
+\label{eq:enstrophy_eqn}
+\p_t \omega_i^2 + u_j \p_{x_j}\omega_i ^2 = 2\omega_i\omega_j\p_{x_j}u_i + \nu \p_{x_j x_j} \omega_i^2 - 2 \nu \left(\p_{x_j} \omega_i\right)^2\per
+\eeq
+The last term is negative definite, and it represents the viscous dissipation of enstrophy. The second last term is the divergence of a viscous flux, which redistribute enstrophy across the domain. Because the tensor $\omega_i \omega_j$ is symmetric, we can rewrite the first term as 
+\beq
+\label{eq:enstrophy_1st_term}
+\omega_i\omega_j \p_{x_j}u_i = \omega_i\omega_j s_{ij}\com
+\eeq
+where $s_{ij}$ is the rate of strain tensor defined in \eqref{eq:strain}. Thus this term represents the generation of enstrophy through  straining by the flow.
+
+\section{Kinetic Energy}
+Kinetic energy is a diagnostic of fluid flows. Thus, a descriptions of its transfers and dissipation plays a fundamental role in the study of turbulence. The kinetic energy per unit mass is defined as
+\beq
+\label{eq:tot_ke}
+E(x_i,t) \defn \frac{u_i u_i}{2}\com
+\eeq
+and its average can be decomposed in two parts
+\beq
+\label{eq:ke_decomp}
+<E(x_i,t)>= \bar{E}(x_i,t) + e(x_i,t)\com
+\eeq
+where the kinetic energy of the average flow is
+\beq
+\label{eq:ke_avg}
+\bar{E}(x_i,t) \defn \frac{<\au_i\au_i>}{2}\com
+\eeq
+and the turbulence kinetic energy is
+\beq
+\label{eq:ke_turb}
+e(x_i,t) \defn \frac{<\tu_i\tu_i>}{2}\per
+\eeq
+The decomposition \eqref{eq:ke_decomp}  is easily verifiable: just recall the Reynolds decomposition $u_i \defn \au_i + \tu_i$. Also, the turbulent kinetic energy $e(x_i,t)$ is determined by the isotropic part of the Reynolds stress tensor. The anisotropic  part of that tensor also scales with $e(x_i,t)$; experiments show that $|<u,v>|\sim 0.27 e$. Mathematically, the turbulent kinetic energy is a bound on the anisotropic part of the Reynolds stress tensor is
+\beq
+\label{eq:bond_reynolds_stress}
+|<uv>| \le e\per
+\eeq
+
+
+\subsection*{The instantaneous kinetic energy equation}
+We begin by noticing that for incompressible flows
+\beq
+u_i \frac{D u_i}{D t}  =\frac{D E }{D t}  = \p_t E + \p_{x_j}\left(u_j E\right)\per
+\eeq
+Hence, multiplying the momentum equation \eqref{eq:ns_momentum} by $u_i$, and using the definition of the rate of strain tensor \eqref{eq:strain},  we obtain the instantaneous kinetic energy equation
+\beq
+\label{eq:inst_ke_eqn}
+\p_t E + \p_{x_j}\left(u_j E\right) + \p_{x_j}T_{j} = -2\nu s_{ij}s_{ij}\com
+\eeq
+where the kinetic energy flux is
+\beq
+\label{eq:ke_flux}
+T_j \defn u_j p /\rho - 2\nu u_k s_{ik}\per
+\eeq
+Integrating the energy equation \eqref{eq:inst_ke_eqn} over a fixed control volume $V$ with surface areas $S$ we obtain the instantaneous energy budget 
+\beq
+\label{eq:inst_ke_budget}
+\frac{\dd}{\dd t}\int\! E \,\dd V + \int \left(u_j E + T_j\right)_k\hat{n}_k\dd S = -2 \int \!\nu s_{ij}s_{ij}\, \dd V\com 
+\eeq
+where $\hat{n}_k$ is a unit vector normal to $S$. The surface term in \eqref{eq:inst_ke_budget} accounts for the surface energy flux into the volume $V$ and the work done by the pressure and viscous stress on the surface $S$. The term on the right of  \eqref{eq:inst_ke_budget} is negative definite and it represents the kinetic energy viscous dissipation, i.e., the conversion of kinetic energy into internal energy.
+
+Notice that
+\beq
+\label{eq:ke_adv_identity}
+\p_{x_j}\p_{x_j}\half u_i u_i = u_i \p_{x_j}\p_{x_j} u_i + \p_{x_j}u_i \p_{x_j}u_i\per
+\eeq
+Hence an alternate form for the instantaneous kinetic energy equation is
+\beq
+\label{eq:inst_ke_eqn_2}
+\p_t E + \p_{x_j}\left(u_j E\right) + \p_{x_j}\tilde{T}_{j} = -\nu  \p_{x_j}u_i \p_{x_j}u_i\com
+\eeq
+where the energy flux is
+\beq
+\label{eq:ke_flux_2}
+\tilde{T}_j = u_i p/\rho -\nu \p_{x_j}E\per
+\eeq
+
+\subsection*{The average kinetic energy equation}
+Taking the average of the instantaneous kinetic energy equation \eqref{eq:inst_ke_eqn} we obtain
+\beq
+\label{eq:avg_ke}
+\p_t <E> + \p_{x_j}\left(U_j <E>\right) + \p_{x_j}\left(<u_j E> + <T_{j}>\right) = -\vep - \bar{\vep}\com
+\eeq
+where  $<u_j E>$ is the turbulence transport of kinetic energy, and the terms on the right of \eqref{eq:avg_ke} are the viscous disspation of mean kinetic energy
+\beq
+\label{eq:mean_ep}
+\bar{\vep}\defn 2 \nu S_{ij} S_{ij}\com
+\eeq
+and the viscous dissipation of turbulent kinetic energy
+\beq
+\label{eq:turb_ep}
+\vep\defn 2 \nu s'_{ij} s'_{ij}\com
+\eeq
+with mean and turbulent rate of strain tensors
+\beq
+\label{eq:mean_strain}
+S_{ij} = <s_{ij}> \defn \frac{1}{2}\left(\p_{x_j}\au_i + \p_{x_i}\au_j\right)\com
+\eeq
+and
+\beq
+\label{eq:turb_strain}
+s_{ij} = s_{ij} - S_{ij} \defn \frac{1}{2}\left(\p_{x_j}u_i + \p_{x_i}u_j\right)\per
+\eeq
+Pope note that the dissipation associated with the mean flow scales  as $\Re^{-1}$, and is typically negligible. 
+
+\subsection*{The equation for the kinetic energy of the mean flow}
+We can form an equation for the kinetic energy of the mean flow by multiplying \eqref{eq:momentum_avg} by $U_i$
+\beq
+\label{eq:ke_eqn_mean_flow}
+\p_t \bar{E} + \p_{x_j} \au_j \bar{E}  + \p_{x_j}<T_j> = -\cP -\bar\vep\com
+\eeq
+where the average kinetic energy transport is
+\beq
+\label{eq:average_transp}
+<T_j> = \au_j <\tu_i\tu_j> + \au_j P/\rho - 2\nu \au_j S_{ij}\per
+\eeq
+The production term $\cP$ is
+\beq
+\label{eq:prod_term}
+\cP \defn -<\tu_i\tu_j> \p_{x_j}U_i\per
+\eeq
+
+\subsection*{The equation for the kinetic energy of the turbulent flow}
+We form an equation for the kinetic energy of the turbulent flow by multiplying \eqref{eq:ns_turb} by $\tu_i$ and averaging
+\beq
+\label{eq:ke_eqn_mean_flow}
+\p_t e + \pxj U_j e  + \pxj T'_j = \cP - \vep\com
+\eeq
+where the flux of turbulent kinetic energy is
+\beq
+\label{eq:turb_ke_flux}
+T'_i \defn <\tu_i p'>/\rho - 2\nu <\tu_i s'_{ij}> +\half <\tu_i\tu_i\tu_j>\per
+\eeq
+Notice that the production $\cP$ term appears in both mean and turbulent kinetic energy equations with signs changed. Thus this term represents a conversion between mean and turbulent flows. This term is associated with the interaction of the Reynolds stress with the background velocity shear. Because this term is typically positive, the kinetic energy is transferred from mean to turbulent flow. Pope note some important properties of the production term
+
+\begin{enumerate}
+    \item  Because $<\tu_i\tu_j>$ is symmetric, only the symmetric part of the velocity gradient tensor
+        affects the production term
+        \beq
+        \cP = -<\tu_i\tu_j>S_{ij};
+        \eeq
+    \item Only the anisotropic part of the Reynolds stress tensor affects the production term
+        \beq
+        \cP = -a_{ij}S_{ij}\com
+        \eeq
+        $a_{ij} = <\tu_i\tu_j>-\frac{2 e}{3}\delta_{ij}$;
+    \item Assuming the eddy viscosity hypothesis $a_{ij} = -2 \nu_T S_{ij}$ the production term has the form
+        \beq
+        \cP  = 2\nu_T S_{ij} S_{ij} \ge 0\per
+        \eeq
+        Hence $\cP$ assumes the form of the dissipation of mean kinetic energy $\bar{\vep}$ with the eddy
+        viscosity $\nu_T$ in place of the molecular viscosity $\nu$.
+
+\end{enumerate}
 
 \end{document}
+
 
 
 
