@@ -1,0 +1,304 @@
+\documentclass[11pt]{article}
+
+
+%% WRY has commented out some unused packages %%
+%% If needed, activate these by uncommenting
+\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+%\geometry{letterpaper}                   % ... or a4paper or a5paper or ... 
+\geometry{a4paper,left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+%\geometry{landscape}                % Activate for rotated page geometry
+%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+
+%for figures
+%\usepackage{graphicx}
+
+\usepackage{color}
+\definecolor{mygreen}{RGB}{28,172,0} % color values Red, Green, Blue
+\definecolor{mylilas}{RGB}{170,55,241}
+%% for graphics this one is also OK:
+\usepackage{epsfig}
+
+%% AMS mathsymbols are enabled with
+\usepackage{amssymb,amsmath}
+
+%% more options in enumerate
+\usepackage{enumerate}
+\usepackage{enumitem}
+
+%% insert code
+\usepackage{listings}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage{hyperref}
+
+
+% Default fixed font does not support bold face
+\DeclareFixedFont{\ttb}{T1}{txtt}{bx}{n}{12} % for bold
+\DeclareFixedFont{\ttm}{T1}{txtt}{m}{n}{12}  % for normal
+
+% Custom colors
+\usepackage{color}
+\definecolor{deepblue}{rgb}{0,0,0.5}
+\definecolor{deepred}{rgb}{0.6,0,0}
+\definecolor{deepgreen}{rgb}{0,0.5,0}
+
+
+% Python style for highlighting
+\newcommand\pythonstyle{\lstset{
+language=Python,
+basicstyle=\ttm,
+otherkeywords={self},             % Add keywords here
+keywordstyle=\ttb\color{deepblue},
+emph={MyClass,__init__},          % Custom highlighting
+emphstyle=\ttb\color{deepred},    % Custom highlighting style
+stringstyle=\color{deepgreen},
+frame=tb,                         % Any extra options here
+showstringspaces=false            % 
+}}
+
+% Python environment
+\lstnewenvironment{python}[1][]
+{
+\pythonstyle
+\lstset{#1}
+}
+{}
+
+% Python for external files
+\newcommand\pythonexternal[2][]{{
+\pythonstyle
+\lstinputlisting[#1]{#2}}}
+
+% Python for inline
+\newcommand\pythoninline[1]{{\pythonstyle\lstinline!#1!}}
+
+%\usepackage{epstopdf}
+%\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+
+
+
+%% colors
+\usepackage{graphicx,xcolor,lipsum}
+
+
+\usepackage{mathtools}
+
+\usepackage{graphicx}
+\newcommand*{\matminus}{%
+  \leavevmode
+  \hphantom{0}%
+  \llap{%
+    \settowidth{\dimen0 }{$0$}%
+    \resizebox{1.1\dimen0 }{\height}{$-$}%
+  }%
+}
+
+
+\title{MAE214, Homework Assignment 1}
+\author{Cesar B Rocha}
+\date{\today}
+
+\begin{document}
+
+\include{mysymbols}
+
+\maketitle
+
+\section*{Problem 1}
+
+\begin{enumerate}[label=(\alph*)]
+
+
+    \item The axisymmetric boundary-layer zonal momentum equation is
+        \beq
+            \label{eq:axi_ble} 
+            U_c \frac{\p <U>}{\p x} = -\frac{1}{r}\frac{\p}{\p r} (r<uv>)\per
+        \eeq
+        Multiplying by $r$, integrating over the domain and using the continuity equation we obtain the momentum deficit rate
+        \beq
+        \dot{M} \defn \int_{0}^{\infty} 2\pi \rho U_c(U_c - <U>) \dd r\per
+        \eeq
+        For the wake to be self similar and satisfy the momentum integral constraint above we must have a linear dependence on r, that is, the self-similarity variable $\xi$ is
+        \beq
+            \xi = \frac{r}{R(x)}\com
+        \eeq
+       where $R$ is the wake half-width, and the self-similar deficit velocity is
+        \beq
+             f(\xi) - \frac{U_c - <U>}{U_s} \per
+        \eeq
+
+    \item From (a), we have the similarity function $f$
+        \beq
+       <U> = U_c - U_s(x) f\com
+        \eeq
+         Thus we have
+        \beq
+        \frac{\p}{\p x} = \frac{\p \xi}{\p r} \frac{\p}{\p \xi} = -\frac{r}{R^2}\frac{\p R}{\p x} \frac{\p}{\p \xi}\com
+        \eeq
+        and
+        \beq
+            \frac{\p}{\p r} = \frac{1}{R}\frac{\p}{\p \xi}\per 
+        \eeq
+        Hence
+        \beq
+        \frac{\p<U>}{\p x} = -\left[f \frac{\p U_s}{\p x} + U_s \frac{\p f}{\p x} \right] =  -\left[f \frac{\p U_s}{\p x} - U_s \frac {\xi}{R}\frac{\p R}{\p x} f' \right] \per
+        \eeq
+        For the self-similarity hypothesis to be valid, we have
+        \beq
+    \frac{R(x)U_c}{U_s^2} \frac{\p U_s}{\p x} = -2 S\com
+        \eeq
+        with the spreading parameter
+        \beq
+        S \defn \frac{U_c}{U_s} \frac{\p R}{\p x}\per
+        \eeq
+        Thus
+        \beq
+        U_c\frac{\p<U>}{\p x} =  U_s^2 S \left[\frac{2}{R} f + \frac{\xi}{R}f' \right]\per
+        \eeq
+        Now with
+        \beq
+        g(\xi) \defn \frac{<uv>}{U_s^2}\com
+        \eeq
+        the right-hand-side becomes
+        \beq
+            -\frac{1}{r}\frac{\p }{\p r} (r <uv>) = -\frac{U_s^2}{r}(\xi g)'\per
+        \eeq
+        Thus \eqref{eq:axi_ble} becomes
+        \beq
+        - S \left(2\xi f + \xi f'\right) = (\xi g)'\per
+        \eeq
+        Notice that
+        \beq
+            (\xi^2 f)' = 2\xi f + \xi f'\com
+        \eeq
+        Thus
+        \beq
+        \label{eq:gtof}
+            g = -S \xi f \per
+        \eeq
+        Assuming constant turbulent viscosity 
+        \beq
+        g = \hat{\nu}_T f'\com
+        \eeq
+        then \eqref{eq:gtof} becomes
+        \beq
+        \hat{\nu}_T f' + S \xi f = 0 \com
+        \eeq
+        which can be easily solved by separation of variables to give
+        \beq
+        f(\xi) = \ee^{-\frac{S}{2\nu_T}\xi^2} + C\com
+        \eeq    
+        where $C$ is a constant. We require that f decays to zero for large $\xi$, so that we can choose $C =0$. Furthermore, by definition,  we require that $f(\xi=1) = \tfrac{1}{2}$. Thus we obtain
+        \beq
+            S = 2 \ln 2 \hat{\nu}_T\com
+        \eeq
+        and the final solution is
+        \beq
+            f(\xi) = \ee^{-\ln 2 \xi^2}\per
+        \eeq
+
+
+    \item The TKE can be obtained by dotting the equations for the turbulent velocity $u'_i$ to give
+           \beq
+            \label{eq:ke_eqn_mean_flow}
+            \p_t e + \pxj <U_j> e  + \pxj T'_j = \cP - \vep\com
+            \eeq
+            where the flux of turbulent kinetic energy is
+            \beq
+            \label{eq:turb_ke_flux}
+            T'_i \defn <\tu_i p'>/\rho - 2\nu <\tu_i s'_{ij}> +\half <\tu_i\tu_i\tu_j>\per
+            \eeq 
+            In \eqref{eq:ke_eqn_mean_flow}, $\cP$ is the production term
+            \beq
+            \label{eq:prod_term}
+            \cP \defn -<\tu_i\tu_j> \p_{x_j}U_i\com
+            \eeq
+            and $\vep$ the viscous dissipation of turbulent kinetic energy
+            \beq
+                \label{eq:turb_ep}
+                \vep\defn 2 \nu s'_{ij} s'_{ij}\com
+            \eeq
+            In a round wake, the advection of turbulent kinetic energy (the second term on the left of \eqref{eq:ke_eqn_mean_flow}), which is positive, and  balances the negative turbulent flux of turbulent kinetic energy and the dissipation of turbulent kinetic energy $\vep$.
+
+\end{enumerate}
+
+\section*{Problem 2}
+
+\begin{enumerate}[label=(\alph*)]
+
+    \item If $U$ is normally-distributed then $Y \defn \text{e}^U$ is log-normally-distributed. The $n$'th 
+         raw moment of $Y$ is
+         \begin{equation}
+            \label{eq:raw_moment_Y}
+            \left<Y^n\right> \defn \int_{-\infty}^{\infty} \zeta^n f_{Y}(\zeta) \dd \zeta\com
+        \end{equation}
+        where $f_Y$ is the probability density function (\pdf) of $Y$. We note that
+        \beq
+            \label{eq:prob_equiv}
+            f_Y(\zeta)\dd \zeta = f_U(V) \dd V\com
+        \eeq
+        where $f_U$ is the \pdf of $U$. Thus an equivalent expression for the \nth moment of $Y$ is
+         \begin{equation}
+            \label{eq:raw_moment_Y_2}
+            \left<Y^n\right> = \int_{-\infty}^{\infty} \ee^{nV}f_U(V)  \dd V\per
+        \end{equation}  
+        We religiously follow Pope's hint and evaluate \eqref{eq:raw_moment_Y_2} instead of \eqref{eq:raw_moment_Y}. Since $U$ is normally-distributed we have
+        \begin{align}
+            \label{eq:raw_moment_Y_3}
+            \left<Y^n\right> = \frac{1}{\sigma \sqrt{2\pi}}\int_{-\infty}^{\infty} \exp{\Bigg\{-\left[
+        \frac{1}{2\sigma^2}(V-\mu)^2 -n V \right]}\Bigg\}  \dd V\per 
+        \end{align} 
+        The idea is to complete the square in the exponent of the integrand above. We obtain
+        \beq
+        \left<Y^n\right> =  \frac{\exp{\left(n\mu + \tfrac{1}{2}n^2\sigma^2\right)}}{\sigma \sqrt{2\pi}}\underbrace{\int_{-\infty}^{\infty} \exp{\Bigg\{-\frac{1}{2\sigma^2} \left[V-(\mu + n\sigma^2)\right]^2}\Bigg\}  \dd V}_{\defn I}\per 
+        \eeq
+        To evaluate $I$ we change variables with
+        \beq
+            \theta \defn \frac{V-(\nu+n\sigma^2)}{\sqrt{2}\sigma} \Rightarrow \dd \theta
+                = \frac{\dd V}{\sqrt{2}\sigma}\com
+        \eeq
+        so that
+        \beq
+        I = \sqrt{2}\sigma\int_{-\infty}^{\infty} \ee^{-\theta^2} \dd \theta = \sigma \sqrt{2 \pi}\per
+        \eeq
+        Thus
+        \beq
+            <Y^n> = \exp{\left(n\mu + \tfrac{1}{2}n^2\sigma^2\right)}\com
+        \eeq
+        which is the advertised answer (Pope's equation 3.52).
+
+        With $\mu = -\tfrac{1}{2}\sigma^2$ we have
+        \beq
+        <Y^n> = \exp{\left(\tfrac{1}{2}(n^2-n)\sigma^2\right)}\com
+        \eeq
+        and therefore
+        \beq
+            <Y> = 1\com
+        \eeq
+        and
+        \beq
+        \text{var}(Y) = < (Y - <Y>)^2> = <Y^2> - <Y>^2 = <Y>^2(\ee^{\sigma^2}-1) = (\ee^{\sigma^2}-1) \per 
+        \eeq
+
+        \item Figure \ref{fig:pb2} shows the cumulative distribution function (c.d.f.) and the \pdf of a log-normally-distributed random variable $y$ with with unit mean. Clearly the larger the variance, the less normal is the distribution. The distribution with variance 1 and 10 have a long-tail and are skewed towards small values, whereas the distribution with variance 0.1 is resembles a guassian distribution. Whereas the mode of the normal-like distribution is close to the mean, the mode for the larger variance log-normal distributions are much smaller than the mean.
+        \item  We calculate the probability of an event being larger than the mean by simply integrating the \pdf  for $y>1$. As expected, the normal-like distribution (variance 0.1) has the larger probability of having an event larger than the mean ($\sim0.507782213931$). The variable with variance $1$ has 0.487215676324 probability of being larger than the mean, and the one with largest variance (10) has the smaller probability 0.377998416075 of an event being larger than the mean. 
+
+            This example clearly illustrates that processes with log-normal distributions and large variance are prone to extreme events (as seen in the long tails in the \pdf). But, these events are relatively rare. This also illustrates how one can reach wrong conclusions if one thinks only in terms of mean and variance without paying attention to the \pdf
+        \begin{figure}[ht]
+        \begin{center}
+        \includegraphics[width=18pc,angle=0]{pb2_cdf.png}
+        \includegraphics[width=18pc,angle=0]{pb2_pdf.png}
+        \end{center}
+        \caption{Cumulative distribution function (pdf) and probability distribution function (pdf) 
+                for a log-normally-distributed random variable $y$ with $<y>=1$, and different variances.}
+        \label{fig:pb2}
+        \end{figure}
+
+
+\end{enumerate}
+
+
+\end{document}
+
+
