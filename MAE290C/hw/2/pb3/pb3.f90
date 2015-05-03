@@ -1,7 +1,7 @@
 program pb3
 
     implicit none
-    integer, parameter :: N = 512
+    integer, parameter :: N = 128
     integer :: i, j
     real (kind=8), parameter :: pi = acos(-1.d0)
     real (kind=8) :: L, dx, dk, nu, dt
@@ -12,7 +12,6 @@ program pb3
 
     ! open files to write to disk
     open(unit=20, file="Burgers.out", action="write", status="replace")
-
 
     ! Physical domain
     L = 2.d0*pi
@@ -28,9 +27,8 @@ program pb3
     k2 = k**2
 
     ! Constant parameters
-    nu = 1.d-3              ! viscosity coefficient [L]^2/[T]
-
-    dt = 1.d-2
+    nu = 1.d-3              ! viscosity coefficient [L]^2/ [T]
+    dt = .2*dx
 
     ! initial condition
     do i=1,N
@@ -39,13 +37,14 @@ program pb3
 
     call rfft(uini,uhat,N)
 
+    print *, "dt = ",dt
+
     ! march forward in time
-    do j=1,100000 
-        call stepforward(uhat,N/2+1,nu,k2,dt)
+    do j=1,1000
+        call stepforward(uhat,N/2+1,nu,k,dt)
     enddo
 
     call irfft(uhat,u,N)
-
 
     ! write to disk
     do i=1,N
@@ -53,6 +52,8 @@ program pb3
         !write(*,*) real(uhat(i)),aimag(uhat(i))
     enddo
 
+
+    !print *, x()
 
 end program pb3
 
@@ -74,28 +75,68 @@ subroutine LBurgers(u,Lu,k2,nu,n)
     Lu = -nu*k2*u
 
 end subroutine LBurgers
-  
+ 
 ! function to evaluate the linear part
-subroutine NLBurgers(u,NLu,n)
+subroutine NLBurgers(uhat,k,NLuhat,n)
+
+    ! Compute fully dealiased nonlinear term
 
     integer, intent(in) :: n
-    complex (kind=8), dimension(n), intent(in) :: u
-    complex (kind=8), dimension(n), intent(out) :: NLu
+    complex (kind=8), dimension(n), intent(in) :: uhat
+    complex (kind=8), dimension(n), intent(out) :: NLuhat
+    real (kind=8), dimension(n), intent(in) :: k
 
-    NLu = 0.d0
+    complex (kind=8), parameter :: ii = cmplx(0.d0, 1.d0) 
+    complex (kind=8), dimension(3*n/2) :: uhat_pad, uxhat_pad, NLuhat_pad
+    real (kind=8), dimension(3*n-3) :: u_pad, ux_pad
+
+    interface
+        subroutine  rfft(x,xhat,n)
+            integer, intent(in) :: n
+            real (kind=8), dimension(n), intent(in) :: x
+            complex (kind=8), dimension(n/2+1), intent(inout) :: xhat
+        end subroutine rfft
+    end interface
+
+    interface
+        subroutine  irfft(xhat,x,n)
+            integer, intent(in) :: n
+            real (kind=8), dimension(n), intent(inout) :: x
+            complex (kind=8), dimension(n/2+1), intent(in) :: xhat
+        end subroutine irfft
+    end interface
+
+    ! initialize padded variables
+    uhat_pad = 0.d0
+    uxhat_pad = 0.d0
+    !print *,size(uxhat_pad), size(uhat), size(u_pad)
+    ! pad u
+    uhat_pad(1:n) = uhat
+    call irfft(uhat_pad,u_pad,3*n-3)
+
+    ! compute ux in Fourier
+    uxhat_pad(1:n) = ii*k*uhat    
+    call irfft(uxhat_pad,ux_pad,3*n-3)
+
+    ! now compute the transform of the product
+    call rfft(u_pad*ux_pad,NLuhat_pad,3*n-3)
+
+     !NLuhat = 0.d0
+    NLuhat = -NLuhat_pad(1:n)
+
 
 end subroutine NLBurgers
  
 
 ! step forward
-subroutine stepforward(u,n,nu,k2,dt)
+subroutine stepforward(u,n,nu,k,dt)
 
     implicit none
 
     ! subroutine arguments
     integer, intent(in) :: n
     real (kind=8), intent(in) :: dt, nu
-    real (kind=8), dimension(n), intent(in) :: k2
+    real (kind=8), dimension(n), intent(in) :: k
     complex (kind=8), dimension(n), intent(inout) :: u
 
 
@@ -113,34 +154,28 @@ subroutine stepforward(u,n,nu,k2,dt)
 
 
     interface
-        subroutine  NLBurgers(u,NLu,n)
+        subroutine  NLBurgers(u,k,NLu,n)
             integer, intent(in) :: n
+            real (kind=8), dimension(n), intent(in) :: k
             complex (kind=8), dimension(n), intent(in) :: u
             complex (kind=8), dimension(n), intent(out) :: NLu
         end subroutine NLBurgers
     end interface
 
-    Lin = -nu*dt*k2
+    Lin = -nu*dt*(k**2)
 
     ! step forward, computing updates in place
-    call NLBurgers(u,NL1,n)
+    call NLBurgers(u,k,NL1,n)
     u = ( (1.d0 + a1*Lin)/(1.d0 - b1*Lin) )*u + c1*dt*NL1
 
-    !NL2 = NL1
-    call NLBurgers(u,NL1,n)
-    u = ( (1.d0 + a2*Lin)/(1.d0 - b2*Lin) )*u + c2*dt*NL1 + d1*dt*NL1
+    NL2 = NL1
+    call NLBurgers(u,k,NL1,n)
+    u = ( (1.d0 + a2*Lin)/(1.d0 - b2*Lin) )*u + c2*dt*NL1 + d1*dt*NL2
 
-    !NL2 = NL1
-    print *, maxval(real(NL2),n/2+1),  maxval(aimag(NL2),n/2+1)
-    call NLBurgers(u,NL1,n)
-    u = ( (1.d0 + a3*Lin)/(1.d0 - b3*Lin) )*u + c3*dt*NL1 + d2*dt*NL1
-
-!    do i=1,n
-!        u(i) = ( (1.d0 + a1*Lin(i))/(1.d0 - b1*Lin(i)) )*u(i) 
-!        u(i) = ( (1.d0 + a2*Lin(i))/(1.d0 - b2*Lin(i)) )*u(i)
-!        u(i) = ( (1.d0 + a3*Lin(i))/(1.d0 - b3*Lin(i)) )*u(i)
-!    enddo
-!
+    NL2 = NL1
+    !print *, maxval(real(NL2),n/2+1),  maxval(aimag(NL2),n/2+1)
+    call NLBurgers(u,k,NL1,n)
+    u = ( (1.d0 + a3*Lin)/(1.d0 - b3*Lin) )*u + c3*dt*NL1 + d2*dt*NL2
 
 end subroutine stepforward
 
