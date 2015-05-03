@@ -1,17 +1,28 @@
 program pb3
 
+    ! MAE290C, Winter 2015
+    ! Homework 2, Problem 3: 1D Burgers eqn.
+    ! Cesar B. Rocha    
+
     implicit none
-    integer, parameter :: N = 128
-    integer :: i, j
+    integer, parameter :: N = 2048
+    integer :: i, j, nmax, nsave
     real (kind=8), parameter :: pi = acos(-1.d0)
-    real (kind=8) :: L, dx, dk, nu, dt
+    real (kind=8) :: L, dx, dk, nu, dt, tmax,tsave
     real (kind=8), dimension(N) :: uini, u, x
     real (kind=8), dimension(N/2+1):: k, k2
-    complex (kind=8), dimension(N/2+1) :: uhat, Luhat, NLuhat
-    external :: NLBurgers
+    complex (kind=8), dimension(N/2+1) :: uhat, uhats, Luhat, NLuhat
+    character (len=4):: fno
 
     ! open files to write to disk
-    open(unit=20, file="Burgers.out", action="write", status="replace")
+    fno = "2048"
+
+    open(unit=20, file="output/Burgers"//fno//".config", action="write", status="replace")
+    open(unit=21, file="output/Burgers"//fno//".ini", action="write", status="replace")
+    open(unit=22, file="output/Burgers"//fno//".phys", action="write", status="replace")
+    open(unit=23, file="output/Burgers"//fno//".four", action="write", status="replace")
+    open(unit=24, file="output/Burgers"//fno//".time", action="write", status="replace")
+    open(unit=25, file="output/Burgers"//fno//".k", action="write", status="replace")
 
     ! Physical domain
     L = 2.d0*pi
@@ -21,39 +32,57 @@ program pb3
         x(i+1) = i*dx
     enddo
 
+    if (x(N)==L) then
+        print *, "*** Warning: last element of x is redundant"
+    endif
+
     ! Fourier domain
     dk = 2.d0*pi/L          ! spectral resolution in rad / [L]
     call wavenumber(N,L,k)  ! wavenumber array in rad / [L]
     k2 = k**2
 
     ! Constant parameters
+    tmax = 5.25d0
     nu = 1.d-3              ! viscosity coefficient [L]^2/ [T]
     dt = .2*dx
+    tsave = 0.25d0
+    nmax = ceiling(tmax/dt)
+    nsave = ceiling(tsave/dt)
+    write (20,*) "dx = ", dx
+    write (20,*) "tmax = ", tmax
+    write (20,*) "dt = ", dt
+    write (20,*) "nmax = ", nmax
+    write (20,*) "nsave = ", nsave
+    write (20,*) "kmax = ", k(N/2+1)
 
     ! initial condition
     do i=1,N
         uini(i) = sin(x(i))
+        write(21,*) x(i),uini(i)   
     enddo
+
+    write(25,*) k
 
     call rfft(uini,uhat,N)
 
-    print *, "dt = ",dt
-
     ! march forward in time
-    do j=1,1000
-        call stepforward(uhat,N/2+1,nu,k,dt)
+    do j=1,nmax
+
+        if (mod(j,nsave)==0.d0) then
+            ! some weird thing going on
+            ! this doesn't work if I work directly on uhat
+            ! i think fftw is changing uhat
+            uhats = uhat
+            call irfft(uhats,u,N)           
+            print *, "t = ", j*dt
+            write (24,*) j*dt
+            write (22,*) u
+            write (23,*) dsqrt(real(uhat)**2 + aimag(uhat)**2 )
+        endif
+
+        call stepforward(uhat,N,nu,k,dt)
+
     enddo
-
-    call irfft(uhat,u,N)
-
-    ! write to disk
-    do i=1,N
-        write(20,*) x(i), uini(i), u(i)
-        !write(*,*) real(uhat(i)),aimag(uhat(i))
-    enddo
-
-
-    !print *, x()
 
 end program pb3
 
@@ -79,16 +108,17 @@ end subroutine LBurgers
 ! function to evaluate the linear part
 subroutine NLBurgers(uhat,k,NLuhat,n)
 
-    ! Compute fully dealiased nonlinear term
+    ! Compute fully dealiased (3/2 rule) nonlinear term
+    !  of 1D Burgers equation
 
     integer, intent(in) :: n
-    complex (kind=8), dimension(n), intent(in) :: uhat
-    complex (kind=8), dimension(n), intent(out) :: NLuhat
-    real (kind=8), dimension(n), intent(in) :: k
+    complex (kind=8), dimension(n/2+1), intent(in) :: uhat
+    complex (kind=8), dimension(n/2+1), intent(out) :: NLuhat
+    real (kind=8), dimension(n/2+1), intent(in) :: k
 
     complex (kind=8), parameter :: ii = cmplx(0.d0, 1.d0) 
-    complex (kind=8), dimension(3*n/2) :: uhat_pad, uxhat_pad, NLuhat_pad
-    real (kind=8), dimension(3*n-3) :: u_pad, ux_pad
+    complex (kind=8), dimension(3*n/4+1) :: uhat_pad, uxhat_pad, NLuhat_pad
+    real (kind=8), dimension(3*n/2) :: u_pad, ux_pad
 
     interface
         subroutine  rfft(x,xhat,n)
@@ -109,21 +139,19 @@ subroutine NLBurgers(uhat,k,NLuhat,n)
     ! initialize padded variables
     uhat_pad = 0.d0
     uxhat_pad = 0.d0
-    !print *,size(uxhat_pad), size(uhat), size(u_pad)
     ! pad u
-    uhat_pad(1:n) = uhat
-    call irfft(uhat_pad,u_pad,3*n-3)
+    uhat_pad(1:n/2+1) = uhat
+    call irfft(uhat_pad,u_pad,3*n/2)
 
     ! compute ux in Fourier
-    uxhat_pad(1:n) = ii*k*uhat    
-    call irfft(uxhat_pad,ux_pad,3*n-3)
+    uxhat_pad(1:n/2+1) = ii*k*uhat    
+    call irfft(uxhat_pad,ux_pad,3*n/2)
 
     ! now compute the transform of the product
-    call rfft(u_pad*ux_pad,NLuhat_pad,3*n-3)
+    call rfft(u_pad*ux_pad,NLuhat_pad,3*n/2)
 
      !NLuhat = 0.d0
-    NLuhat = -NLuhat_pad(1:n)
-
+    NLuhat = -NLuhat_pad(1:n/2+1)
 
 end subroutine NLBurgers
  
@@ -136,8 +164,8 @@ subroutine stepforward(u,n,nu,k,dt)
     ! subroutine arguments
     integer, intent(in) :: n
     real (kind=8), intent(in) :: dt, nu
-    real (kind=8), dimension(n), intent(in) :: k
-    complex (kind=8), dimension(n), intent(inout) :: u
+    real (kind=8), dimension(n/2+1), intent(in) :: k
+    complex (kind=8), dimension(n/2+1), intent(inout) :: u
 
 
     ! local variables
