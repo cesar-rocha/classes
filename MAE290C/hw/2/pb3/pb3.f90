@@ -5,17 +5,28 @@ program pb3
     ! Cesar B. Rocha    
 
     implicit none
-    integer, parameter :: N = 2048
-    integer :: i, j, nmax, nsave
-    real (kind=8), parameter :: pi = acos(-1.d0)
-    real (kind=8) :: L, dx, dk, nu, dt, tmax,tsave
-    real (kind=8), dimension(N) :: uini, u, x
-    real (kind=8), dimension(N/2+1):: k, k2
-    complex (kind=8), dimension(N/2+1) :: uhat, uhats, Luhat, NLuhat
+    integer :: N, i, j, nmax, nsave
     character (len=4):: fno
+    real (kind=8), parameter :: pi = acos(-1.d0)
+    real (kind=8) :: L, dx, dk, nu, nu6, dt, tmax,tsave
+    real (kind=8), dimension(:), allocatable :: uini, u, x, k, filt
+    complex (kind=8), dimension(:), allocatable :: uhat, uhats
+    logical :: use_filter
+
+    ! reading simulation params
+    read (*,*) N            ! Number of points in physical space
+    read (*,*) fno          ! string with N for output files
+    read (*,*) nu           ! viscosity coefficient [L]^2/ [T] 
+    read (*,*) nu6          ! 6th order hyperviscosity coefficient [L]^6/ [T] 
+    read (*,*) use_filter   ! filter flag
+    read (*,*) tmax         ! max time of simulation
+    read (*,*) tsave        ! save every
+
+    ! allocate variables based on N
+    allocate(uini(N), u(N), x(N)) 
+    allocate(k(N/2+1), uhat(N/2+1), uhats(N/2+1), filt(N/2+1))
 
     ! open files to write to disk
-    fno = "2048"
 
     open(unit=20, file="output/Burgers"//fno//".config", action="write", status="replace")
     open(unit=21, file="output/Burgers"//fno//".ini", action="write", status="replace")
@@ -39,16 +50,25 @@ program pb3
     ! Fourier domain
     dk = 2.d0*pi/L          ! spectral resolution in rad / [L]
     call wavenumber(N,L,k)  ! wavenumber array in rad / [L]
-    k2 = k**2
+
+    ! spectral filter
+    do i=1,N/2+1
+        if (use_filter) then
+            filt(i) = (1.d0+cos(2.d0*pi*(i-1)/N))/2.
+        else
+            filt(i) = 1.d0
+        endif
+    enddo
 
     ! Constant parameters
-    tmax = 5.25d0
-    nu = 1.d-3              ! viscosity coefficient [L]^2/ [T]
-    dt = .2*dx
-    tsave = 0.25d0
+    !nu = 1.d-3              ! viscosity coefficient [L]^2/ [T]
+    dt = .2*dx               ! dt_max: cfl < sqrt(3) for RK3
     nmax = ceiling(tmax/dt)
     nsave = ceiling(tsave/dt)
     write (20,*) "dx = ", dx
+    write (20,*) "nu = ", nu
+    write (20,*) "nu6 = ", nu6 
+    write (20,*) "filter = ", use_filter 
     write (20,*) "tmax = ", tmax
     write (20,*) "dt = ", dt
     write (20,*) "nmax = ", nmax
@@ -68,19 +88,22 @@ program pb3
     ! march forward in time
     do j=1,nmax
 
+        ! filter
+        uhat = filt*uhat
+
         if (mod(j,nsave)==0.d0) then
             ! some weird thing going on
             ! this doesn't work if I work directly on uhat
             ! i think fftw is changing uhat
             uhats = uhat
             call irfft(uhats,u,N)           
-            print *, "t = ", j*dt
+            print *, "t = ", j*dt, "CFL = ", maxval(abs(u))*dt/dx
             write (24,*) j*dt
             write (22,*) u
             write (23,*) dsqrt(real(uhat)**2 + aimag(uhat)**2 )
         endif
 
-        call stepforward(uhat,N,nu,k,dt)
+        call stepforward(uhat,N,nu,nu6,k,dt)
 
     enddo
 
@@ -157,13 +180,13 @@ end subroutine NLBurgers
  
 
 ! step forward
-subroutine stepforward(u,n,nu,k,dt)
+subroutine stepforward(u,n,nu,nu6,k,dt)
 
     implicit none
 
     ! subroutine arguments
     integer, intent(in) :: n
-    real (kind=8), intent(in) :: dt, nu
+    real (kind=8), intent(in) :: dt, nu, nu6
     real (kind=8), dimension(n/2+1), intent(in) :: k
     complex (kind=8), dimension(n/2+1), intent(inout) :: u
 
@@ -180,7 +203,6 @@ subroutine stepforward(u,n,nu,k,dt)
     complex (kind=8), dimension(n) :: NL1, NL2
     integer :: i
 
-
     interface
         subroutine  NLBurgers(u,k,NLu,n)
             integer, intent(in) :: n
@@ -190,7 +212,7 @@ subroutine stepforward(u,n,nu,k,dt)
         end subroutine NLBurgers
     end interface
 
-    Lin = -nu*dt*(k**2)
+    Lin = -nu*dt*(k**2) - nu6*dt*(k**6)
 
     ! step forward, computing updates in place
     call NLBurgers(u,k,NL1,n)
@@ -201,7 +223,6 @@ subroutine stepforward(u,n,nu,k,dt)
     u = ( (1.d0 + a2*Lin)/(1.d0 - b2*Lin) )*u + c2*dt*NL1 + d1*dt*NL2
 
     NL2 = NL1
-    !print *, maxval(real(NL2),n/2+1),  maxval(aimag(NL2),n/2+1)
     call NLBurgers(u,k,NL1,n)
     u = ( (1.d0 + a3*Lin)/(1.d0 - b3*Lin) )*u + c3*dt*NL1 + d2*dt*NL2
 
@@ -284,7 +305,6 @@ subroutine irfft(xhat,x,n)
     call dfftw_destroy_plan(plan)
 
     x = x/n
-
 end subroutine irfft
 
 
