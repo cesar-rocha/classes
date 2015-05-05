@@ -1,0 +1,431 @@
+\documentclass[11pt]{article}
+
+
+%% WRY has commented out some unused packages %%
+%% If needed, activate these by uncommenting
+\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+%\geometry{letterpaper}                   % ... or a4paper or a5paper or ... 
+\geometry{a4paper,left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+%\geometry{landscape}                % Activate for rotated page geometry
+%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+
+%for figures
+%\usepackage{graphicx}
+
+\usepackage{color}
+\definecolor{mygreen}{RGB}{28,172,0} % color values Red, Green, Blue
+\definecolor{mylilas}{RGB}{170,55,241}
+%% for graphics this one is also OK:
+\usepackage{epsfig}
+
+%% AMS mathsymbols are enabled with
+\usepackage{amssymb,amsmath}
+
+%% more options in enumerate
+\usepackage{enumerate}
+\usepackage{enumitem}
+
+%% insert code
+\usepackage{listings}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage{hyperref}
+
+%% To make really wide whats that cover everything:
+\usepackage{scalerel}
+\usepackage{stackengine}
+\stackMath
+\def\hatgap{2pt}
+\def\subdown{-2pt}
+\newcommand\what[2][]{%
+\renewcommand\stackalignment{l}%
+\stackon[\hatgap]{#2}{%
+\stretchto{%
+    \scalerel*[\widthof{$#2$}]{\kern-.6pt\bigwedge\kern-.6pt}%
+    {\rule[-\textheight/2]{1ex}{\textheight}}%WIDTH-LIMITED BIG WEDGE
+}{0.5ex}% THIS SQUEEZES THE WEDGE TO 0.5ex HEIGHT
+_{\smash{\belowbaseline[\subdown]{\scriptstyle#1}}}%
+}}
+
+% Default fixed font does not support bold face
+\DeclareFixedFont{\ttb}{T1}{txtt}{bx}{n}{12} % for bold
+\DeclareFixedFont{\ttm}{T1}{txtt}{m}{n}{12}  % for normal
+
+% Custom colors
+\usepackage{color}
+\definecolor{deepblue}{rgb}{0,0,0.5}
+\definecolor{deepred}{rgb}{0.6,0,0}
+\definecolor{deepgreen}{rgb}{0,0.5,0}
+
+
+% Python style for highlighting
+\newcommand\pythonstyle{\lstset{
+language=Python,
+basicstyle=\ttm,
+otherkeywords={self},             % Add keywords here
+keywordstyle=\ttb\color{deepblue},
+emph={MyClass,__init__},          % Custom highlighting
+emphstyle=\ttb\color{deepred},    % Custom highlighting style
+stringstyle=\color{deepgreen},
+frame=tb,                         % Any extra options here
+showstringspaces=false            % 
+}}
+
+% Python environment
+\lstnewenvironment{python}[1][]
+{
+\pythonstyle
+\lstset{#1}
+}
+{}
+
+% Python for external files
+\newcommand\pythonexternal[2][]{{
+\pythonstyle
+\lstinputlisting[#1]{#2}}}
+
+% Python for inline
+\newcommand\pythoninline[1]{{\pythonstyle\lstinline!#1!}}
+
+%% colors
+\usepackage{graphicx,xcolor,lipsum}
+
+
+\usepackage{mathtools}
+
+\usepackage{graphicx}
+\newcommand*{\matminus}{%
+  \leavevmode
+  \hphantom{0}%
+  \llap{%
+    \settowidth{\dimen0 }{$0$}%
+    \resizebox{1.1\dimen0 }{\height}{$-$}%
+  }%
+}
+
+
+\title{MAE290C, Homework Assignment 2}
+\author{Cesar B Rocha}
+\date{\today}
+
+\begin{document}
+
+\include{mysymbols}
+\maketitle
+
+
+\section*{Problem 1}
+We have
+\beq
+u = \cos 17 \pi x\com\qqand v = \sin 8 \pi x\per
+\eeq
+The question asks for considering the domain $0\leq x < 1$. First, we note that $u$ is not periodic on this interval. that is
+\beq
+u(x+1) = \cos 17 \pi x + \cos 17 \pi = \cos 17 \pi x  -1\per
+\eeq
+In particular, $u(0) = 0$ and $u(1) = -1$. Thus we expect a long tail in the Fourier coefficients of $u$, $\what{u}$ to represent a discontinuity. In other other words, $\what{u}$ is not a perfect Dirac delta. On the other hand, $v$ is periodic with period 1, so the Fourier coefficients $\what{v}$ is a Dirac delta. 
+
+Considering the periodic functions with argument in the form $2\pi k x$, where $k$ is the wavenumber in cycles
+per unit length, we conclude that $u$ has a wavenumber of $\tfrac{17}{2}$ and $v$ a wavenumber of $4$. The 
+ product is
+\beq
+\label{eq:alias1}
+w \defn u\,v = \cos 17 \pi x \,\sin 8 \pi x = \frac{1}{2}\left(\sin 25 \pi x - \sin 9 \pi x \right)\per
+\eeq
+It is obvious from the second equality in \eqref{eq:alias1} that the products splits the energy into two modes: a higher wavenumber $\tfrac{25}{2}$ and a lower wavenumber $\tfrac{9}{2}$.
+
+In a grid with $\mathrm{N} = 128$  points in physical space, we resolve the modes from 0 through $65$. Hence, we expect that the modes above will be resolved and there will be no aliasing. 
+
+Figure \ref{fig:pb1} show the magnitude of the Fourier coefficients. As predicted by the analysis above, the multiplication $uv$ transfer energy both to a lower and a higher wavenumber. These ``triad interaction'' are very common in nonlinear systems (e.g. turbulence, nonlinear waves, etc) and can fill the whole spectrum. We note in passing that, as anticipated above, $\what{u}$ is not a perfect Dirac delta owing to its lack of periodicity on the domain.
+
+\begin{figure}[ht]
+\begin{center}
+\includegraphics[width=35pc,angle=0]{pb1/pb1.png}
+\end{center}
+\caption{The magnitude of the Fourier coefficients of $u$, $v$, and $w$.}
+\label{fig:pb1}
+\end{figure}
+
+\section*{Problem 2}
+We consider two three-dimensional functions $u$ and $v$, and their representation in terms of truncated 
+ Fourier series
+ \beq
+    \label{eq:u_series}
+    u(\vec{x}_{\vec{j}}) = \frac{1}{N_1 N_2 N_3}\sum_{\vec{m}=0}^{\vec{N}-1} \what{u}_{\vec{m}} \ee^{\ii (\vec{m}\cdot x_{\vec{j}})}\com
+    \qqand 
+    v(\vec{x}_{\vec{j}}) = \frac{1}{N_1 N_2 N_3} \sum_{\vec{n}=0}^{\vec{N}-1} \what{u}_{\vec{n}} \ee^{\ii (\vec{n}\cdot x_{\vec{j}})}\per
+ \eeq
+Hence the DFT of the product is
+\begin{align}
+    \label{eq:dft_prodcut}
+    \what{ u v} =& \sum_{\vec{j}=0}^{\vec{N}-1}\left( \frac{1}{(N_1 N_2 N_3)^2}\sum_{\vec{m}=0}^{\vec{N}-1}\sum_{\vec{n}=0}^{\vec{N}-1} \what{u}_{\vec{m}}\what{v}_{\vec{n}}   \ee^{\ii [(\vec{m} + \vec{n})\cdot x_{\vec{j}}]} \right) \ee^{-\ii \vec{p}\cdot x_{\vec{j}}}  \nonumber \\ 
+                                                                                                                                                                                                                                                                        & =\sum_{\vec{m}=0}^{\vec{N}-1}\sum_{\vec{n}=0}^{\vec{N}-1} \what{u}_{\vec{m}}\what{v}_{\vec{n}} \left( 
+     \frac{1}{(N_1 N_2 N_3)^2} \sum_{\vec{j}=0}^{\vec{N}-1} \ee^{\ii [(\vec{m} + \vec{n}-\vec{p})\cdot x_{\vec{j}}]}  \right) \per
+ \end{align}
+The orthogonality of the complex exponentials gives
+
+\beq
+\label{eq:orthonormality}
+\frac{1}{(N_1 N_2 N_3)} \sum_{\vec{j}=0}^{\vec{N}-1} \ee^{\ii [(\vec{m} + \vec{n}-\vec{p})\cdot x_{\vec{j}}]} 
+ = \begin{cases}
+     1: & \vec{m}+\vec{n}=\vec{p} + n_1 N_1 \vec{e}_1+ n_2 N_2 \vec{e}_2 + n_3 N_3\vec{e}_3;\\ 
+     0: & \text{otherwise}\com
+    \end{cases}
+\eeq
+where
+\begin{align}
+n_1 = 0\com\pm 1\com\pm 2\com\pm 3\com \ldots\nonumber\,; \\
+n_2 = 0\com\pm 1\com\pm 2\com\pm 3\com \ldots\nonumber\,; \\
+n_3 = 0\com\pm 1\com\pm 2\com\pm 3\com \ldots\nonumber\per \\
+\end{align}
+Thus
+
+\begin{align}
+    \label{eq:alias_3d}
+(N_1 N_2 N_3)\what{uv} =  \sum_{\vec{m}+\vec{n}=\vec{p}}\!\! \what{u}_{\vec{m}}\what{v}_{\vec{n}} + \underbrace{\sum_{\vec{m}+\vec{n}=\vec{p}\pm N_1 \vec{e_1}} \!\!\!\!\!\!\! \what{u}_{\vec{m}}\what{v}_{\vec{n}}}_{AE_{100}} + \underbrace{\sum_{\vec{m}+\vec{n}=\vec{p}\pm N_2 \vec{e_2}} \!\!\!\!\!\!\! \what{u}_{\vec{m}}\what{v}_{\vec{n}}}_{AE_{010}} + \nonumber \\
+\underbrace{\sum_{\vec{m}+\vec{n}=\vec{p}\pm N_3 \vec{e_3}} \!\!\!\!\!\!\! \what{u}_{\vec{m}}\what{v}_{\vec{n}}}_{AE_{001}} + \underbrace{\sum_{\vec{m}+\vec{n}=\vec{p}\pm N_1 \vec{e_1} \pm N_2 \vec{e_2} } \!\!\!\!\!\!\! \!\!\! \!\!\! \what{u}_{\vec{m}}\what{v}_{\vec{n}}}_{AE_{110}} + \underbrace{\sum_{\vec{m}+\vec{n}=\vec{p}\pm N_1 \vec{e_1} \pm N_3 \vec{e_3} } \!\!\!\!\!\!\! \!\!\! \!\!\! \what{u}_{\vec{m}}\what{v}_{\vec{n}}}_{AE_{101}} + \nonumber \\\underbrace{\sum_{\vec{m}+\vec{n}=\vec{p}\pm N_2 \vec{e_2} \pm N_3 \vec{e_3} } \!\!\!\!\!\!\! \!\!\! \!\!\! \what{u}_{\vec{m}}\what{v}_{\vec{n}}}_{AE_{011}} + \underbrace{\sum_{\vec{m}+\vec{n}=\vec{p}\pm N_1 \vec{e_1} \pm N_2 \vec{e_2} \pm N_3 \vec{e_3} } \!\!\!\!\!\!\! \!\!\! \!\!\! \what{u}_{\vec{m}}\what{v}_{\vec{n}}}_{AE_{111}} + \ldots \com
+\end{align}
+where we only wrote explicitly the terms that matter for quadratic nonlinearities such as those in the Navier-Stokes equations. The first term on the right of \eqref{eq:alias_3d} is the truncated approximation for the Fourier coefficients of the $uv$. The $AE$ terms represent single, double and triple aliasing errors. Our goal is to repeat the calculations in a shifted grid such that when combining the calculations the aliasing terms cancel. 
+
+For instance, shifting the $uv$ calculation by $\xi_1 \vec{e}_1$ we obtain
+
+\begin{align}
+    \label{eq:alias_3d_xi1}
+    (N_1 N_2 N_3)\what{uv}_{\xi_1} =  \sum_{\vec{m}+\vec{n}=\vec{p}}\!\! \what{u}_{\vec{m}}\what{v}_{\vec{n}} + \ee^{\pm\ii\xi_1 N_1 }\!\!\!\!\!\!\!\!\sum_{\vec{m}+\vec{n}=\vec{p}\pm N_1 \vec{e_1}} \!\!\!\!\!\!\! \what{u}_{\vec{m}}\what{v}_{\vec{n}} + \sum_{\vec{m}+\vec{n}=\vec{p}\pm N_2 \vec{e_2}} \!\!\!\!\!\!\! \what{u}_{\vec{m}}\what{v}_{\vec{n}} + \nonumber \\
+\sum_{\vec{m}+\vec{n}=\vec{p}\pm N_3 \vec{e_3}} \!\!\!\!\!\!\! \what{u}_{\vec{m}}\what{v}_{\vec{n}} +  \ee^{\pm\ii\xi_1 N_1 }\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\ \sum_{\vec{m}+\vec{n}=\vec{p}\pm N_1 \vec{e_1} \pm N_2 \vec{e_2} } \!\!\!\!\!\!\! \!\!\! \!\!\! \what{u}_{\vec{m}}\what{v}_{\vec{n}} + \ee^{\pm\ii\xi_1 N_1 }\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\sum_{\vec{m}+\vec{n}=\vec{p}\pm N_1 \vec{e_1} \pm N_3 \vec{e_3} } \!\!\!\!\!\!\! \!\!\! \!\!\! \what{u}_{\vec{m}}\what{v}_{\vec{n}} + \nonumber \\\sum_{\vec{m}+\vec{n}=\vec{p}\pm N_2 \vec{e_2} \pm N_3 \vec{e_3} } \!\!\!\!\!\!\! \!\!\! \!\!\! \what{u}_{\vec{m}}\what{v}_{\vec{n}} +  \ee^{\pm\ii\xi_1 N_1 }\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\!\sum_{\vec{m}+\vec{n}=\vec{p}\pm N_1 \vec{e_1} \pm N_2 \vec{e_2} \pm N_3 \vec{e_3} } \!\!\!\!\!\!\! \!\!\! \!\!\! \what{u}_{\vec{m}}\what{v}_{\vec{n}}+ \ldots \per
+\end{align}
+The choice $\xi_1=\tfrac{\pi}{N_1} = \frac{\Delta x_1}{2}$ allows to eliminate $AE_{100}$,  $AE_{110}$,  $AE_{101}$,  and $AE_{111}$, but adds to the other errors! Hence, as in the 2D case derived in class, we must perform multiple shifts in all direction. Table \ref{tab:phase_shift_error_3d} shows a systematic account of those shifts. Specifically, eight evaluations are necessary to fully cancel out the aliasing terms. The final dealiased quadratic nonlinear term is
+\beq
+\what{uv}_{\text{no-alias}} = \frac{1}{8}\left(\what{uv} +\what{uv}_{\xi_1} + \what{uv}_{\xi_2} + \what{uv}_{\xi_3} + \what{uv}_{\xi_1\xi_2}
+ + \what{uv}_{\xi_1\xi_3}+ \what{uv}_{\xi_2\xi_3}+ \what{uv}_{\xi_1\xi_2\xi_3}\right)\per
+\eeq
+
+
+\begin{table}
+\label{tab:phase_shift_error_3d}
+\caption{Phase shift operations to zero out aliasing terms.}
+\centering
+\begin{tabular}{l| c | c | c  | c | c | c | c | c}
+    $\xi_1$  & $0$ & $\Delta x_1/2$ & $0$ & $0$ &  $\Delta x_1/2$ & $\Delta x_2/2$ & $0$ & $\Delta x_1/2$\\ 
+    $\xi_2$  & $0$ & $0$ & $\Delta x_2/2$ & $0$ &  $\Delta x_2/2$ & 0              & $\Delta x_2/2$ & $\Delta x_2/2$ \\ 
+    $\xi_3$  & $0$ & $0$ & 0 & $\Delta x_3/2$   &  0 &$\Delta x_3/2$               & $\Delta x_3/2$ & $\Delta x_3/2$\\ 
+    \hline
+    AE$_{100}$ & 1 & -1 & 1 & 1 & -1 &  -1&  1 &  -1    \\
+    AE$_{010}$ & 1 & 1 & -1 & 1 & -1 &   1&  -1 &  -1    \\
+    AE$_{001}$ & 1 & 1 & 1 & -1 & 1 &   -1&  -1 &  -1    \\
+    AE$_{110}$ & 1 & -1 & -1 & 1& 1 &   -1&   -1 &   1    \\
+    AE$_{101}$ & 1 & -1 & 1 & -1 &-1 &   1&   -1 &   1    \\
+    AE$_{011}$ & 1 & 1 & -1 & -1 & -1&  -1&   1 &   1    \\
+    AE$_{111}$ & 1 & -1 & -1 & -1 &1&    1&  1 &  -1    \\
+\end{tabular}
+\end{table}
+
+\section*{Problem 3}
+The one-dimensional Burgers equations is
+\beq
+\label{eq:bur}
+\p_t u + u \p_x u = \nu \p_{xx} u\per
+\eeq
+We solve this equation in a periodic domain $0\leq x < 2\pi$ subject to the initial condition $u(x,0) = \sin(x)$. In particular we use a pseudo-spectral method. Hence, Fourier transforming \eqref{eq:bur} in a pseudo-spectral spirit, we obtain the system of ODEs
+\beq
+\label{eq:bur_k}
+\frac{\dd \what{u}_k}{\dd t} = -\underbrace{ \what{(u\p_x u)}_k}_{\Nu} - \underbrace{\nu k^2 \what{u}_k}_{\Lu}\per
+\eeq
+The RHS of \eqref{eq:bur_k} is composed by a linear $\Lu$ component and a nonlinear $\Nu$ part. We march the system of ODEs  \eqref{eq:bur_k} using a RK3W-$\theta$ scheme that solves the nonlinear part fully explicitly, and the linear part implicitly. This scheme is very appropriate for the problem  because it renders the time-step limited by the CFL condition rather than by the viscous time scales. Having to solve the linear part implicitly amounts for very little extra work since $\Lu$ is diagonal, and therefore easy to invert.
+
+The system is updated from time-step $n$ to $n+1$ in three stages
+\beq
+\label{eq:rkw3_1}
+\uhat^{s_1} = \uhat^{n} + \dt\left[\L(a_1\uhat^{n} + b_1 \uhat^{s_1}) + c_1 \N(\uhat^n)\right]\com
+\eeq
+\beq
+\label{eq:rkw3_2}
+\uhat^{s_2} = \uhat^{s_1} + \dt\left[\L(a_2\uhat^{s_1} + b_2 \uhat^{s_2}) + c_2 \N(\uhat^{s_1}) +
+\zeta_1 \N(\uhat^{n}) \right]\com
+\eeq
+\beq
+\label{eq:rkw3_3}
+\uhat^{n+1} = \uhat^{s_2} + \dt\left[\L(a_3\uhat^{s_2} + b_3 \uhat^{n+1}) + c_3 \N(\uhat^{s_2}) +
+\zeta_2 \N(\uhat^{s_1}) \right]\com
+\eeq
+where superscripts denote time-step or sub-stage. Also, the coefficients in \eqref{eq:rkw3_1} through \eqref{eq:rkw3_3} are
+\beq
+a_1 = \frac{29}{96}\com\qquad a_2 = -\frac{3}{40}\com \qquad a_3 = \frac{1}{6}\com
+\eeq
+\beq
+b_1 = \frac{37}{160}\com\qquad b_2 = \frac{5}{24}\com\qquad b_3 = \frac{1}{6}\com
+\eeq
+\beq
+c_1 = \frac{8}{15}\com\qquad c_2 = \frac{5}{12}\com\qquad c_3 =\frac{3}{4}\com
+\eeq
+\beq
+d_1 = -\frac{17}{60}\com\qqand d_2 = -\frac{5}{12}\per
+\eeq
+
+
+\begin{enumerate}
+
+    \item We implement a dealiased pseudo-spectral Fourier method to solve \eqref{eq:bur_k} in Fortran 90 using
+        FFTW3. The code, \texttt{pb3.f90}, accepts inputs for resolution ($N$), viscosity coefficient ($\nu$), hyperviscosity coefficient ($\nu_6$), and filter flag (\texttt{use$\_$filter}). In problems 3 through  8, we combine different input files to perform the required simulations.
+
+    \item A bound on the time-step is obtained by standard linear stability analysis. In particular, for the Burguers equation \eqref{eq:bur} the stability is given either by the viscous-related nondimensional term or the CFL number. Because we march the problem forward using a scheme that is implicit for the viscous term and explicit for the advective term, the linear stability is restricted by the CFL condition
+        \beq
+            \label{eq:cfl}
+            \text{CFL} \defn \frac{U \dt}{\dx} \le C \com
+        \eeq
+        where we take the $U$ as the maximum absolute value of $u$ and $C$ is a constant. For the standard RK3 scheme, $C$ is 
+        determined by the eigenvalue the purely imaginary eigenvalue of the linear stability problem. This gives  $C = \sqrt{3}$. This value may be different for the RK3W-$\theta$ scheme. Indeed, some of the experiments in item 3 blow up if we the time step based on this values of $C$. We therefore choose $C=1$, and the maximum allowed time step is
+        \beq
+        \dt_{\text{max}} = \frac{dx}{U}\per
+        \eeq    
+        The initial conditions has $\text{max}(U)=1$, thus we use $\dt = 0.2 \dx$ in all simulations discussed below.
+
+    \item We run simulations of the 1D Burgers equations with $\nu=10^{-3}$ for $N = 16, 64, 128, 2048$. Results are discussed in item 4.
+
+    \item Figure \ref{fig:pb3_3_phys} shows the results in physical domain from the simulations with $\nu = 10^{-3}$. As expected for the Burgers equation, sharp gradients are developed. One interpretation for this is that the crest of the initial conditions is travelling faster than its adjacent points; similarly for the trough with sign reversed. Thus a near discontinuity is developed. The viscous term forbiddens the development of a shock. With increasing resolution, the full evolution of the initial conditions is better resolved. The initial sinusolidal wave approaches a swawtooth shape at $t=5$. The spectrum of the solution show the distribution of the energy across different wavenumbers (Figure \ref{fig:pb3_3_spec}). The spectrum starts with a single wavenumber ($k=1$). As time progresses, the spectrum is filled out by triad interactions (similar to the discussion in problem 1). The spectrum is very red, but one can see the development of Gibbs errors (see the increase in energy at very high wavenumbers). 
+
+    \begin{figure}[ht]
+    \begin{center}
+    \includegraphics[width=17pc,angle=0]{pb3/experiments/pb3_3/figs/burgers_phys_16.png} 
+    \includegraphics[width=17pc,angle=0]{pb3/experiments/pb3_3/figs/burgers_phys_64.png}\\
+    \includegraphics[width=17pc,angle=0]{pb3/experiments/pb3_3/figs/burgers_phys_128.png}
+    \includegraphics[width=17pc,angle=0]{pb3/experiments/pb3_3/figs/burgers_phys_2048.png}
+    \end{center}
+    \caption{Results in physical domain from simulation of 1D Burgers equations with $\nu = 10^{-3}$ and various N.}
+    \label{fig:pb3_3_phys}
+    \end{figure}
+
+
+    \begin{figure}[ht]
+    \begin{center}
+    \includegraphics[width=17pc,angle=0]{pb3/experiments/pb3_3/figs/burgers_spec_16.png} 
+    \includegraphics[width=17pc,angle=0]{pb3/experiments/pb3_3/figs/burgers_spec_64.png}\\
+    \includegraphics[width=17pc,angle=0]{pb3/experiments/pb3_3/figs/burgers_spec_128.png}
+    \includegraphics[width=17pc,angle=0]{pb3/experiments/pb3_3/figs/burgers_spec_2048.png}
+    \end{center}
+    \caption{Spectra from simulation of 1D Burgers equations with $\nu = 10^{-3}$ and various N.}
+    \label{fig:pb3_3_spec}
+    \end{figure}
+
+    
+\item As discussed in the item above, there is Gibbs error. This is because the development of quasi-discontinuities. This can be seen in the Fourier domain in figure \eqref{fig:pb3_3_spec} by the increase of energy at high wavenumbers and in the physical domain by the rapid oscillations with largest amplitude near the quasi-discontinuity (Figure \eqref{fig:pb3_3_phys}). The Gibbs error is hardly seen in the $N=2048$ simulation but it is still there. Because the viscosity is wavenumber selective (i.e. the viscous terms is proportional to $k^2$), the highest wavenumbers in that simulation are also more damped.
+
+\item As discussed above, viscosity is acting to avoid the development of sharp gradients increasing $\nu$ will smooth out the solution. We repeat the simulation changing the viscous coefficient with  $\nu=10^{-1}$ and $\nu=10^{-5}$. The results are presented in figures \ref{fig:pb3_6a_phys} through \ref{fig:pb3_6b_spec}. Decreasing the viscous coefficient to $\nu = 10^{-5}$ significantly increases the sharpness of the solutions (Figures \ref{fig:pb3_6a_phys}). Moreover, for $N\ge 64$ the solutions blows up after some time; for $N=2048$ the solutions blows up after just a few time steps. Of course, such a small viscosity inhibits our ability to simulate the Burgers equations for too long: the solution develop shocks. Increasing the viscous coefficient to $\nu = 10^{-1}$, on the other hand, smooths the solutions and damps the solutions. Gibbs errors are insignificant in this solution (Figures \ref{fig:pb3_6b_phys} and \ref{fig:pb3_6b_spec}). 
+
+    \begin{figure}[ht]
+    \begin{center}
+    \includegraphics[width=17pc,angle=0]{pb3/experiments/pb3_6b/figs/burgers_phys_16.png} 
+    \includegraphics[width=17pc,angle=0]{pb3/experiments/pb3_6b/figs/burgers_phys_64.png}\\
+    \includegraphics[width=17pc,angle=0]{pb3/experiments/pb3_6b/figs/burgers_phys_128.png}
+    \includegraphics[width=17pc,angle=0]{pb3/experiments/pb3_6b/figs/burgers_phys_2048.png}
+    \end{center}
+    \caption{Results in physical domain from simulation of 1D Burgers equations with $\nu = 10^{-5}$ and various N.}
+    \label{fig:pb3_6a_phys}
+    \end{figure}
+
+
+    \begin{figure}[ht]
+    \begin{center}
+    \includegraphics[width=17pc,angle=0]{pb3/experiments/pb3_6b/figs/burgers_spec_16.png} 
+    \includegraphics[width=17pc,angle=0]{pb3/experiments/pb3_6b/figs/burgers_spec_64.png}\\
+    \includegraphics[width=17pc,angle=0]{pb3/experiments/pb3_6b/figs/burgers_spec_128.png}
+    \includegraphics[width=17pc,angle=0]{pb3/experiments/pb3_6b/figs/burgers_spec_2048.png}
+    \end{center}
+    \caption{Spectra from simulation of 1D Burgers equations with $\nu = 10^{-5}$ and various N.}
+    \label{fig:pb3_6a_spec}
+    \end{figure}
+
+
+    \begin{figure}[ht]
+    \begin{center}
+    \includegraphics[width=17pc,angle=0]{pb3/experiments/pb3_6a/figs/burgers_phys_16.png} 
+    \includegraphics[width=17pc,angle=0]{pb3/experiments/pb3_6a/figs/burgers_phys_64.png}\\
+    \includegraphics[width=17pc,angle=0]{pb3/experiments/pb3_6a/figs/burgers_phys_128.png}
+    \includegraphics[width=17pc,angle=0]{pb3/experiments/pb3_6a/figs/burgers_phys_2048.png}
+    \end{center}
+    \caption{Results in physical domain from simulation of 1D Burgers equations with $\nu = 10^{-1}$ and various N.}
+    \label{fig:pb3_6b_phys}
+    \end{figure}
+
+
+    \begin{figure}[ht]
+    \begin{center}
+    \includegraphics[width=17pc,angle=0]{pb3/experiments/pb3_6a/figs/burgers_spec_16.png} 
+    \includegraphics[width=17pc,angle=0]{pb3/experiments/pb3_6a/figs/burgers_spec_64.png}\\
+    \includegraphics[width=17pc,angle=0]{pb3/experiments/pb3_6a/figs/burgers_spec_128.png}
+    \includegraphics[width=17pc,angle=0]{pb3/experiments/pb3_6a/figs/burgers_spec_2048.png}
+    \end{center}
+    \caption{Spectra from simulation of 1D Burgers equations with $\nu = 10^{-1}$ and various N.}
+    \label{fig:pb3_6b_spec}
+    \end{figure}
+
+
+\item The equation for the problem with hyperviscosity is a slight generalization of the original problem \eqref{eq:buk_l} because it adds only a diagonal term to the linear part:
+    \beq
+    \label{eq:bur_k_2}
+    \frac{\dd \what{u}_k}{\dd t} = -\underbrace{ \what{(u\p_x u)}_k}_{\Nu} - \underbrace{(\nu k^2 + \nu_6 k^6 )\what{u}_k}_{\Lu}\per
+    \eeq
+    The hyperviscosity adds a selective damping of the solution, and we expect that high-wavenumber oscillations will be damped. Figures \ref{fig:pb3_7_phys}  and \ref{fig:pb3_7_spec} show the results for an experiment with $\nu=10^{-3}$ and $\nu_6 = 10^{-6}$. As expected, significant part of the highly oscillatory Gibbs error = present in the solution without hyperviscosity (Figures  \ref{fig:pb3_3_phys} and  \ref{fig:pb3_3_spec}) is eliminated. The damping also affects  larger wavenumber, and damps the solution as a whole.
+
+    \begin{figure}[ht]
+    \begin{center}
+    \includegraphics[width=17pc,angle=0]{pb3/experiments/pb3_7/figs/burgers_phys_16.png} 
+    \includegraphics[width=17pc,angle=0]{pb3/experiments/pb3_7/figs/burgers_phys_64.png}\\
+    \includegraphics[width=17pc,angle=0]{pb3/experiments/pb3_7/figs/burgers_phys_128.png}
+    \includegraphics[width=17pc,angle=0]{pb3/experiments/pb3_7/figs/burgers_phys_2048.png}
+    \end{center}
+    \caption{Results in physical domain from simulation of 1D Burgers equations with $\nu = 10^{-3}$ and $\nu_6=10^{-6}$ and various N.}
+    \label{fig:pb3_7_phys}
+    \end{figure}
+
+
+    \begin{figure}[ht]
+    \begin{center}
+    \includegraphics[width=17pc,angle=0]{pb3/experiments/pb3_7/figs/burgers_spec_16.png} 
+    \includegraphics[width=17pc,angle=0]{pb3/experiments/pb3_7/figs/burgers_spec_64.png}\\
+    \includegraphics[width=17pc,angle=0]{pb3/experiments/pb3_7/figs/burgers_spec_128.png}
+    \includegraphics[width=17pc,angle=0]{pb3/experiments/pb3_7/figs/burgers_spec_2048.png}
+    \end{center}
+    \caption{Spectra from simulation of 1D Burgers equations with $\nu = 10^{-3}$ and $\nu_6=10^{-6}$ and various N.}
+    \label{fig:pb3_7_spec}
+    \end{figure}
+
+    \item Finally, we use a raised cosine filter to filter out the solution. That is, we multiply the Fourier coefficients $\what{u}_k$ by
+        \beq
+        \sigma(k) = \frac{1}{2}\left[1 + \cos\left(2\pi \frac{k}{N}\right)\right]\com \qquad k = 0, 1,2,\ldots,\frac{N}{2}, \frac{N}{2}+1\per
+        \eeq
+        Figures \eqref{fig:pb3_8_phys} and \eqref{fig:pb3_8_spec} show the solution for an experiment with $\nu = 10^{-3}$, $\nu_6 = 0$, and the raised-cosine filter. The filter eliminates the Gibbs error in its almost entirety, but also damps the solution. For low resolution simulations (an extreme case is $N=16$) the whole solution is significantly damped out, where for high resolution experiment the use of the filter leads to an underestimation of the solution near the quasi-discontinuities. 
+
+
+
+    \begin{figure}[ht]
+    \begin{center}
+    \includegraphics[width=17pc,angle=0]{pb3/experiments/pb3_8/figs/burgers_phys_16.png} 
+    \includegraphics[width=17pc,angle=0]{pb3/experiments/pb3_8/figs/burgers_phys_64.png}\\
+    \includegraphics[width=17pc,angle=0]{pb3/experiments/pb3_8/figs/burgers_phys_128.png}
+    \includegraphics[width=17pc,angle=0]{pb3/experiments/pb3_8/figs/burgers_phys_2048.png}
+    \end{center}
+    \caption{Results in physical domain from simulation of 1D Burgers equations with $\nu = 10^{-3}$, $\nu_6=0$, a raised-cosine filter, and various N.}
+    \label{fig:pb3_8_phys}
+    \end{figure}
+
+
+    \begin{figure}[ht]
+    \begin{center}
+    \includegraphics[width=17pc,angle=0]{pb3/experiments/pb3_8/figs/burgers_spec_16.png} 
+    \includegraphics[width=17pc,angle=0]{pb3/experiments/pb3_8/figs/burgers_spec_64.png}\\
+    \includegraphics[width=17pc,angle=0]{pb3/experiments/pb3_8/figs/burgers_spec_128.png}
+    \includegraphics[width=17pc,angle=0]{pb3/experiments/pb3_8/figs/burgers_spec_2048.png}
+    \end{center}
+    \caption{Spectra from simulation of 1D Burgers equations with $\nu = 10^{-3}$, $\nu_6=0$, a raised-cosine filter, and various N.}
+    \label{fig:pb3_8_spec}
+
+    \end{figure}
+
+
+\end{enumerate}
+
+\end{document}
+
+
