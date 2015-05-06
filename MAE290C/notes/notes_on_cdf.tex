@@ -69,7 +69,12 @@ I claim no originality to the content of these notes.  In particular, I'm loosel
 
     \item \textit{Computational techniques in fluid dynamics} by Fletcher et al.;
 
-    \item \textit{Numerical Renaissance} by Bewley.
+    \item \textit{Numerical Renaissance} by Bewley;
+
+    \item \textit{Numerical Methods for Fluid Dynamics: With applications 
+        to Geophysics} by Durran.
+
+    \item \textit{Numerical Methods for Conservations Laws} by LeVeque.
 
 \end{itemize}
 
@@ -429,12 +434,41 @@ where $\hat{u}_n$ is the $n$'th Fourier coefficient, which is generally complex-
 \label{eq:idft}
 u\left(-\tfrac{L}{2}\right) = u\left(\tfrac{L}{2}\right)\per
 \eeq
-The discrete Fourier transform (DFT) as
+The discrete Fourier transform (DFT) is
 \beq
 \label{eq:dft}
 \hat{u}_n = \frac{1}{\nmax} \sum_{j=-\nmax/2}^{\nmax/2-1}\!\! u_j \ee^{-\ii \kappa_n x_j}\per
 \eeq
-We emphasize that one should sum only up to $\nmax/2-1$ since the $u$ is periodic, so that the data at $x_{\nmax/2}$ add no information to the problem.
+We emphasize that one should sum only up to $\nmax/2-1$ since the $u$ is periodic, so that the data at $x_{\nmax/2}$ add no information to the problem. This definition is consistent with the inverse transform \eqref{eq:idft}, following from the orthogonality of the discrete complex exponentials. This property is fundamental in many calculations, so we shall formally prove it. Consider the summation
+\beq
+\label{eq:orthogonal_dce0}
+\sum_{j=0}^{N-1} \ee^{\ii \left(\frac{2\pi}{\nmax}(n-s)\,j\right)} \com
+\eeq
+where we used $x_j = \tfrac{L}{\nmax}j$. The summation $S$ is a geometric series 
+\beq
+s \defn 1 + r + r^2 + \ldots + r^{\nmax-1}\com \qquad \text{with}\qquad r = \ee^{\ii\left(\frac{2\pi}{\nmax}(n-s)\right)}\per
+\eeq
+Hence
+\beq
+rs = r + r^2 + \ldots + r^{\nmax} \Longrightarrow s - rs = 1 - r^{\nmax}\com
+\eeq
+and therefore
+\beq
+s = \frac{1-r^{\nmax}}{1 - r}\com\qquad r \neq 1\per
+\eeq
+Now
+\beq
+r^\nmax = \ee^{\ii 2\pi(n-s)} = 0\per
+\eeq
+Thus
+\beq
+\label{eq:orthogonal_dce}
+\sum_{j=0}^{N-1} \ee^{\ii \left(\frac{2\pi}{\nmax}(n-s)\,j\right)} =  
+\begin{cases}
+0:& n = s + m \nmax\com\qquad m=0\pm 1 \pm 2 \pm3\ldots\,;\\
+    0:& \text{otherwise}\per
+\end{cases}
+\eeq
 
 
 \subsubsection*{Properties of the DFT}
@@ -759,6 +793,120 @@ Thus the algorithm for phase shifting is
     \item Take the average of (1) and (2), and march the system forward.
 \end{enumerate}
     The cost of the phase shifting is $\nmax \log_2 \nmax$, and therefore keeps the same order of operations as the aliased calculation. It may be advantageous if $\nmax$ is too large, since is does not require more memory than the original problem. 
+
+\subsubsection*{Zero padding vs. phase shifting in one dimension}
+It is informative to compare the relative cost of the two dealiasing methods described above. Suppose the original grid has $\nmax$ elements. Hence zero padding requires computation of DFT on $\mmax = \tfrac{3}{2}\nmax$ grids. Thus one cycle of the pseudo-spectral calculation requires $15 \mmax \log_2\mmax = \tfrac{45}{2}\nmax\log_2 \nmax$ operations. The phase-shifting dealiasing method requires DFT computations on $\nmax$ grid but the pseudo-spectral cycle must be repeated twice (in one dimension). Thus the total number operations required for dealiasing using phase shifting is  $30 \nmax \log_2 \nmax$. Thus in one dimension phase shifting requires $\tfrac{12}{5}$ more operations than zero padding. The latter, however, requires more memory. Thus, the question of the relative efficiency of these two methods may depend on the computer one wants to perform the calculations.
+
+\subsubsection*{Dealiasing in higher dimensions}
+Real world problems are typically two- of three-dimensional. There is a qualitative difference between aliasing in one and two dimensions because for dimensions larger than one various combinations between wavenumbers produce aliasing. For instance if the original signal is
+\beq
+\label{eq:orig_signal}
+s = \sin x + \cos y\com
+\eeq
+then a quadratic product produces the terms
+\beq
+\label{eq:aliased_signal1}
+\sin^2 x = \frac{1-\cos 2 x}{2}\com
+\eeq
+\beq
+\label{eq:aliased_signal2}
+\cos^2 y = \frac{1+\cos 2 y}{2}\com
+\eeq
+and also the cross-terms
+\beq
+\label{eq:aliased_signal3}
+2 \sin x \cos y = \sin 2 x\per
+\eeq
+Thus aliasing in higher dimensions is richer.
+
+Consider the representation of the discrete Fourier transform of $\hat{u}_{\vec{n}}$ 
+\beq
+\label{eq:alias_error_2d_1}
+\hat{u}_{\vec{n}} = \sum_{j_1 = 0}^{\nmax_1-1} \sum_{j_2 = 0}^{\nmax_2-1} u_{j_1,j_2} \exp -\ii[ 
+k_{n_1}x_{j_1} + k_{n_2}x_{j_2}] \equiv \sum_{\vec{j}=0}^{\vec{N}-1} u_{\vec{j}}\,\,\ee^{\ii k_{\vec{n}\cdot 
+\vec{x}_{\vec{j}}}}\com
+\eeq
+where
+\beq
+\vec{n} = \left(n_1\com n_2\right)\com \qquad \vec{j} = \left(j_1\com j_2\right)\com\qqand 
+\vec{x} = x_{j_1}\vec{e}_1 + x_{j_2}\vec{e}_2\com
+\eeq
+with $\vec{e}_1$ and $\vec{e}_2$ the unit vector of the two-dimensional Cartesian grid.
+
+Analogously to the one-dimensional case, the aliasing error is obtained by analyzing the DFT of the product of two variables $u$ and $v$. We obtain
+\beq
+\label{eq:alias_error_2d_2}
+\sum_{\vec{m}+\vec{n}=\vec{p}}\!\!\! \tilde{u}_{\vec{m}} \tilde{v}_{\vec{n}} = \underbrace{\sum_{\vec{m}+\vec{n}=
+\vec{p}} \!\!\! \hat{u}_{\vec{m}}\hat{v}_{\vec{n}}}_{\text{Truncated series}} \,+\,   \underbrace{\sum_{\vec{m}+\vec{n}=\vec{p}\pm N_1\vec{e}_1}\!\!\!\!\!\!\!\!\!\hat{u}_{\vec{m}}\hat{v}_{\vec{n}} \,+\,
+\sum_{\vec{m}+\vec{n}=\vec{p}\pm N_2\vec{e}_2}\!\!\!\!\!\!\!\!\!\hat{u}_{\vec{m}}\hat{v}_{\vec{n}}}_{\text{Single alias errors}} +
+\underbrace{\sum_{\vec{m}+\vec{n}=\vec{p}\pm N_1\vec{e}_1\pm N_2\vec{e}_2}\!\!\!\!\!\!\!\!\!\!\!\!\!\!\! \hat{u}_{\vec{m}}\hat{v}_{\vec{n}}}_{\text{Double alias error}}\per
+\eeq
+Table \ref{tab:alias_123d} shows the number of aliasing term for pseudo-spectral problems in 1 through 3 dimensions.
+
+\begin{table}
+\label{tab:alias_123s}
+\caption{Number of aliasing terms for quadratic nonlinearities in pseudo-spectral methods from 1 through three dimensions.}
+\centering
+\begin{tabular}{l| c c c}
+    & 1D & 2D & 3D\\
+    \hline
+    single & 1 & 2 & 3\\
+    double & 0 & 1 & 3\\
+    triple & 0 & 0 & 1\\
+\hline
+\end{tabular}
+\end{table}
+
+\subsubsection*{Zero padding in two dimensions}
+The zero padding approach discussed above in one dimension easily generalizes to higher dimensions. That is, we simply apply the 3/2 rule to each dimension. The memory cost increase is $\left(\tfrac{3}{2}\right)^p$ where $p$ is the number of dimensions. Thus in higher dimensions zero padding may significantly slow down the code. 
+
+\subsubsection*{Phase shifting in two dimensions}
+Phase shifting becomes trickier in higher dimensions. While phase shifting in one direction,
+it introduces error in other directions. Thus a combination of phase shifts are necessary to cancel all errors. 
+Table \ref{tab:phase_shift_error_2d} shows the combination of shifts that zeros out the aliasing terms. In two dimensions, phase shifts requires four evaluations of the pseudo-spectral cycle.
+\begin{table}
+\label{tab:phase_shift_error_2d}
+\caption{Phase shift operations to zero out aliasing terms.}
+\centering
+\begin{tabular}{l| c | c | c  | c}
+    $\xi_1$  & $0$ & $\Delta x/2$ & $0$ & $\Delta x/2$\\ 
+    $\xi_2$  & $0$ & $0$ & $\Delta y/2$ & $\Delta y/2$\\ 
+    \hline
+    AE$_{10}$ & 1 & -1 & 1 & -1\\
+    AE$_{01}$ & 1 & 1 & -1 & -1\\
+    AE$_{11}$ & 1 & -1 & -1 & 1\\
+\end{tabular}
+\end{table}
+
+\subsubsection*{Hybrid dealiasing schemes}
+The idea of the hybrid dealiasing method is to combine a polyhedral truncation with phase shift. The polyhedral truncation is an incomplete zero padding scheme. In particular, one realizes that the corner of the wavenumber domain are insignificant when it comes to studying flows with isotropic statistics. Thus only $|k_{\nmax_1} \pm k_{\nmax_2}| <
+\tfrac{3}{2}$ is kept; the other wavenumbers are zeroed out. Similarly, in three dimensions we use the spherical truncation $|k_{\nmax_1}^2 + k_{\nmax_2}^2 + k_{\nmax_3}^2| < \tfrac{4}{9} \nmax^2$. This truncation removes double and triple aliasing terms (and somewhat more mores). After this truncation, one only needs to three evaluations of the pseudo-spectral cycle: one in the original grid and two with shifts in each direction to cancel out the single aliasing errors. Similarly, only 4 evaluations are needed in three dimensions. 
+
+\subsection*{Some practical aspects of FFT routines in Fortran}
+We use FFT in the West (FFTW; for details see {www.fftw.org/documentation}). The application of the one dimensional transform is straight forward and follows a common intuition. In higher dimensions, however, the output is given in nonstandard form. In particular, we note that, for a real signal we have
+\begin{align}
+    \text{2D} \rightarrow \text{CFT}\left[\text{CRFT}(u)\right]\,; \nonumber \\
+    \text{3D} \rightarrow \text{CFT}\left\{\text{CFT}\left[\text{CRFT}(u)\right]\right\}\com 
+\end{align}
+where CFT represents the complex Fourier transform and CRFT represents the complex real Fourier transform. The latter
+ takes advantage of the Hermitian symmetric of the Fourier coefficients to perform the calculation faster and requires
+  less storage.
+
+    The are two ways of calling the FFTW routine:
+    \begin{itemize}
+        \item {\bf Out-of-place}
+            \subitem The input array is not destroyed. That is, the routine returns an output array
+                        different than the input array. For a one dimensional real input with $\nmax$ points, the
+                        output has $\tfrac{\nmax+1}{2}$ non-redundant elements.
+        \item {\bf In-place}
+            \subitem The routine overwrites the input with the output, using the same memory allocation.
+                Because the input is real, care has to be taken to interpret the output. In one dimension,
+                 if the input goes is distributed as  $0, 1, \ldots, \nmax-2, \nmax-1$. Then the output is 
+                 R$_0$, R$_1$, $\ldots$, R$_{N-1}$, I$_{N/2-1}$, $\ldots$, I$_2$, I$_1$\com where R stands
+                  for the real part and I for the imaginary part of the Fourier coefficients.
+    \end{itemize}
+
+    Things get more complicated in higher dimensions. So, please consult the manual for an accurate description.
 
 \end{document}
 
