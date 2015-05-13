@@ -1,0 +1,29 @@
+Q:  How did viewing a diff between two versions of a file help you see the 
+    bug that was introduced?
+
+A:  The command diff shows the difference between two files. In unix systems
+    it shows lines that were developed with the symbol - and added line
+    is shown by +.
+
+Q:  How could having easy access to the entire history of a file make you a more 
+    efficient programmer in the long term?
+
+A:  Tracking the entire history of a file can significantly help us knowing what
+    changes where made, and when they where changes. This makes debugging new 
+    versions a much smoother process.
+
+Q:  How can you use the commands git log and git diff to view the history of files?
+
+A:  git log keeps track of all commits every made in a project. It shows which files
+    were changed and key words for the commit. git diff allows to understand the 
+    difference between two different commit.
+
+Q:  How might using version control make you more confident to make changes that could break something?
+
+A:  We can always return to a particular version of the code by using git checkout, which reverts the
+    changes. By comparing different versions (git diff) we can always figure out what caused the code
+    to break.
+
+Q:  Now that you have your workspace set up, what do you want to try using Git for?
+
+A:  I want to become a git pro. I will use git for all my projects.
