@@ -54,7 +54,7 @@ program pb3
     ! spectral filter
     do i=1,N/2+1
         if (use_filter) then
-            filt(i) = (1.d0+cos(2.d0*pi*(i-1)/N))/2.
+            filt(i) = (1.d0+cos(2.d0*pi*(dble(i)-1.d0)/N))/2.d0
         else
             filt(i) = 1.d0
         endif
@@ -62,7 +62,7 @@ program pb3
 
     ! Constant parameters
     !nu = 1.d-3              ! viscosity coefficient [L]^2/ [T]
-    dt = .2*dx               ! dt_max: cfl < sqrt(3) for RK3
+    dt = .2d0*dx               ! dt_max: cfl < sqrt(3) for RK3
     nmax = ceiling(tmax/dt)
     nsave = ceiling(tsave/dt)
     write (20,*) "dx = ", dx
@@ -106,6 +106,9 @@ program pb3
         call stepforward(uhat,N,nu,nu6,k,dt)
 
     enddo
+
+    call irfft(uhat,u,N)           
+    print *, sum(u**2)
 
 end program pb3
 

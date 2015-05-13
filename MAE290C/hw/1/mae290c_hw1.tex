@@ -183,93 +183,12 @@ We implement this scheme to solve \eqref{eq:pb1_eqn1} with \eqref{eq:lamdt} in F
 
 \begin{figure}[ht]
 \begin{center}
-\includegraphics[width=15pc,angle=0]{pb1_mag.png}
-\includegraphics[width=15pc,angle=0]{pb1_phase.png}
+\includegraphics[width=15pc,angle=0]{pb1/pb1_mag.png}
+\includegraphics[width=15pc,angle=0]{pb1/pb1_phase.png}
 \end{center}
 \caption{A comparison between the numerical solution to \eqref{eq:pb1_eqn1} using the RKW3 scheme against the exact solution. The inset shows a zoom-in for $t<2$. Notice that the numerical solution captures the magnitude very accurately, but not the phase.}
 \label{fig:pb1}
 \end{figure}
-
-
-\begin{lstlisting}
-program pb1
-
-    ! MAE 290C, Homework 1
-    ! Cesar B Rocha, crocha@ucsd.edu
-
-    implicit none
-    real (kind=8) :: u0,dt,pi,tmax,t
-    complex (kind=16) :: lamdt,u,ue,ii
-    integer :: nmax,n
-    logical :: debug
-
-    ! flags
-    debug = .true.
-
-    ! set up output file
-    open(unit=12, file="aoutput.txt", action="write", status="replace")
-
-    ! pi
-    pi = acos(-1.d0)
-
-    ! time-related parameters
-    dt = .5
-    tmax = 10.d0
-    nmax = ceiling(tmax/dt)
-
-    ! complex constants
-    ii = cmplx(0.d0,1.d0)
-    lamdt = cmplx(pi/2.d0,0.5d0)
-
-    if (debug) then
-        print 11, dt, nmax
-        11 format("dt=",f25.15,", nmax=", i10)
-    endif
-
-    ! initialize variables
-    t = 0.d0
-    u0 = 1.d0
-    u = cmplx(u0,0.d0)
-    ue =  exp(-n*lamdt)
-
-    write(12,*)  "#time          real(ue)      imag(ue)      real(u)        imag(u)"
-    write(12,*) t,real(ue),aimag(ue),real(u),aimag(u)
-
-    do n=1,nmax
-        t = t+dt
-        call stepforward(u,lamdt)
-        ue = exp(-n*lamdt)
-        write(12,*) t,real(ue),aimag(ue),real(u),aimag(u)
-    enddo
-
-end program pb1
-
-!------------------------------------------------------------
-! subroutine to step forward using RKW3
-!------------------------------------------------------------
-
-subroutine stepforward(u,lamdt)
-
-    implicit none
-
-    ! subroutine arguments
-    complex (kind=16), intent(in) :: lamdt
-    complex (kind=16), intent(inout) :: u
-
-    ! local variables
-    real (kind=8), parameter :: a1 = 29.d0/96.d0, a2 = -3.d0/40.d0, & 
-                                    a3 = 1.d0/6.d0
-    real (kind=8), parameter :: b1 = 37.d0/160.d0, b2 = 5.d0/24.d0, & 
-                                    b3 = 1.d0/6.d0
-
-    ! step forward, computing updates in place
-    u = ( (1.d0-lamdt*a1)/(1.d0 + lamdt*b1) )*u 
-    u = ( (1.d0-lamdt*a2)/(1.d0 + lamdt*b2) )*u 
-    u = ( (1.d0-lamdt*a3)/(1.d0 + lamdt*b3) )*u 
-
-end subroutine stepforward
-\end{lstlisting}
-
 
 \section*{Problem 2}
 The initial value problem to solve is
@@ -290,7 +209,7 @@ u_e(t) = \frac{1}{[1 +(n-1)t]^{1/(n-1)}}\com\qqand n>1 \per
 \eeq
 
 \subsection*{Numerical solution}
-A RK2 scheme, corresponding to choosing $c=1$ in our class notes, is
+A RK2 scheme is
 \beq
 \label{eq:rk2}
 u_{i+1} = u_i + \frac{\dt}{2} \left(b_1 k_1 + b_2 k_2\right)\com
@@ -315,7 +234,7 @@ Figure \ref{fig:pb2_1} shows an example of solutions to \eqref{eq:pb2_eqn}. The 
 
 \begin{figure}[ht]
 \begin{center}
-\includegraphics[width=15pc,angle=0]{pb2/pb2_100.png}
+\includegraphics[width=25pc,angle=0]{pb2/pb2_100.png}
 \end{center}
 \caption{Solution to \eqref{eq:pb2_eqn}  for values of n from $1$ through $5$. The solid thick lines are the exact solutions, and the dashed lines the numerical solutions using a RK2 scheme with $c=2$.}
 \label{fig:pb2_1}
@@ -328,129 +247,6 @@ Figure \ref{fig:pb2_1} shows an example of solutions to \eqref{eq:pb2_eqn}. The 
 \caption{Error in numerical solution to \eqref{eq:pb2_eqn} as a function of the free parameter $c$.}
 \label{fig:pb2_error}
 \end{figure}
-
-\begin{lstlisting}
-program pb2
-
-    ! MAE 290C, Homework 1, Problem 2
-    ! Cesar B Rocha, crocha@ucsd.edu
-
-    implicit none
-
-    real (kind=8) :: ue, urk, t, err, tmax, c(6)
-    real (kind=8), parameter :: dt = 0.001, u0=1.d0
-    integer :: n, k, kmax, nmax,i
-    logical :: debug
-    character (1) :: ns
-    character (2) :: cs2
-    character (3) :: cs3
-    character (30) :: fno
-
-    ! flags
-    debug = .true.
-
-    ! time
-    tmax = 5.d0
-    kmax = ceiling(tmax/dt)
-
-    ! free parameter
-    c = (/.10d0,0.25d0,0.5d0,0.75d0,1.d0,5.d0/)
-
-    ! max power
-    nmax = 5
-
-    do i=1,size(c)
-
-        do n=1,nmax
-
-            ! set up output file
-            write (ns,"(i1)") n
-            if (c(i)<1.d0) then
-                write (cs2,"(i2)") ceiling(c(i)*100)
-                fno = 'output/pb2_'//ns//'_0'//cs2//'.out'
-            else
-                write (cs3,"(i3)") ceiling(c(i)*100)
-                fno = 'output/pb2_'//ns//'_'//cs3//'.out'
-
-            endif
-            
-            !print *,fno
-            open(unit=12, file=fno, action="write", status="replace")
-
-            ! initialize variable
-            t = 0.d0
-            ue = u0
-            urk = u0
-
-            do k=1,kmax
-
-                write(12,*) t,ue,urk
-                !print *, t,ue,urk
-            
-                ! update ue and uk
-                call exact(ue,t,n)
-                call stepforward_rk2(urk,dt,c(i),n)
-
-                ! update time
-                t = t + dt
-
-            enddo
-
-        enddo
-
-    enddo
-
-end program pb2
-
-!-------------------------------------------------
-! subroutines 
-!-------------------------------------------------
-
-! calculate the exact soln
-subroutine exact(ue,t,n)
-
-    implicit none
-    
-    ! subroutine arguments
-    real (kind=8), intent(in) :: t
-    real (kind=8), intent(inout) :: ue
-    integer, intent(in) :: n
-        
-    if (n==1) then
-        ue = exp(-t)
-    else
-        ue = 1.d0 / ( (1 + (n-1)*t)**(1.d0/(n-1)) )
-    endif
-
-end subroutine exact
-
-! step forward using RKW2
-subroutine stepforward_rk2(urk,dt,c,n)
-
-    implicit none
-
-    ! subroutine arguments
-    real (kind=8), intent(in) :: c, dt
-    real (kind=8), intent(inout) :: urk
-    integer, intent(in) :: n
-
-    ! local variables
-    real (kind=8) :: a21, b1, b2, k1, k2
-    
-    ! compute parameters given c
-    a21 = c
-
-    b2 = 1.d0/2.d0/c
-    b1 = 1.d0 - 1.d0/2.d0/c
-
-    k1 = -(urk**n)
-    k2 = -( (urk + dt*a21*k1)**n )
-
-    ! update urk in place
-    urk = urk + dt*(b1*k1 + b2*k2)
-
-end subroutine stepforward_rk2
-\end{lstlisting}
 
 
 \section*{Problem 3}
