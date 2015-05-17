@@ -58,6 +58,6 @@ if __name__ == "__main__":
 #    for n in N:
 #        test_fftw_rfft(Nx = n)
 
-    N = [100000] 
+    N = [1000] 
     for n in N:
-        test_fftw_rfft2(Nx = 512, n = n)
+        test_fftw_rfft2(Nx = 1024, n = n)

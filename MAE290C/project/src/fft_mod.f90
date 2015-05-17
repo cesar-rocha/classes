@@ -20,12 +20,12 @@ module fft_mod
     integer, intent(in) :: m, n
     integer (kind=8), intent(inout) :: plan
 
-    real (kind=8) :: x(:,:)
+    real (kind=8), allocatable :: x(:,:)
 
     allocate(x(n+2,n))
 
-    ! compute forward 2d fft for real input
-    call dfftw_plan_dft_r2c_2d(plan,m,n,x,x,FFTW_EXHAUSTIVE)
+    ! plan the forward 2d fft for real input, in place
+    call dfftw_plan_dft_r2c_2d(plan,m,n,x,x,FFTW_PATIENT)
 
     deallocate(x)
 
@@ -39,14 +39,15 @@ module fft_mod
     integer, intent(in) :: m, n
     integer (kind=8), intent(inout) :: plan
 
+    real (kind=8), allocatable :: xhat(:,:)
+
+
     allocate(xhat(n+2,n))
 
-    real (kind=8) :: xhat(:,:)
+    ! plan the backward 2d fft for real input, in place
+    call dfftw_plan_dft_c2r_2d(plan,m,n,xhat,xhat,FFTW_PATIENT)
 
-    ! compute forward 2d fft for real input
-    call dfftw_plan_dft_c2r_2d(plan,m,n,xhat,xhat,FFTW_EXHAUSTIVE)
-
-    deallocate(xhat(n+2,n))
+    deallocate(xhat)
 
   end subroutine init_plan_irfft2_ip
 
@@ -78,7 +79,7 @@ subroutine init_plan_irfft2(m,n,plan)
   complex (kind=8), dimension(m/2+1,n) :: xhat
 
   ! compute forward 2d fft for real input
-  call dfftw_plan_dft_c2r_2d(plan,m,n,xhat,x,FFTW_EXHAUSTIVE)
+  call dfftw_plan_dft_c2r_2d(plan,m,n,xhat,x,FFTW_PATIENT)
 
 end subroutine init_plan_irfft2
 
@@ -199,8 +200,8 @@ end subroutine init_plan_irfft2
 
         ! compute forward 1d fft for real input
         call dfftw_execute_dft_c2r(plan,xhat,xhat)
-
         xhat = xhat/n/n
+
     end subroutine irfft2_ip
 
 

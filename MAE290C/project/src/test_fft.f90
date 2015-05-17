@@ -18,9 +18,9 @@ program test
     logical :: debug
     integer(kind=8) :: tclock1, tclock2, clock_rate
 
-    n = 512
+    n = 1024
 
-    nmax = 100000
+    nmax = 1000
 
     allocate(A(n+2,n), Af(n+2,n))  ! need to pad two rows, since fortran stores
     allocate(Ah(n/2+1,n))          !    by column
