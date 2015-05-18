@@ -161,7 +161,7 @@ We can re-cast \eqref{eq:ns1_d} and \eqref{eq:ns2_d} in block-matrix form
         p^{n+1}
     \end{bmatrix*} = \begin{bmatrix*} 
         \bu^{n}-\bN(\bu^n)\dt\\
-        0\\
+        \bf{0}\\
     \end{bmatrix*}\com
 \eeq
 where
@@ -186,7 +186,7 @@ where
         p^{n+1}
     \end{bmatrix*} = \begin{bmatrix*} 
         \bu^{n}-\bN(\bu^n)\dt\\
-        0\\
+        \bf{0}\\
     \end{bmatrix*}\per
 \eeq
 
@@ -246,16 +246,16 @@ Hence
         p^{n+1}
     \end{bmatrix*} = \begin{bmatrix*} 
         \bu^{n}-\bN(\bu^n)\dt\\
-        0\\
+        \bf{0}\\
     \end{bmatrix*}\com
 \eeq
 and therefore the approximate solution is
-\beq
+\begin{align}
     \label{eq:ns_d_4}
     \begin{bmatrix*} 
         \bu^{n+1}\\
         p^{n+1}
-    \end{bmatrix*} =
+    \end{bmatrix*} =& 
     \begin{bmatrix*} 
         \sI &  \sG \dt\\
     {\bf 0} & \sI 
@@ -266,9 +266,23 @@ and therefore the approximate solution is
     \end{bmatrix*}^{-1}
     \begin{bmatrix*} 
         \bu^{n}-\bN(\bu^n)\dt\\
-        0\\
-    \end{bmatrix*}\per
-\eeq
+        \bf{0}\\
+    \end{bmatrix*} \\
+    = & 
+     \begin{bmatrix*} 
+        \sI &  -\sG \dt\\
+    {\bf 0} & \sI 
+    \end{bmatrix*}
+     \begin{bmatrix*} 
+         \sA^{-1} &  \bf{0}\\
+         \frac{\sL^{-1}\sD^{-1}\sA^{-1}}{\dt} & -\frac{\sL^{-1}}{\dt} 
+    \end{bmatrix*}
+        \begin{bmatrix*} 
+        \bu^{n}-\bN(\bu^n)\dt\\
+        \bf{0}\\
+    \end{bmatrix*}
+    \per
+\end{align}
 
 
 
