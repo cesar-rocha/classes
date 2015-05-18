@@ -116,6 +116,7 @@ showstringspaces=false            %
 
 \section*{Problem 1}
 
+
 The non-dimensional Navier-Stokes equations, with constant density, are
 \beq
 \label{eq:ns1}
@@ -133,7 +134,10 @@ where $\bu$ is the velocity, $p$ is the dynamic pressure, and $\Re$ is the Reyno
  \eeq   
  where $\sD$, $\sG$ and $\sL$ should be understood as matrices.
 
-Thus, time-discretizing \eqref{eq:ns1} and \eqref{eq:ns2} we obtain using explicit Euler for the non-linear term
+\begin{enumerate}
+
+
+\item Time-discretizing \eqref{eq:ns1} and \eqref{eq:ns2} we obtain using explicit Euler for the non-linear term
  and implicit Euler for the linear terms, we obtain
  \beq
     \label{eq:ns1_d}
@@ -144,12 +148,133 @@ and
     \label{eq:ns2_d}
     \sD u^{n+1} = 0\per
 \eeq
-We can re-cast \eqref{eq:ns1_d} and \eqref{eq:ns2_d} in matrix form
+We can re-cast \eqref{eq:ns1_d} and \eqref{eq:ns2_d} in block-matrix form
 \beq
     \label{eq:ns_d}
-   M 
+    \underbrace{
+    \begin{bmatrix*} 
+        \sA & \sG \dt\\
+        \sD & {\bf 0}
+    \end{bmatrix*}}_{\defn \sM} 
+    \begin{bmatrix*} 
+        \bu^{n+1}\\
+        p^{n+1}
+    \end{bmatrix*} = \begin{bmatrix*} 
+        \bu^{n}-\bN(\bu^n)\dt\\
+        0\\
+    \end{bmatrix*}\com
+\eeq
+where
+\beq
+\sA \defn \sI - \frac{\dt}{\Re} \sL\per
 \eeq
 
+\item We have
+    \beq
+        \sA \sG  = \sG - \frac{\dt}{\Re} \sL\per
+    \eeq
+    Thus, to within an error of $\mathcal{O}(\dt)$, we can approximate \ref{eq:ns_d} as
+\beq
+    \label{eq:ns_d_2}
+    \underbrace{
+    \begin{bmatrix*} 
+        \sA & \sA \sG \dt\\
+        \sD & {\bf 0}
+    \end{bmatrix*}}_{\defn \sM_2} 
+    \begin{bmatrix*} 
+        \bu^{n+1}\\
+        p^{n+1}
+    \end{bmatrix*} = \begin{bmatrix*} 
+        \bu^{n}-\bN(\bu^n)\dt\\
+        0\\
+    \end{bmatrix*}\per
+\eeq
+
+    \item To obtain the LU-factorization, we note that we can operate on the block-matrix $\sM_2$ as in
+         standard matrices. Hence, we can perform a block Gauss elimination  on $\sM_2$. Noticing that the 
+          block multiplier is simply $\sD \sA^{-1}$, we obtain
+
+\begin{align}
+    \sM_2 = 
+    \begin{bmatrix*} 
+        \sA & \sA \sG \dt\\
+        \sD & {\bf 0}
+    \end{bmatrix*} = & 
+    \begin{bmatrix*} 
+        \sI & 0\\
+        \sD \sA^{-1} & \sI
+    \end{bmatrix*}
+\begin{bmatrix*} 
+        \sA & \sA \sG \dt\\
+    {\bf 0} & -\sL\dt 
+    \end{bmatrix*}\\
+    = &    \begin{bmatrix*} 
+        \sI & \bf{0}\\
+        \sD \sA^{-1} & \sI
+ \end{bmatrix*}
+ \begin{bmatrix*} 
+     \sA & \bf{0}\\
+     \bf{0} & -\sL \dt
+    \end{bmatrix*}
+\begin{bmatrix*} 
+        \sI &  \sG \dt\\
+    {\bf 0} & - \sI 
+    \end{bmatrix*}\\
+    = &
+\begin{bmatrix*} 
+        \sA & \bf{0}\\
+        \sD  & -\sL \dt
+ \end{bmatrix*}
+\begin{bmatrix*} 
+        \sI &  \sG \dt\\
+    {\bf 0} & \sI 
+    \end{bmatrix*}\per
+\end{align}
+Hence
+\beq
+    \label{eq:ns_d_3}
+\begin{bmatrix*} 
+        \sA & \bf{0}\\
+        \sD  & -\sL \dt
+ \end{bmatrix*}
+\begin{bmatrix*} 
+        \sI &  \sG \dt\\
+    {\bf 0} & \sI 
+    \end{bmatrix*}
+    \begin{bmatrix*} 
+        \bu^{n+1}\\
+        p^{n+1}
+    \end{bmatrix*} = \begin{bmatrix*} 
+        \bu^{n}-\bN(\bu^n)\dt\\
+        0\\
+    \end{bmatrix*}\com
+\eeq
+and therefore the approximate solution is
+\beq
+    \label{eq:ns_d_4}
+    \begin{bmatrix*} 
+        \bu^{n+1}\\
+        p^{n+1}
+    \end{bmatrix*} =
+    \begin{bmatrix*} 
+        \sI &  \sG \dt\\
+    {\bf 0} & \sI 
+    \end{bmatrix*}^{-1}
+    \begin{bmatrix*} 
+        \sA & \bf{0}\\
+        \sD  & -\sL \dt
+    \end{bmatrix*}^{-1}
+    \begin{bmatrix*} 
+        \bu^{n}-\bN(\bu^n)\dt\\
+        0\\
+    \end{bmatrix*}\per
+\eeq
+
+
+
+
+\end{enumerate}
+    
 
 
 %    \begin{figure}[ht]
