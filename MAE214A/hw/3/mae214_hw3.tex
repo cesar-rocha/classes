@@ -1,0 +1,271 @@
+\documentclass[11pt]{article}
+
+%% WRY has commented out some unused packages %%
+%% If needed, activate these by uncommenting
+\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+%\geometry{letterpaper}                   % ... or a4paper or a5paper or ... 
+\geometry{a4paper,left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+%\geometry{landscape}                % Activate for rotated page geometry
+%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+
+%for figures
+%\usepackage{graphicx}
+
+\usepackage{color}
+\definecolor{mygreen}{RGB}{28,172,0} % color values Red, Green, Blue
+\definecolor{mylilas}{RGB}{170,55,241}
+%% for graphics this one is also OK:
+\usepackage{epsfig}
+
+%% AMS mathsymbols are enabled with
+\usepackage{amssymb,amsmath}
+
+%% more options in enumerate
+\usepackage{enumerate}
+\usepackage{enumitem}
+
+%% insert code
+\usepackage{listings}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage{hyperref}
+
+
+% Default fixed font does not support bold face
+\DeclareFixedFont{\ttb}{T1}{txtt}{bx}{n}{12} % for bold
+\DeclareFixedFont{\ttm}{T1}{txtt}{m}{n}{12}  % for normal
+
+% Custom colors
+\usepackage{color}
+\definecolor{deepblue}{rgb}{0,0,0.5}
+\definecolor{deepred}{rgb}{0.6,0,0}
+\definecolor{deepgreen}{rgb}{0,0.5,0}
+
+
+% Python style for highlighting
+\newcommand\pythonstyle{\lstset{
+language=Python,
+basicstyle=\ttm,
+otherkeywords={self},             % Add keywords here
+keywordstyle=\ttb\color{deepblue},
+emph={MyClass,__init__},          % Custom highlighting
+emphstyle=\ttb\color{deepred},    % Custom highlighting style
+stringstyle=\color{deepgreen},
+frame=tb,                         % Any extra options here
+showstringspaces=false            % 
+}}
+
+% Python environment
+\lstnewenvironment{python}[1][]
+{
+\pythonstyle
+\lstset{#1}
+}
+{}
+
+% Python for external files
+\newcommand\pythonexternal[2][]{{
+\pythonstyle
+\lstinputlisting[#1]{#2}}}
+
+% Python for inline
+\newcommand\pythoninline[1]{{\pythonstyle\lstinline!#1!}}
+
+%\usepackage{epstopdf}
+%\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+
+
+
+%% colors
+\usepackage{graphicx,xcolor,lipsum}
+
+
+\usepackage{mathtools}
+
+\usepackage{graphicx}
+\newcommand*{\matminus}{%
+  \leavevmode
+  \hphantom{0}%
+  \llap{%
+    \settowidth{\dimen0 }{$0$}%
+    \resizebox{1.1\dimen0 }{\height}{$-$}%
+  }%
+}
+
+
+\title{MAE214, Homework Assignment 3}
+\author{Cesar B Rocha}
+\date{\today}
+
+\begin{document}
+
+\include{mysymbols}
+
+\maketitle
+
+\section*{Problem 1}
+
+\begin{enumerate}[label=(\alph*)]
+
+    \item We aim to derive the following expression for the turbulent dissipation rate
+        \beq
+            \label{eq:ep_target}
+            \epsilon = 15 \nu \frac{u^2}{\lambda^2}\com
+        \eeq
+        where u is the root-mean square velocity and $\lambda$ is the Taylor microscale. 
+
+    Following Pope's hint, we start with the fourth-order tensor
+    \beq
+        \left< \frac{\p u_i}{\p_{x_j}} \frac{\p u_k}{\p_{x_l}} \right>\com
+    \eeq
+    which is isotropic in homogeneous isotropic turbulence. Hence
+    \beq
+        \label{eq:most_gen_4ot}
+        \left< \frac{\p u_i}{\p_{x_j}} \frac{\p u_k}{\p_{x_l}} \right> = \alpha \delta_{ij}\delta_{kl} 
+                        + \beta \delta_{ik}\delta_{jl} + \gamma \delta_{il}\delta_{jk}\com
+    \eeq
+    where the right-hand side of \eqref{eq:most_gen_4ot} is simply the most general fourth-order
+    isotropic tensor, with $\alpha$, $\beta$, and $\gamma$ scalars and $\delta_{pq}$ the Dirac delta.
+     Continuity requires $\p u_m / \p x_{m} = 0$. Thus, with $i=j$ and $k=l$ we obtain
+    \beq
+        \left< \frac{\p u_i}{\p_{x_i}} \frac{\p u_k}{\p_{x_k}} \right> = \alpha \delta_{ii}\delta_{kk} 
+                        + \beta \delta_{ik}\delta_{ik} + \gamma \delta_{ik}\delta_{ik} = 0\com
+    \eeq
+    and therefore
+    \beq
+        \label{eq:constraint}    
+       3\alpha + \beta + \gamma = 0\per
+    \eeq
+    Note that statistical homogeneity implies
+    \beq
+        \frac{\p}{\p x_j}\left<u_i \frac{\p u_j}{\p x_l}\right> = 0\per
+    \eeq
+    Thus
+    \beq
+        \left< \frac{\p u_i}{\p x_j}\frac{\p u_j}{\p x_l} + u_i
+        \frac{\p}{\p x_l}\underbrace{\frac{\p u_j}{\p x_j}}_{=0} \right>  = 0\com
+    \eeq
+    and therefore
+    \beq
+       \left< \frac{\p u_i}{\p x_j}\frac{\p u_j}{\p x_l}\right> = 0 \per
+    \eeq
+    Using \eqref{eq:most_gen_4ot} this implies that
+    \beq
+        \label{eq:deltas}
+        \alpha \delta_{ij}\delta_{jl} + \beta \delta_{ij}\delta_{jl} + \gamma \delta_{il}\delta_{jl} = 0 \per
+    \eeq
+    The first two terms on the left of \eqref{eq:deltas} are non-zero only if $i = l$, and thus
+    \beq
+        \label{eq:constraint2}
+        \alpha + \beta + 3 \gamma = 0\per
+    \eeq
+    With the two constraints \eqref{eq:constraint} and \eqref{eq:constraint2} we obtain
+    \beq
+        \alpha = \gamma = -\frac{\beta}{4}\com
+    \eeq
+    and therefore
+    \beq
+    \left< \frac{\p u_i}{\p_{x_j}} \frac{\p u_k}{\p_{x_l}} \right> = \beta \left( \delta_{ik}\delta_{jl} 
+                    - \frac{1}{4} \delta_{ij}\delta_{kl} -  \frac{1}{4} \delta_{il}\delta_{jk}\right)\per
+    \eeq
+    Thus
+    \beq
+    \left<\left(\frac{\p u_1}{\p x_1}\right)^2\right> = \frac{1}{2} \beta\com
+    \eeq
+    \beq
+    \left<\left(\frac{\p u_1}{\p x_2}\right)^2\right> = \beta = 2\left<\left(\frac{\p u_1}{\p x_1} 
+     \right)^2\right> \com
+    \eeq
+    Thus the turbulent kinetic energy dissipation is
+    \beq
+        \epsilon \defn \nu \left< \frac{\p u_i}{\p x_j}\frac{\p u_i}{\p x_j} \right>  \per
+    \eeq
+    From the results above we have that, for homogeneous isotropic turbulence, the contribution from the 
+     diagonal term is
+     \beq
+     \left<\frac{\p u_i}{\p x_j}\frac{\p u_i}{\p x_j}\right> = 3 \left<\left(\frac{\p u_1}{\p x_1}\right)^2\right>
+     \com \qquad i = j\per
+     \eeq
+    Similarly, the contribution from the off-diagonal terms is
+    \beq
+          \left<\frac{\p u_i}{\p x_j}\frac{\p u_i}{\p x_j}\right> = 6\times 3 \left<\left(\frac{\p u_1}{\p x_1}\right)^2\right>
+     \com \qquad i \neq j\per
+    \eeq
+    Collecting the results above we obtain an expression for the turbulence kinetic energy dissipation
+    \beq
+        \epsilon = 15 \nu  \left<\left(\frac{\p u_1}{\p x_1}\right)^2\right>
+ \per        
+    \eeq
+    Now  given the longitudinal velocity autocorrelation $f(r,t)$, we have
+    \begin{align}
+    - u'^2 f''(0,t) = \lim_{r\to 0} \frac{\p^2}{\p r^2 }\frac{<u_1(\vec{x}+\vec{e}_1 r,t)u_1(\vec{x},t)>}{u'^2}
+     = - \lim_{r\to0}\left<\left(\frac{\p^2 u_1}{\p x_1^2}\right)_{\vec{x}\vec{e_1}r}u_1(\vec{x},t)\right> \\
+     -\left<\left(\frac{\p^2 u_1}{\p x_1^2}\right)u_1\right> = -\left<\frac{\p}{\p x_1}\left(u_1\frac{\p u_1}{\p x_1}\right)-\left(\frac{\p u_1}{\p x_1}\right)^2\right>
+      \com
+  \end{align}
+    where $u'$ is the root-mean square velocity. Using statistical homogeneity we obtain
+    \beq
+        \label{eq:neat1}
+        - u'^2 f''(0,t) = \left<\left(\frac{\p u_1}{\p x_1}\right)^2\right>\per
+    \eeq
+    The longitudinal Taylor microscale is the scale in which a parabola that osculates $f$ crosses the axis
+    \beq
+        \label{eq:lamf}
+    \lambda_f^2 \defn \frac{1}{ 2 f''(0)}\per
+    \eeq
+    In complete analogy, the transverse Taylor microscale is defined as
+    \beq
+        \label{eq:lamg}    
+    \lambda_g^2 \defn \frac{1}{ 2 g''(0)}\per
+    \eeq
+    In isotropic turbulence these are simply related
+    \beq
+        \label{eq:lamfg}    
+    \lambda_g^2 = \frac{\lambda_g^2}{2}\per
+    \eeq
+    Thus, using \eqref{eq:neat1} through \eqref{eq:lamfg}, the turbulent kinetic energy dissipation is
+    \beq
+    \label{eq:ep}
+    \epsilon = 15 \nu \frac{u'^2}{\lambda_g^2}\com
+    \eeq
+    which is the advertised answer. 
+
+
+\end{enumerate}
+
+
+\section*{Problem 2}
+
+\begin{enumerate}[label=(\alph*)]
+
+        \item Kolmogorov's $k^{-5/3}$ spectral law is a prediction for kinetic energy spectrum in the inertial
+             subrange. This is the subrange encompasses scales between the energy containing range and the 
+              dissipation range. In the inertial range, the kinetic energy spectrum is simply determined by the
+               turbulent dissipation rate (which, in this range, equals the kinetic energy transfer rage). Simple dimension analysis
+                gives the $\tfrac{5}{3}$ power dependency on the wavenumber. Now, for the inertial subrange to exist, 
+                 there should be a clear separation between energy-containing and dissipation scales, and therefore
+                  a sufficiently high Reynolds number is required for that law to be valid.
+              \item If the hot wire measure at enough high-frequency, then place than at a distance $\Delta x_1$ downstream, and measure the velocity at these two positions. Calculating statistics for various $\Delta x_1$, one can estimate the longitudinal spatial autocorrelation, and then compute the Taylor microscales ($\lambda$s) and the root-mean square velocity. Using these, one can estimate the turbulent energy dissipation rate $\epsilon$ using energy dissipations using \ref{eq:ep}.
+                  
+                  A straightforward alternate approach is to measure the flow in a single fixed point, and calculate its temporal autocorrelation. One can then use Taylor's hypothesis to approximate the spatial autocorrelation from the temporal autocorrelation. From the temporal data one can also estimate the root-mean square velocity, and use it together with $\lambda_g$ to obtain an estimate for the turbulent energy dissipations using \ref{eq:ep}. Essentially, this hypothesis assumes that a patch of turbulence is being advected by the energy-containing turbulent flows. Over the time interval $\Delta t$ interval this patch will have traveled a distance of $U \Delta t$. For this hypothesis to be valid, the turbulence field must remain unchanged over $\Delta t$. One can then simply relate the temporal autocorrelation to the spatial autocorrelation.
+
+
+\end{enumerate}
+
+\section*{Problem 3}
+
+
+%        \begin{figure}[ht]
+%        \begin{center}
+%        \includegraphics[width=18pc,angle=0]{pb2_cdf.png}
+%        \includegraphics[width=18pc,angle=0]{pb2_pdf.png}
+%        \end{center}
+%        \caption{Cumulative distribution function (pdf) and probability distribution function (pdf) 
+%                for a log-normally-distributed random variable $y$ with $<y>=1$, and different variances.}
+%        \label{fig:pb2}
+%        \end{figure}
+
+\end{document}
+
+
