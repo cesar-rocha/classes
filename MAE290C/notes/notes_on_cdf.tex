@@ -74,7 +74,7 @@ I claim no originality to the content of these notes.  In particular, I'm loosel
     \item \textit{Numerical Methods for Fluid Dynamics: With applications 
         to Geophysics} by Durran.
 
-    \item \textit{Numerical Methods for Conservations Laws} by LeVeque.
+    \item \textit{Numerical Methods for Conservation Laws} by LeVeque.
 
 \end{itemize}
 
@@ -907,6 +907,146 @@ where CFT represents the complex Fourier transform and CRFT represents the compl
     \end{itemize}
 
     Things get more complicated in higher dimensions. So, please consult the manual for an accurate description.
+
+
+\section{Working with incompressible equations}
+
+The incompressible Navier-Stokes equations are
+\beq
+\label{eq:ns_2}
+\p_t \vec{u} + \vec{u}\cdot \nabla \vec{u} = -\frac{\nabla p}{\rho} + \nu \lap \vec{u}\com
+\eeq
+and
+\beq
+\label{eq:cons_mass_2}
+\nabla\cdot\vec{u} = 0\per
+\eeq
+
+
+\subsection{Fractional step method}
+In this approach, we split every time integration step in two substeps. In the first substep, we perfom
+ a preliminary estimation of the velocity $bu^*$ neglecting the pressure term altogether. Using an implicit 
+  Euler scheme for the linear terms and explicit Euler for the nonlinear terms, we obtain
+ 
+\beq
+\label{eq:first_step}
+\frac{\bu^* - \bu^n}{\dt} - \nu \lap \bu^*   = \bN(\bu^n)\com\qquad \text{on the volume} \qquad \Omega\com
+\eeq
+with non slip boundary conditions
+\beq
+\label{eq:first_bc}
+\bu^*=0\com\qquad \text{on the surface} \qquad  \partial \Omega\per
+\eeq
+Notice that these boundary conditions are necessary in this substeps because it contains the higher derivative
+ viscous terms. The second substep, the projection step, deals with the pressure term
+\beq
+\label{eq:second_step}
+\frac{\bu^{n+1} - \bu^*}{\dt} + \nabla p^{n+1} = 0\com
+\eeq
+where $p$ is the dynamic pressure, and imposes the nondivergence constraint
+\beq
+    \label{eq:second_nd}
+    \nabla\cdot\bu^{n+1}= 0\com
+\eeq
+and no-normal flow boundary conditions
+\beq
+\label{eq:second_bc}
+\bu^{n+1}\cdot \hat{\bf n}\com \qquad \text{on the surface}  \qquad \p \Omega\per
+\eeq
+Taking the divergence of the second equation \eqref{eq:second_step} we obtain an elliptic problem for the pressure
+\beq
+\label{eq:elliptic_pressure}
+\lap p^{n+1} = \frac{\nabla\cdot \bu^{*}}{\dt}\com
+\eeq
+Using the divergence theorem, we obtain
+\beq
+\frac{\bu^{n+1}\cdot\hat{\bf n}}{\dt} + \frac{\p \phi}{\p {\bf n}} = 0\com \qquad \text{on the surface}  \qquad \p \Omega\per
+\eeq
+That is, we impose no-slip on $\bu^*$ and no-normal flow on $\bu^*$ and $\bu^{n+1}$. There is an $\mathcal{O}(\dt)$ error in the no-slip boundary condition on $\bu^{n+1}$. The final single time-step  marching scheme has the form
+\beq
+\label{eq:full_step}
+\bu^{n+1} = \bu^* - \nabla p^{n+1} \dt\per
+\eeq
+
+\subsection{Pressure correction methods}
+This scheme is also based on two substeps. In the first substep we solve the problem implicitly for pressure
+\beq
+\frac{\bu^*-\bu^n}{\dt} -\nu \lap \bu^* = \bN(\bu^n) - \nabla p^n\com
+\eeq
+with no-slip boundary conditions
+\beq
+\bu^* = 0\com \qquad \text{on the surface} \qquad \p \Omega\per
+\eeq
+The second substep then makes a pressure correction
+\beq
+\frac{\bu^{n+1}-\bu^*}{\dt} + \nabla\cdot\phi = 0\com
+\eeq
+by imposing the nondivengece constraint on $\bu^{n+1}$, which implies
+\beq
+\lap \phi = \frac{\nabla\cdot\bu^*}{\dt}\com\qquad  \text{on the volume} \qquad \Omega\com
+\eeq
+subject to no-slip boundary conditions i.e., 
+\beq
+\frac{\p \phi}{\p n} = 0 \com\qquad  \text{on the surface} \qquad \p \Omega\per
+\eeq
+Thus the corrected pressure is
+\beq
+p^{n+1} = p^n + \phi -\nu \nabla\cdot\bu^*\per
+\eeq
+For this scheme, the no-slip boundary conditions are affected by a $\dt^2$ error term. 
+
+\section{Pressure correction with RKW3}
+Following the notation used above for the RKW3 scheme, the first substep of the pressure correction
+ method has the form
+ \beq
+ \frac{\bu^*-\bu^n}{\dt} = -\gamma_1 \sH^n + \frac{\alpha_1}{\Re}\sL \bu^* -(\alpha_1+\beta_1)\sG p^n\com
+ \eeq
+ \beq
+    \frac{\bu^2-\bu^*}{\dt} = -(\alpha_1\beta_1)\sG \phi\com
+ \eeq
+ \beq
+    \sD\cdot\bu^* = 0 \Longrightarrow \sL\phi^1 = \frac{\sD\bu^*}{(\alpha_1+\beta_1)\dt}\com\qquad
+     \text{on the volume}\qquad \Omega\com
+ \eeq
+    and therefore
+\beq
+\p_n\phi' = 0\com\qquad \text{on the surface}\qquad \p \Omega\per
+\eeq
+The pressure correction has the form
+\beq
+p^2 = p^n + \phi^1 - \frac{1}{\Re} \frac{\beta_1}{\alpha_1+\beta_1}\sD\cdot\bu^*\per
+\eeq
+
+The second substep is
+\beq
+\frac{\bu^{**}-\bu^2}{\dt} - \gamma_2 \sH^2 -\xi_2\sH^n + \frac{\alpha_2}{\Re}\sL \bu^2 + 
+    \frac{\beta_2}{\Re} \sL \bu^** - (\alpha_2 + \beta_2) \sG p^2\com
+\eeq
+\beq
+\frac{\bu^3-\bu^{**}}{\dt} = -(\alpha_2+\beta_2) \sG p^2\com
+\eeq
+\beq
+\sD\cdot\bu^3 = 0 \Longrightarrow \sL\phi^2 = \frac{\sD u^{**}}{(\alpha_2+\beta_2)\dt}\per
+\eeq
+The pressure correction in this substep is
+\beq
+p^3 = p^2 + \phi^2 -\frac{\beta_2}{(\alpha_2+\beta_2)\Re}\sD\cdot\bu^{**}\per
+\eeq
+The third substep is
+\beq
+\frac{\bu^{***}-\bu^3}{\dt} - \gamma_3 \sH^3 -\xi_3\sH^2  + \frac{\alpha_3}{\Re}\sL \bu^3 + 
+\frac{\beta_3}{\Re} \sL \bu^{***} - (\alpha_3 + \beta_3) \sG p^3\com
+\eeq
+\beq
+\frac{\bu^{n+1}-\bu^{***}}{\dt} = -(\alpha_3+\beta_3) \sG \phi^3\com
+\eeq
+\beq
+\sD\cdot\bu^3 = 0 \Longrightarrow \sL\phi^3 = \frac{\sD u^{***}}{(\alpha_3+\beta_3)\dt}\per
+\eeq
+Finally, the pressure at step $n+1$ is
+\beq
+p^{n+1} = p^3 + \phi^3 -\frac{1}{\Re} \frac{\beta_3}{\alpha_3+\beta_3}\sD\bu^{***}\per
+\eeq
 
 \end{document}
 
