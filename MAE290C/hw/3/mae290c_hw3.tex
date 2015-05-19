@@ -141,7 +141,7 @@ where $\bu$ is the velocity, $p$ is the dynamic pressure, and $\Re$ is the Reyno
  and implicit Euler for the linear terms, we obtain
  \beq
     \label{eq:ns1_d}
-    \frac{\bu^{n+1}-\bu^{n}}{\Delta t} \approx \bN(\bu^{n}) - \sG \bu^{n+1} + \frac{1}{\Re} \sD\sG \bu^{n+1}\com 
+    \frac{\bu^{n+1}-\bu^{n}}{\Delta t} \approx \bN(\bu^{n}) - \sG p^{n+1} + \frac{1}{\Re} \sD\sG \bu^{n+1}\com 
  \eeq
 and
 \beq
@@ -275,7 +275,7 @@ and therefore the approximate solution is
     \end{bmatrix*}
      \begin{bmatrix*} 
          \sA^{-1} &  \bf{0}\\
-         \frac{\sL^{-1}\sD^{-1}\sA^{-1}}{\dt} & -\frac{\sL^{-1}}{\dt} 
+         \frac{\sL^{-1}\sD\sA^{-1}}{\dt} & -\frac{\sL^{-1}}{\dt} 
     \end{bmatrix*}
         \begin{bmatrix*} 
         \bu^{n}-\bN(\bu^n)\dt\\
@@ -284,12 +284,29 @@ and therefore the approximate solution is
     \per
 \end{align}
 
+The first substep of the fractional method solves the problem without the pressure term
+\beq
+    \frac{\bu^{*}-\bu^{n}}{\Delta t} =- \bN(\bu^{n}) - \frac{1}{\Re} \sL \bu^{*}\per
+\eeq
+Hence
+\beq
+\bu^{*}  =   \sA^{-1}(\bu^n-\dt\bN(\bu^n))\com
+\eeq
+which is the first row of $\sL^{-1}\bu^n$. The pressure in the fractional method is determined by
+\beq
+p = \frac{\sL^{-1}\sD\bu^*}{\dt}\com
+\eeq
+which is, to $\mathcal{O}(\dt)$, the second row of $\sU^{-1}\sL^{-1}\bu^n$. The updated velocity is then the
+ first row of $\sU^{-1}\sL^{-1}\bu^n$
+ \beq
+ \bu^{n+1} = \bu^* - \dt \sG p^{n+1} = \bu^* - \sG \sL^{-1}\sD\sA^{-1}\bu^*\per 
+ \eeq
 
+\item They are equivalent only to $\mathcal{O}(\dt)$.
 
 
 \end{enumerate}
     
-
 
 %    \begin{figure}[ht]
 %    \begin{center}
