@@ -127,7 +127,7 @@ showstringspaces=false            %
     \eeq
     where the right-hand side of \eqref{eq:most_gen_4ot} is simply the most general fourth-order
     isotropic tensor, with $\alpha$, $\beta$, and $\gamma$ scalars and $\delta_{pq}$ the Dirac delta.
-     Continuity requires $\p u_m / \p x_{m} = 0$. Thus, with $i=j$ and $k=l$ we obtain
+     Continuity implies $\p u_m / \p x_{m} = 0$. Thus, with $i=j$ and $k=l$, we obtain
     \beq
         \left< \frac{\p u_i}{\p_{x_i}} \frac{\p u_k}{\p_{x_k}} \right> = \alpha \delta_{ii}\delta_{kk} 
                         + \beta \delta_{ik}\delta_{ik} + \gamma \delta_{ik}\delta_{ik} = 0\com
@@ -219,10 +219,10 @@ showstringspaces=false            %
         \label{eq:lamg}    
     \lambda_g^2 \defn \frac{1}{ 2 g''(0)}\per
     \eeq
-    In isotropic turbulence these are simply related
+    In isotropic turbulence the longitudinal and transverse Taylor microscales are simply related
     \beq
         \label{eq:lamfg}    
-    \lambda_g^2 = \frac{\lambda_g^2}{2}\per
+    \lambda_g^2 = \frac{\lambda_f^2}{2}\per
     \eeq
     Thus, using \eqref{eq:neat1} through \eqref{eq:lamfg}, the turbulent kinetic energy dissipation is
     \beq
@@ -240,20 +240,51 @@ showstringspaces=false            %
 \begin{enumerate}[label=(\alph*)]
 
         \item Kolmogorov's $k^{-5/3}$ spectral law is a prediction for kinetic energy spectrum in the inertial
-             subrange. This is the subrange encompasses scales between the energy containing range and the 
-              dissipation range. In the inertial range, the kinetic energy spectrum is simply determined by the
+             subrange. This range encompasses scales between the energy containing range and the 
+              dissipation range. In the inertial subrange, the kinetic energy spectrum is simply determined by the
                turbulent dissipation rate (which, in this range, equals the kinetic energy transfer rage). Simple dimension analysis
                 gives the $\tfrac{5}{3}$ power dependency on the wavenumber. Now, for the inertial subrange to exist, 
                  there should be a clear separation between energy-containing and dissipation scales, and therefore
                   a sufficiently high Reynolds number is required for that law to be valid.
-              \item If the hot wire measure at enough high-frequency, then place than at a distance $\Delta x_1$ downstream, and measure the velocity at these two positions. Calculating statistics for various $\Delta x_1$, one can estimate the longitudinal spatial autocorrelation, and then compute the Taylor microscales ($\lambda$s) and the root-mean square velocity. Using these, one can estimate the turbulent energy dissipation rate $\epsilon$ using energy dissipations using \ref{eq:ep}.
+              \item If the hot wire cannot measure velocity gradients very well, then one could measure the velocity differences, that is, one places the  at a downstream distance $\Delta x_1$  from each other, and measure the velocity at these two positions. Calculating statistics for various $\Delta x_1$, one can estimate the longitudinal spatial autocorrelation, and then compute the Taylor microscales ($\lambda$s) and the root-mean square velocity. Using these, one can estimate the turbulent energy dissipation rate $\epsilon$ using energy dissipations using \ref{eq:ep}.
                   
-                  A straightforward alternate approach is to measure the flow in a single fixed point, and calculate its temporal autocorrelation. One can then use Taylor's hypothesis to approximate the spatial autocorrelation from the temporal autocorrelation. From the temporal data one can also estimate the root-mean square velocity, and use it together with $\lambda_g$ to obtain an estimate for the turbulent energy dissipations using \ref{eq:ep}. Essentially, this hypothesis assumes that a patch of turbulence is being advected by the energy-containing turbulent flows. Over the time interval $\Delta t$ interval this patch will have traveled a distance of $U \Delta t$. For this hypothesis to be valid, the turbulence field must remain unchanged over $\Delta t$. One can then simply relate the temporal autocorrelation to the spatial autocorrelation.
+                  Another straightforward alternate approach is to measure the flow in a single fixed point, and calculate its temporal autocorrelation. One can then use Taylor's hypothesis to approximate the spatial autocorrelation from the temporal autocorrelation. From the temporal data one can also estimate the root-mean square velocity, and use it together with $\lambda_g$ to obtain an estimate for the turbulent energy dissipations using \ref{eq:ep}. Essentially, this hypothesis assumes that a patch of turbulence is being advected by the energy-containing turbulent flows. Over the time interval $\Delta t$ interval this patch will have traveled a distance of $U \Delta t$. For this hypothesis to be valid, the turbulence field must remain unchanged over $\Delta t$. One can then simply relate the temporal autocorrelation to the spatial autocorrelation.
 
 
 \end{enumerate}
 
 \section*{Problem 3}
+     We assume that at 100 jet diameters downstream from the nozzle, the flow has become self-similar. The reference time scale is then
+        \beq
+        \tau_0 \defn \frac{r_{1/2}}{U_0} = 3.5  \,\,\text{sec}.
+        \eeq
+    The integral scale Reynolds number is
+    \beq
+        \Re \defn \frac{U_0 r_{1/2}}{\nu}\per
+    \eeq
+    And the Reynolds number based on Taylor's microscale is
+    \beq
+        \Re_{\lambda} \defn \frac{u_{\lambda}\lambda}{\nu}\per
+    \eeq
+    If the turbulent dissipation is estimated using $U_0$ and $r_{1/2}$
+    \beq
+        \epsilon \sim \frac{U_0^3}{r_{1/2}}\com
+    \eeq
+    then we find
+    \beq
+    \Re_{\lambda}\sim\sqrt{\Re_{r_{1/2}}}.
+    \eeq
+    Now,
+    \beq
+    \nu \sim \epsilon \tau_{\eta}^2\per
+    \eeq
+   Hence
+   \beq
+   \Re_{\lambda}\sim \frac{r_{1/2}^2}{U_0^2 \tau_\eta^2}\per
+   \eeq
+    If $\Re_\lambda$ above is larger than 700 (by assumption), then the turbulent jet will follow 
+     Kolmogorov's spectral law. Data in Pope's table 5.2 suggests that the flow is anisotropic and
+      production-over-dissipation is $\sim 0.8$. Thus, one expects a deviation from Kolmogorov's predictions.
 
 
 %        \begin{figure}[ht]
