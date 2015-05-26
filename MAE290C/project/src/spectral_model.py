@@ -14,7 +14,6 @@ try:
 except ImportError:
     pass
 
-
 class BTModel(object):
 
     """ A class that represents the 2D model """
@@ -29,10 +28,10 @@ class BTModel(object):
             # physical parameters
             nu = 0.,
             # timestepping parameters
-            dt=.0025,                   # numerical timestep
-            twrite=100,                 # interval for cfl and ke printout (in timesteps)
-            tmax=100.,                  # total time of integration
-            filt=True,                  # spectral filter flag
+            dt=.0025,               # numerical timestep
+            twrite=100,             # interval for cfl and ke printout (in timesteps)
+            tmax=100.,              # total time of integration
+            filt=True,              # spectral filter flag
             use_fftw=True,
             ntd = 1):
 
@@ -131,6 +130,11 @@ class BTModel(object):
         self.nl1h = np.zeros(shape_cplx, dtype_cplx)
         self.nl2h = np.zeros(shape_cplx, dtype_cplx)
 
+
+    def _invert(self):
+        """ Compute streamfunction from vorticity """
+        self.ph = -self.kappa2i*self.qh
+
     def _initialize_fft(self):
         # set up fft functions for use later
         if self.use_fftw:
@@ -154,10 +158,11 @@ class BTModel(object):
                 np.arange(-self.ny/2,0.) )
         self.kk = self.dk*np.arange(0.,self.nx/2+1)
         self.k,self.l = np.meshgrid(self.kk,self.ll)
+        self.kj = 1j*self.k
+        self.lj = 1j*self.l
 
     def set_q(self,q):
-        """ Initialize q is random with unit energy """
-        
+        """ Initialize vorticity """ 
         self.q = q
         self.qh = self.fft2(self.q)
         self._invert()
@@ -165,21 +170,21 @@ class BTModel(object):
         self.ph = self.ph/(sqrt(self._calc_ke()))
         self.qh = -self.kappa2*self.ph 
 
-
     # jacobian in conservative form
     def jacobian(self):
+
         """ compute the jacobian in conservative form """
 
         self._invert()
 
-        self.q = self.ifft2(self.filt * self.qh)
-        self.u = self.ifft2(-1j*self.l * self.filt * self.ph) 
-        self.v = self.ifft2( 1j*self.k * self.filt * self.ph)
+        self.q = self.ifft2(self.qh)
+        self.u = self.ifft2(-self.lj*self.ph) 
+        self.v = self.ifft2( self.kj*self.ph)
 
-        uqxh = 1j*self.k*self.fft2(self.u*self.q)
-        vqyh = 1j*self.k*self.fft2(self.v*self.q)
+        uqxh = self.kj*self.fft2(self.u*self.q)
+        vqyh = self.lj*self.fft2(self.v*self.q)
 
-        return self.filt * (uqxh + vqyh)
+        return self.filt*(uqxh + vqyh)
 
     # step forward
     def _init_stepforward(self):
@@ -211,12 +216,9 @@ class BTModel(object):
                 + self.c3*self.dt*self.nl1h + self.d2*self.dt*self.nl2h
 
         # test with forward euler
-        #self.qho = self.qh.copy()
-        #self.qh = self.qho -self.dt*self.jacobian()
+        #self.qh = self.qh - self.dt*self.jacobian()
 
-    def _invert(self):
-        """ Compute streamfunction from vorticity """
-        self.ph = -self.kappa2i*self.qh
+
 
     # some diagnostics
     def _calc_cfl(self):
@@ -258,8 +260,6 @@ def initial_psi(self, ictype="mcwilliams84"):
         assert (spec_var(self,self.kappa*pih)/2-1.)<1.e-14, "Not unit energy"
 
     return pih
-
-
 
 
 # some off-class diagnostics 
