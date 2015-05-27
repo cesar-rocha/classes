@@ -2,6 +2,8 @@ from __future__ import division
 import numpy as np
 from numpy import pi, exp, sqrt, cos, sin
 
+from netCDF4 import Dataset
+
 try:   
     import mkl
     np.use_fastnumpy = True
@@ -30,11 +32,13 @@ class BTModel(object):
             # timestepping parameters
             dt=.0025,               # numerical timestep
             twrite=100,             # interval for cfl and ke printout (in timesteps)
+            tsave=100,              # interval to save (in timesteps)
             tmax=100.,              # total time of integration
             filt=True,              # spectral filter flag
             use_fftw=True,
             ntd = 1,
-            use_filter=True):
+            use_filter=True,
+            save2disk=True):
 
         if ny is None: ny = nx
         if Ly is None: Ly = Lx
@@ -55,12 +59,18 @@ class BTModel(object):
         # physical
         self.nu = nu
 
-        # time
+        # time related variables
+        self.nmax = int(np.ceil(tmax/dt))        
         self.dt = dt
         self.twrite = twrite
         self.tmax = tmax
         self.t = 0.
         self.ndt = 0
+        self.tsave = tsave
+        self.nsave_max = int(np.ceil(self.nmax/tsave))
+        self.save2disk = save2disk
+        self.nsave = 0
+        
 
         # fourier settings
         self._init_kxky()
@@ -70,15 +80,10 @@ class BTModel(object):
         self.kappa2i = np.zeros_like(self.kappa2)   # inversion not defined at kappa=0
         self.kappa2i[self.fnz] = self.kappa2[self.fnz]**-1
         
-        # a filter
-        if use_filter:
-            self.filt = spec_filt(self,cphi=0.65*pi)
-        else:
-            # if not use exponential filter,
-            #   then dealias using 2/3 rule
-            self.filt = np.ones_like(self.kappa2)
-            self.filt[self.nx/3:2*self.nx/3,:] = 0.
-            self.filt[:,self.ny/3:] = 0.
+        self.use_filter = use_filter
+    
+        # exponential filter or dealising
+        self._init_filter()
 
         # other
         self.use_fftw = use_fftw
@@ -96,6 +101,10 @@ class BTModel(object):
         # initialize vorticity
         self.set_q(np.random.randn(self.ny,self.nx))
 
+        # initialize fno
+        if self.save2disk:
+            self._init_fno()
+
     def run(self):
         """ step forward until tmax """
 
@@ -105,9 +114,13 @@ class BTModel(object):
 
             if (self.ndt%self.twrite == 0.):
                 self._printout()
-        
+            if self.save2disk:
+                self._write2disk()
+
             self.t += self.dt
             self.ndt += 1
+
+        self._close_fno()
 
     def run_with_snapshots(self, tsnapstart=0., tsnapint=432000.):
         """ Run the model forward until the next snapshot, then yield."""
@@ -116,13 +129,20 @@ class BTModel(object):
         nt = np.ceil(np.floor((self.tmax-tsnapstart)/self.dt+1)/tsnapints)
         
         while(self.t < self.tmax):
+
             self._stepforward()
             if (self.ndt%self.twrite == 0.):
-                self._printout()
+                self._printout()     
             if self.t>=tsnapstart and (self.ndt%tsnapints)==0:
-                yield self.t    
+                yield self.t
+            if self.save2disk:
+                self._write2disk()
+
             self.t += self.dt
             self.ndt += 1
+
+        self._close_fno()
+
         return
 
     def _stepforward(self):
@@ -181,8 +201,7 @@ class BTModel(object):
 
     def _initialize_fft(self):
         # set up fft functions for use later
-        if self.use_fftw:
-            
+        if self.use_fftw: 
             self.fft2 = (lambda x :
                     pyfftw.interfaces.numpy_fft.rfft2(x, threads=self.ntd,\
                             planner_effort='FFTW_ESTIMATE'))
@@ -190,7 +209,6 @@ class BTModel(object):
                     pyfftw.interfaces.numpy_fft.irfft2(x, threads=self.ntd,\
                             planner_effort='FFTW_ESTIMATE'))
         else:
-
             self.fft2 =  (lambda x : np.fft.rfft2(x))
             self.ifft2 = (lambda x : np.fft.irfft2(x))
 
@@ -221,30 +239,34 @@ class BTModel(object):
         self.qh = -self.kappa2*self.ph 
 
     def _printout(self):
-        """Output some basic stats."""
-        ke = self._calc_ke()
-        cfl = self._calc_cfl()
-        print 't=%16d, cfl=%5.6f, ke=%9.9f' % (
-               self.t, cfl, ke)
-        assert cfl<1., "CFL condition violated"
+        """ Print model status """
+        if (self.ndt%self.twrite == 0.):        
+            ke = self._calc_ke()
+            ens = self._calc_ens()
+            cfl = self._calc_cfl()
+            print 't=%6.2f, cfl=%5.6f, ke=%9.9f, ens=%9.9f' %(
+                   self.t, cfl, ke, ens)
+            assert cfl<1., "CFL condition violated"
+ 
+    def _write2disk(self):
+        """ Save to disk """
+        if (self.ndt%self.tsave == 0.):
+            self.t_save[self.nsave] = self.t
+            self.q_save[:,:,self.nsave] = self.ifft2(self.qh)
+            self.ke_save[self.nsave] = self._calc_ke()
+            self.ens_save[self.nsave] = self._calc_ens()
+            self.nsave += 1
 
     def jacobian(self):
-
-        """ compute the jacobian in conservative form """
+        """ Compute the Jacobian in conservative form """
 
         self._invert()
-
-
-        # dealias
-
         self.q = self.ifft2(self.qh)
         self.u = self.ifft2(-self.lj*self.ph) 
         self.v = self.ifft2( self.kj*self.ph)
 
         jach = self.kj*self.fft2(self.u*self.q) +\
                 self.lj*self.fft2(self.v*self.q)
-
-        # dealias
 
         return jach
 
@@ -262,6 +284,40 @@ class BTModel(object):
         self.L2 = ( (1. + self.a2*self.Lin)/(1. - self.b2*self.Lin) )
         self.L3 = ( (1. + self.a2*self.Lin)/(1. - self.b3*self.Lin) )
 
+    def _init_filter(self):
+        """ Set spectral filter """
+
+        if self.use_filter:
+            cphi=0.65*pi
+            wvx=sqrt((self.k*self.dx)**2.+(self.l*self.dy)**2.)
+            self.filt = exp(-23.6*(wvx-cphi)**4.)  
+            self.filt[wvx<=cphi] = 1.       
+        else:
+            # if not use exponential filter,
+            #   then dealias using 2/3 rule
+            self.filt = np.ones_like(self.kappa2)
+            self.filt[self.nx/3:2*self.nx/3,:] = 0.
+            self.filt[:,self.ny/3:] = 0.
+
+
+
+    # init netcdf output file
+    def _init_fno(self):
+        self.fno = 'model_output.nc'
+        self.FNO = Dataset(self.fno,'w', format='NETCDF4')
+        time_dim = self.FNO.createDimension('time_dim', self.nsave_max)
+        x_dim = self.FNO.createDimension('x_dim', self.nx)
+        y_dim = self.FNO.createDimension('y_dim', self.ny)
+
+        self.q_save = self.FNO.createVariable('q','f4',('y_dim','x_dim','time_dim'))
+        self.t_save = self.FNO.createVariable('time','f4',('time_dim'))
+        self.ke_save = self.FNO.createVariable('ke','f4',('time_dim'))
+        self.ens_save = self.FNO.createVariable('ens','f4',('time_dim'))
+    
+    # close netcdf output file
+    def _close_fno(self):
+        self.FNO.close()
+
     # some diagnostics
     def _calc_cfl(self):
         return np.abs(
@@ -273,13 +329,7 @@ class BTModel(object):
 
     def _calc_ens(self):
         ens = .5*self.spec_var(self.kappa2*self.ph)
-
-    def _calc_eddy_time(self):
-        """ estimate the eddy turn-over time in days """
-
-        ens = .5 * self.spec_var(self.kappa2*self.ph)
-
-        return 2.*pi*np.sqrt( ens**-1 )
+        return ens.sum()
 
     def spec_var(self,ph):
         """ compute variance of p from Fourier coefficients ph """
@@ -289,21 +339,4 @@ class BTModel(object):
         return var_dens.sum()
 
 
-#### OLD STUFF ###
-
-# some off-class diagnostics 
-#def spec_var(self,ph):
-#    """ compute variance of p from Fourier coefficients ph """
-#    var_dens = 2. * np.abs(ph)**2 / (self.nx*self.ny)**2 
-#    # only half of coefs [0] and [nx/2+1] due to symmetry in real fft2
-#    var_dens[:,0],var_dens[:,-1] = var_dens[:,0]/2.,var_dens[:,-1]/2.
-#    return var_dens.sum()
-
-# spectral filter
-def spec_filt(self,cphi=0.65*pi):
-    """ Set spectral filter """
-    wvx=sqrt((self.k*self.dx)**2.+(self.l*self.dy)**2.)
-    filtr = exp(-23.6*(wvx-cphi)**4.)  
-    filtr[wvx<=cphi] = 1.                   
-    return filtr
-
+ 
