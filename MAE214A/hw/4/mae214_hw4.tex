@@ -1,0 +1,225 @@
+\documentclass[11pt]{article}
+
+%% WRY has commented out some unused packages %%
+%% If needed, activate these by uncommenting
+\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+%\geometry{letterpaper}                   % ... or a4paper or a5paper or ... 
+\geometry{a4paper,left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+%\geometry{landscape}                % Activate for rotated page geometry
+%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+
+%for figures
+%\usepackage{graphicx}
+
+\usepackage{color}
+\definecolor{mygreen}{RGB}{28,172,0} % color values Red, Green, Blue
+\definecolor{mylilas}{RGB}{170,55,241}
+%% for graphics this one is also OK:
+\usepackage{epsfig}
+
+%% AMS mathsymbols are enabled with
+\usepackage{amssymb,amsmath}
+
+%% more options in enumerate
+\usepackage{enumerate}
+\usepackage{enumitem}
+
+%% insert code
+\usepackage{listings}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage{hyperref}
+
+
+% Default fixed font does not support bold face
+\DeclareFixedFont{\ttb}{T1}{txtt}{bx}{n}{12} % for bold
+\DeclareFixedFont{\ttm}{T1}{txtt}{m}{n}{12}  % for normal
+
+% Custom colors
+\usepackage{color}
+\definecolor{deepblue}{rgb}{0,0,0.5}
+\definecolor{deepred}{rgb}{0.6,0,0}
+\definecolor{deepgreen}{rgb}{0,0.5,0}
+
+
+% Python style for highlighting
+\newcommand\pythonstyle{\lstset{
+language=Python,
+basicstyle=\ttm,
+otherkeywords={self},             % Add keywords here
+keywordstyle=\ttb\color{deepblue},
+emph={MyClass,__init__},          % Custom highlighting
+emphstyle=\ttb\color{deepred},    % Custom highlighting style
+stringstyle=\color{deepgreen},
+frame=tb,                         % Any extra options here
+showstringspaces=false            % 
+}}
+
+% Python environment
+\lstnewenvironment{python}[1][]
+{
+\pythonstyle
+\lstset{#1}
+}
+{}
+
+% Python for external files
+\newcommand\pythonexternal[2][]{{
+\pythonstyle
+\lstinputlisting[#1]{#2}}}
+
+% Python for inline
+\newcommand\pythoninline[1]{{\pythonstyle\lstinline!#1!}}
+
+%\usepackage{epstopdf}
+%\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+
+
+
+%% colors
+\usepackage{graphicx,xcolor,lipsum}
+
+
+\usepackage{mathtools}
+
+\usepackage{graphicx}
+\newcommand*{\matminus}{%
+  \leavevmode
+  \hphantom{0}%
+  \llap{%
+    \settowidth{\dimen0 }{$0$}%
+    \resizebox{1.1\dimen0 }{\height}{$-$}%
+  }%
+}
+
+
+\title{MAE214, Homework Assignment 4}
+\author{Cesar B Rocha}
+\date{\today}
+
+\begin{document}
+
+\include{mysymbols}
+
+\maketitle
+
+\section*{Problem 1}
+
+
+\begin{figure}[ht]
+\begin{center}
+\includegraphics[width=27pc,angle=0]{pb1ab_2.png}\\
+\includegraphics[width=27pc,angle=0]{pb1ab_8.png}\\
+\includegraphics[width=27pc,angle=0]{pb1ab_20.png}
+\end{center}
+\caption{$<u>$}
+\label{fig:the_velocity}
+\end{figure}
+
+\begin{figure}[ht]
+\begin{center}
+\includegraphics[width=27pc,angle=0]{pb1c.png}\\
+\end{center}
+\caption{$<u>$}
+\label{fig:the_mean_velocity}
+\end{figure}
+
+\begin{figure}[ht]
+\begin{center}
+\includegraphics[width=27pc,angle=0]{pb1d.png}\\
+\end{center}
+\caption{$<u>$}
+\label{fig:the_mean_velocity2}
+\end{figure}
+
+\begin{figure}[ht]
+\begin{center}
+\includegraphics[width=20pc,angle=0]{pb2a.png}\\
+\end{center}
+\caption{$<u>$}
+\label{fig:stress}
+\end{figure}
+
+\begin{figure}[ht]
+\begin{center}
+\includegraphics[width=20pc,angle=0]{pb2b.png}
+\includegraphics[width=20pc,angle=0]{pb2b_zoom.png}
+\end{center}
+\caption{$<u>$}
+\label{fig:stress2}
+\end{figure}
+
+
+\section*{Problem 3}
+The mean $x$-momentum equation in the boundary layer is
+\beq
+\label{eq:bl1}
+<U>\frac{\p <U>}{\p x} + <V>\frac{\p <U>}{\p y} = \nu \frac{\p^2 <U>}{\p y^2} - \frac{\p <uv>}{\p y} -\frac{1}{\rho}\frac{\dd p_0}{\dd x}\com
+\eeq
+where the free stream pressure is
+\beq
+p_0(x) = <p> + <v^2>\com
+\eeq
+Noticing that the total shear stress is
+\beq
+\tau \defn \rho \nu \frac{\p <U>}{\p y} -\rho <uv>\com
+\eeq
+and using the mean $x$-momentum equation outside the boundary layer
+\beq
+U_0 \frac{\dd U_0}{\dd x} = -\frac{1}{\rho}\frac{\dd p_0}{\dd x}\com
+\eeq
+we can rewrite \eqref{eq:bl1}
+\beq
+<U>\frac{\p <U>}{\p x} + <V>\frac{\p <U>}{\p y} = \frac{1}{\rho}\frac{\p \tau}{\p y} + U_0 \frac{\dd U_0}{\dd x}\per
+\eeq
+Further using the continuity equation
+\beq
+\frac{\p <U>}{\p x} + \frac{\p <V>}{\p y} = 0\com
+\eeq
+we obtain 
+\beq
+\frac{\p <U><U>}{\p x} + \frac{\p <U><V>}{\p y} = \frac{1}{\rho}\frac{\p \tau}{\p y} + U_0 \frac{\dd U_0}{\dd x}\per
+\eeq
+Now multiplying the continuity equation by $U_0$ and combining with the momentum equation above we obtain
+\beq
+\frac{\p}{\p x}\left[<U>(U_0-<U>)\right] + \frac{\p}{\p y}
+\left[<V>(U_0-<U>)\right] + (U_0-<U>)\frac{\dd U_0}{\dd x} = -\frac{1}{\rho}\frac{\p \tau}{\p y} \per
+\eeq
+Integrating in $y$ from $0$ to $\infty$ (outside the boundary layer), we obtain
+\beq
+\label{eq:bl_int}
+-\frac{1}{\rho} \left(\underbrace{\tau^{\infty}}_{=0}-\tau^w\right) = \underbrace{\left[<V>(U_0-<U>)\right]^{\infty}_0}_{= 0} + \frac{\dd}{\dd x}\left(U_0^2 \theta\right) + \delta^*U_0 \frac{\dd U_0}{\dd x}\com
+\eeq
+where the PUT NAME is 
+\beq
+\theta(x) \int_0^\infty \frac{<U>}{U_0}\left(1-\frac{<U>}{U_0}\right) \dd y\com
+\eeq
+and the displacement thickness
+\beq
+\delta^*(x) = \int_0^*\left(1 - \frac{<U>}{U_0}\right)\per
+\eeq
+Also, in \eqref{eq:bl_int} the total shear vanishes outside the boundary layer. The first term on the right of \eqref{eq:bl_int} also vanishes since at $y = 0$, $<U> = <V> = 0$, and, as $y\to\infty$, $<U>\to U_0$. Thus
+\beq
+\frac{\tau^w }{\rho} = \underbrace{\frac{\p}{\p x}\left(U_0^2 \theta \right)}_{U_0\frac{\dd \theta}{\dd x} + 2\theta U_0 \frac{\dd U_0}{\dd x}} + \delta^*U_0 \frac{\dd U_0}{\dd x}\per
+\eeq
+Thus, we obtain the von Karman integral momentum equation for a flat plate boundary layer
+\beq
+2 \frac{\dd \theta}{\dd x} + \frac{(4\theta + 2\delta^*)}{U_0}\frac{\dd U_0}{\dd x} = \frac{\tau^w}{\frac{1}{2}\rho U_0^2}\per
+\eeq
+
+
+
+%        \begin{figure}[ht]
+%        \begin{center}
+%        \includegraphics[width=18pc,angle=0]{pb2_cdf.png}
+%        \includegraphics[width=18pc,angle=0]{pb2_pdf.png}
+%        \end{center}
+%        \caption{Cumulative distribution function (pdf) and probability distribution function (pdf) 
+%                for a log-normally-distributed random variable $y$ with $<y>=1$, and different variances.}
+%        \label{fig:pb2}
+%        \end{figure}
+
+\end{document}
+
+
