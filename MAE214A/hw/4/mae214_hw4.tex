@@ -107,13 +107,41 @@ showstringspaces=false            %
 \section*{Problem 1}
 
 
+\begin{enumerate}[label=(\alph*)]
+
+    \item Figure \ref{fig:the_velocity}-top shows the different time-series at the grid-point $(65,2)$. 
+        Of course, the instantaneous velocity at spanwise grid point 65 the red line in figure \ref{fig:the_velocity} presents by far the largest variance.
+        The spanwise-averaged velocity presents a much smaller variance (the green line in figure \ref{fig:the_velocity} – it represents a relatively
+        small variation about the time-and-spanwise mean velocity (the red line in figure \ref{fig:the_velocity}).
+
+    \item We repeat the calculation of item (a) to grid points (65,8) and (65,20) – the results are presented in 
+        middle and bottom panels of figure \ref{fig:the_velocity}. At each z level (distance from the wall), the
+        relative magnitude and variance of the different curves are similar to the pattern described in item a, with
+          \ref{fig:the_velocity}, with instantaneous velocities presenting the largest variance. But the magnitude of 
+          the mean and variance vary significantly with the distance from the wall. Near the wall (top panel in figure \ref{fig:the_velocity}) the magnitudes of both mean and turbulent velocities are relatively small, significantly increasing at z-grid point 8. The largest mean flow is of course at the z-grid point 20. This is consistent with the shape of the
+          mean flow which is, of course, largest in the middle of the channel, and vanished at the boundary. The magnitude of the turbulent velocities (the difference between the blue and red curves) appears to peak near grid point 8 (or perhaps between 8 and 20), consistent with the fact that the turbulence is largest where the mean velocity gradient is largest.
+
+      \item Figure \ref{fig:the_mean_velocity} shows the time-and-spanwise mean velocity $<u^+>_{yt}$ as  a function
+          of the distance form the wall in ``wall units'' ($z^+ \defn z/\delta_\nu$).
+
+
+      \item Figure \ref{fig:the_mean_velocity2} shows the time-and-spanwise mean velocity $<u^+>$ as  a function
+          of the distance form the wall in ``wall units'' from the mean profile given (Umean.dat). The dashed line indicates a log profile. Also identifies in  \ref{fig:the_mean_velocity2} are the viscous sublayer, the log-layer, and the
+          law of the wake; the buffer layer spans the region between the viscous sublayer and the log-layer.
+
+
+
+\end{enumerate}
+
 \begin{figure}[ht]
 \begin{center}
 \includegraphics[width=27pc,angle=0]{pb1ab_2.png}\\
 \includegraphics[width=27pc,angle=0]{pb1ab_8.png}\\
 \includegraphics[width=27pc,angle=0]{pb1ab_20.png}
 \end{center}
-\caption{$<u>$}
+\caption{Time series of along-channel velocity: $u(t)$ instantaneous velocity at $y=65$, $<u>_y(t)$ is the 
+instantaneous spanwise-averaged velocity, and $<u>_{yt}$ is the time-and-spanwise average velocity. The triplet
+ of velocity timeseries are shown for three different $z$ grid points: 2 (top), 8 (middle), and 20 (bottom).}
 \label{fig:the_velocity}
 \end{figure}
 
@@ -121,7 +149,7 @@ showstringspaces=false            %
 \begin{center}
 \includegraphics[width=27pc,angle=0]{pb1c.png}\\
 \end{center}
-\caption{$<u>$}
+\caption{The calculates time-and-spanwise mean velocity $<u+>_{yt}$ as a function of the distance from the wall.}
 \label{fig:the_mean_velocity}
 \end{figure}
 
@@ -129,15 +157,31 @@ showstringspaces=false            %
 \begin{center}
 \includegraphics[width=27pc,angle=0]{pb1d.png}\\
 \end{center}
-\caption{$<u>$}
+\caption{The time-and-spanwise mean velocity $<u+>_{yt}$ as a function of the distance from the wall, from the given profile (Umean.dat).}
 \label{fig:the_mean_velocity2}
 \end{figure}
+
+
+\section*{Problem 2}
+
+\begin{enumerate}[label=(\alph*)]
+    \item Note that, for comparison, we changed the CFD lab experiment nomenclature coordinates from $z^+$ to $y^+$ (distance from the wall in wall units), and $v$ to $w$, and vise versa.
+\end{enumerate}
+
+\begin{figure}[ht]
+\begin{center}
+\includegraphics[width=20pc,angle=0]{pb2a_my.png}\\
+\end{center}
+\caption{Reynolds stresses and production term as a function of distance form the wall for the MAE UCSD CFD Lab channel flow experiment atRe$_\tau$ = 395.}
+\label{fig:my_stress}
+\end{figure}
+
 
 \begin{figure}[ht]
 \begin{center}
 \includegraphics[width=20pc,angle=0]{pb2a.png}\\
 \end{center}
-\caption{$<u>$}
+\caption{Reynolds stresses and production term as a function of distance form the wall for the Morser et al experiment at Re$_\tau$= 395.}
 \label{fig:stress}
 \end{figure}
 
@@ -146,7 +190,7 @@ showstringspaces=false            %
 \includegraphics[width=20pc,angle=0]{pb2b.png}
 \includegraphics[width=20pc,angle=0]{pb2b_zoom.png}
 \end{center}
-\caption{$<u>$}
+\caption{Upper panel: Reynolds stresses and production term as a function of distance form the wall for the Hoyas and Jimenes experiment at Re$_\tau$ = 2000. Bottom panel: a zoom-in neat the wall.}
 \label{fig:stress2}
 \end{figure}
 
@@ -191,7 +235,7 @@ Integrating in $y$ from $0$ to $\infty$ (outside the boundary layer), we obtain
 \label{eq:bl_int}
 -\frac{1}{\rho} \left(\underbrace{\tau^{\infty}}_{=0}-\tau^w\right) = \underbrace{\left[<V>(U_0-<U>)\right]^{\infty}_0}_{= 0} + \frac{\dd}{\dd x}\left(U_0^2 \theta\right) + \delta^*U_0 \frac{\dd U_0}{\dd x}\com
 \eeq
-where the PUT NAME is 
+where the momentum thickness is 
 \beq
 \theta(x) \int_0^\infty \frac{<U>}{U_0}\left(1-\frac{<U>}{U_0}\right) \dd y\com
 \eeq
@@ -207,8 +251,6 @@ Thus, we obtain the von Karman integral momentum equation for a flat plate bound
 \beq
 2 \frac{\dd \theta}{\dd x} + \frac{(4\theta + 2\delta^*)}{U_0}\frac{\dd U_0}{\dd x} = \frac{\tau^w}{\frac{1}{2}\rho U_0^2}\per
 \eeq
-
-
 
 %        \begin{figure}[ht]
 %        \begin{center}
