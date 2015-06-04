@@ -2,6 +2,8 @@
 
 module fft_mod
 
+    use omp_lib    
+
     implicit none
 
     include 'fftw3.f'
@@ -13,16 +15,20 @@ module fft_mod
 !
 
   ! plan fft2
-  subroutine init_plan_rfft2_ip(m,n,plan)
+  subroutine init_plan_rfft2_ip(m,n,ntd,plan)
 
     implicit none
 
-    integer, intent(in) :: m, n
+    integer, intent(in) :: m, n, ntd
     integer (kind=8), intent(inout) :: plan
 
     real (kind=8), allocatable :: x(:,:)
+    integer :: iret
 
     allocate(x(n+2,n))
+  
+    call dfftw_init_threads(iret)
+    call dfftw_plan_with_nthreads(ntd)
 
     ! plan the forward 2d fft for real input, in place
     call dfftw_plan_dft_r2c_2d(plan,m,n,x,x,FFTW_PATIENT)
@@ -32,17 +38,20 @@ module fft_mod
   end subroutine init_plan_rfft2_ip
 
   ! plan ifft2
-  subroutine init_plan_irfft2_ip(m,n,plan)
+  subroutine init_plan_irfft2_ip(m,n,ntd,plan)
 
     implicit none
 
-    integer, intent(in) :: m, n
+    integer, intent(in) :: m, n, ntd
     integer (kind=8), intent(inout) :: plan
 
     real (kind=8), allocatable :: xhat(:,:)
-
-
+    integer :: iret
+      
     allocate(xhat(n+2,n))
+
+    call dfftw_init_threads(iret)
+    call dfftw_plan_with_nthreads(ntd)
 
     ! plan the backward 2d fft for real input, in place
     call dfftw_plan_dft_c2r_2d(plan,m,n,xhat,xhat,FFTW_PATIENT)
@@ -52,40 +61,59 @@ module fft_mod
   end subroutine init_plan_irfft2_ip
 
 ! plan fft2
-subroutine init_plan_rfft2(m,n,plan)
+subroutine init_plan_rfft2(m,n,ntd,plan)
 
-  implicit none
+    implicit none
 
-  integer, intent(in) :: m, n
-  integer (kind=8), intent(inout) :: plan
+    integer, intent(in) :: m, n, ntd
+    integer (kind=8), intent(inout) :: plan
 
-  real (kind=8), dimension(m,n) :: x
-  complex (kind=8), dimension(m/2+1,n) :: xhat
+    real (kind=8), allocatable :: x(:,:)
+    complex (kind=8), allocatable :: xhat(:,:)
 
-  ! compute forward 2d fft for real input
-  call dfftw_plan_dft_r2c_2d(plan,m,n,x,xhat,FFTW_PATIENT)
+    integer :: iret
+      
+    allocate(x(m,n),xhat(m/2+1,n))
+
+    call dfftw_init_threads(iret)
+    call dfftw_plan_with_nthreads(ntd)
+
+    ! plan forward 2d fft for real input
+    call dfftw_plan_dft_r2c_2d(plan,m,n,x,xhat,FFTW_PATIENT)
+    
+    deallocate(x)
+
+
 
 end subroutine init_plan_rfft2
 
 ! plan ifft2_ip
-subroutine init_plan_irfft2(m,n,plan)
+subroutine init_plan_irfft2(m,n,ntd,plan)
 
-  implicit none
+    implicit none
 
-  integer, intent(in) :: m, n
-  integer (kind=8), intent(inout) :: plan
+    integer, intent(in) :: m, n, ntd
+    integer (kind=8), intent(inout) :: plan
 
-  real (kind=8), dimension(m,n):: x
-  complex (kind=8), dimension(m/2+1,n) :: xhat
+    real (kind=8), allocatable :: x(:,:)
+    complex (kind=8), allocatable :: xhat(:,:)
+    
+    integer :: iret
+      
+    allocate(x(m,n),xhat(m/2+1,n))
 
-  ! compute forward 2d fft for real input
-  call dfftw_plan_dft_c2r_2d(plan,m,n,xhat,x,FFTW_PATIENT)
+    call dfftw_init_threads(iret)
+    call dfftw_plan_with_nthreads(ntd)
+
+    ! plan forward 2d fft for real input
+    call dfftw_plan_dft_c2r_2d(plan,m,n,xhat,x,FFTW_PATIENT)
+
+    deallocate(x)
 
 end subroutine init_plan_irfft2
 
-
 !
-!   FFT calls
+!   2D DFTs
 !
 
     ! fft2
@@ -107,7 +135,7 @@ end subroutine init_plan_irfft2
 
         integer, intent(in) :: m, n
         real (kind=8), dimension(m,n), intent(in) :: x
-        complex (kind=8), dimension(m/2+1,n), intent(inout) :: xhat
+        complex (kind=8), dimension(m/2+1,n), intent(out) :: xhat
         integer (kind=8), intent(in) :: plan
 
         ! compute forward 2d fft for real input
@@ -133,7 +161,7 @@ end subroutine init_plan_irfft2
         implicit none
 
         integer, intent(in) :: m,n
-        real (kind=8), dimension(m,n), intent(inout) :: x
+        real (kind=8), dimension(m,n), intent(out) :: x
         complex (kind=8), dimension(m/2+1,n), intent(in) :: xhat
         integer (kind=8), intent(in) :: plan
 
@@ -142,7 +170,6 @@ end subroutine init_plan_irfft2
         x = x/n/n
 
     end subroutine irfft2
-
 
     ! fft2 in place
     subroutine rfft2_ip(x,m,n,plan)
@@ -203,6 +230,59 @@ end subroutine init_plan_irfft2
         xhat = xhat/n/n
 
     end subroutine irfft2_ip
+
+
+    ! Wavenumber out-of-place
+    subroutine rfft2_wavenumber(m,n,k,l)
+
+        ! *** NOT WORKING YET, PLEASE BE CAREFUL... *** !
+
+
+        ! It return the wavenumber arrays
+        !  for rfft2 out-of-place
+
+        implicit none
+
+        integer, intent(in) :: m,n
+        real (kind=8), dimension(m/2+1,n), intent(inout) :: k,l
+
+        integer :: i, j
+
+        do j=1,n/2
+            k(:,j) = j-1
+            k(:,j+n/2) = j-n/2-1
+        end do
+
+        do i=1,n/2+1
+          l(i,:) = i-1
+        end do
+
+    end subroutine rfft2_wavenumber
+
+! Wavenumber in-of-place
+subroutine rfft2_wavenumber_ip(m,n,k,l)
+
+    ! It return the wavenumber arrays
+    !  for rfft2 out-of-place
+
+    implicit none
+
+    integer, intent(in) :: m,n
+    real (kind=8), dimension(m+2,n), intent(inout) :: k,l
+
+    integer :: i, j
+
+    do j=1,n/2
+        k(:,j) = j-1
+        k(:,j+n/2) = j-n/2-1
+    end do
+
+    do i=1,n/2+1
+      l(i,:) = i-1
+      l(i+n/2,:) = n/2-(i-1)
+    end do
+
+end subroutine rfft2_wavenumber_ip
 
 
 end module fft_mod

@@ -1,14 +1,17 @@
+! $MAE290C/project/src/test_fft.f90
 program test
 
     ! This program showcases the use of the 2D real
     !  DFT from FFTW
+
+    use omp_lib    
 
     !use fft_mod, only: rfft2_ip, irfft2_ip, init_plan_rfft2
     use fft_mod
 
     implicit none
 
-    integer :: n, i, j, nmax
+    integer :: n, i, j, nmax, ntd
     integer (kind=8):: plan_forward, plan_backward
     real (kind=8), allocatable :: A(:,:), Af(:,:)
     complex (kind=8), allocatable :: Ah(:,:)
@@ -19,8 +22,8 @@ program test
     integer(kind=8) :: tclock1, tclock2, clock_rate
 
     n = 1024
-
-    nmax = 1000
+    ntd = 4  ! number of threads for fft
+    nmax = 100
 
     allocate(A(n+2,n), Af(n+2,n))  ! need to pad two rows, since fortran stores
     allocate(Ah(n/2+1,n))          !    by column
@@ -35,8 +38,8 @@ program test
     call cpu_time(t3)   ! start cpu timer
 
     ! initialize fft plans
-    call init_plan_rfft2_ip(n,n,plan_forward)
-    call init_plan_irfft2_ip(n,n,plan_backward)
+    call init_plan_rfft2_ip(n,n,ntd,plan_forward)
+    call init_plan_irfft2_ip(n,n,ntd,plan_backward)
 
     call cpu_time(t4)   ! end cpu timer
 
