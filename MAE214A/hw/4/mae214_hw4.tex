@@ -165,38 +165,37 @@ instantaneous spanwise-averaged velocity, and $<u>_{yt}$ is the time-and-spanwis
 \section*{Problem 2}
 
 \begin{enumerate}[label=(\alph*)]
-    \item Note that, for comparison, we changed the CFD lab experiment nomenclature coordinates from $z^+$ to $y^+$ (distance from the wall in wall units), and $v$ to $w$, and vise versa.
+    \item Figure \ref{fig:my_stress} compares the Reynolds stresses and production for the CFD Lab experiment compared against the results for Moser et al. Both experiments were performed at $\Re = 395$. Note that, for comparison, we changed the CFD lab experiment nomenclature coordinates from $z^+$ to $y^+$ (distance from the wall in wall units), and $v$ to $w$, and vise versa. The results compare favorably for all terms; the largest component is  $<uu>$, which peaks at about $y^+ \approx 12$. The production also peaks at about $y^+ \approx 12$.
+
+  \item Figure \ref{fig:my_stress} compares the off-diagonal Reynolds stresses for the CFD Lab experiment compared against the results for Hoyas and Jimenez. The former was performed at $\Re = 395$ and the latter at much higher Reynolds number $\Re = 2000$. The magnitude of $<uv>$ is comparable in the both case, and $<uw>$ and $vw$ are at residual levels in both cases.  Of course, in the high Reynolds number experiment $<uv>$ extends farther, decaying almost linearly with $y^+$ from $y^+=200$ to $y^+=2000$.
+
 \end{enumerate}
 
 \begin{figure}[ht]
 \begin{center}
-\includegraphics[width=20pc,angle=0]{pb2a_my.png}\\
+\includegraphics[width=20pc,angle=0]{pb2a_res_comp.png}\\
+\includegraphics[width=20pc,angle=0]{pb2a_prod_comp.png}
 \end{center}
-\caption{Reynolds stresses and production term as a function of distance form the wall for the MAE UCSD CFD Lab channel flow experiment atRe$_\tau$ = 395.}
+\caption{Reynolds stresses (upper panel) and production term (bottom panel) as a function of distance form the wall for the MAE UCSD CFD Lab channel flow experiment (solid) and the data from a similar experiment from Moser et al. (dashed) at Re$_\tau$ = 395.}
 \label{fig:my_stress}
 \end{figure}
 
-
 \begin{figure}[ht]
 \begin{center}
-\includegraphics[width=20pc,angle=0]{pb2a.png}\\
+\includegraphics[width=20pc,angle=0]{pb2b_comp2.png}
 \end{center}
-\caption{Reynolds stresses and production term as a function of distance form the wall for the Morser et al experiment at Re$_\tau$= 395.}
-\label{fig:stress}
-\end{figure}
-
-\begin{figure}[ht]
-\begin{center}
-\includegraphics[width=20pc,angle=0]{pb2b.png}
-\includegraphics[width=20pc,angle=0]{pb2b_zoom.png}
-\end{center}
-\caption{Upper panel: Reynolds stresses and production term as a function of distance form the wall for the Hoyas and Jimenes experiment at Re$_\tau$ = 2000. Bottom panel: a zoom-in neat the wall.}
+\caption{Upper panel: Reynolds stresses and production term as a function of distance form the wall for the Hoyas and Jimenes experiment at Re$_\tau$ = 2000, and its comparison with the MAE CFD Lab at experiment at Re$_\tau$ = 395.}
 \label{fig:stress2}
 \end{figure}
 
 
 \section*{Problem 3}
-The mean $x$-momentum equation in the boundary layer is
+
+
+
+\begin{enumerate}[label=(\alph*)]
+
+    \item The mean $x$-momentum equation in the boundary layer is
 \beq
 \label{eq:bl1}
 <U>\frac{\p <U>}{\p x} + <V>\frac{\p <U>}{\p y} = \nu \frac{\p^2 <U>}{\p y^2} - \frac{\p <uv>}{\p y} -\frac{1}{\rho}\frac{\dd p_0}{\dd x}\com
@@ -237,7 +236,7 @@ Integrating in $y$ from $0$ to $\infty$ (outside the boundary layer), we obtain
 \eeq
 where the momentum thickness is 
 \beq
-\theta(x) \int_0^\infty \frac{<U>}{U_0}\left(1-\frac{<U>}{U_0}\right) \dd y\com
+\theta(x) \defn \int_0^\infty \frac{<U>}{U_0}\left(1-\frac{<U>}{U_0}\right) \dd y\com
 \eeq
 and the displacement thickness
 \beq
@@ -252,15 +251,9 @@ Thus, we obtain the von Karman integral momentum equation for a flat plate bound
 2 \frac{\dd \theta}{\dd x} + \frac{(4\theta + 2\delta^*)}{U_0}\frac{\dd U_0}{\dd x} = \frac{\tau^w}{\frac{1}{2}\rho U_0^2}\per
 \eeq
 
-%        \begin{figure}[ht]
-%        \begin{center}
-%        \includegraphics[width=18pc,angle=0]{pb2_cdf.png}
-%        \includegraphics[width=18pc,angle=0]{pb2_pdf.png}
-%        \end{center}
-%        \caption{Cumulative distribution function (pdf) and probability distribution function (pdf) 
-%                for a log-normally-distributed random variable $y$ with $<y>=1$, and different variances.}
-%        \label{fig:pb2}
-%        \end{figure}
+\item The main differences between the turbulent channel flow and the boundary layer on a flat plate is that in the latter the boundary layer thickness grows with $x$ and, contrary to the channel flow where the mean where the given mean pressure gradients allows for the determination of the stress at the boundary, that stress at the wall is unknown a priori in the boundary layer problem. Pope also points out that, contrary to the channel flow problem, in the boundary layer problem, the flow outside the boundary layer consistent of intermittent turbulence. The main similarity is the behavior in the inner layer ($y/\delta(x)<1$).
+
+\end{enumerate}
 
 \end{document}
 
