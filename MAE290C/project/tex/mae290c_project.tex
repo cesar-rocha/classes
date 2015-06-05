@@ -1,0 +1,198 @@
+\documentclass[11pt]{article}
+
+
+%% WRY has commented out some unused packages %%
+%% If needed, activate these by uncommenting
+\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+%\geometry{letterpaper}                   % ... or a4paper or a5paper or ... 
+\geometry{a4paper,left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+%\geometry{landscape}                % Activate for rotated page geometry
+%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+
+%for figures
+%\usepackage{graphicx}
+
+\usepackage{color}
+\definecolor{mygreen}{RGB}{28,172,0} % color values Red, Green, Blue
+\definecolor{mylilas}{RGB}{170,55,241}
+%% for graphics this one is also OK:
+\usepackage{epsfig}
+
+%% AMS mathsymbols are enabled with
+\usepackage{amssymb,amsmath}
+
+%% more options in enumerate
+\usepackage{enumerate}
+\usepackage{enumitem}
+
+%% insert code
+\usepackage{listings}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage{hyperref}
+
+%% To make really wide whats that cover everything:
+\usepackage{scalerel}
+\usepackage{stackengine}
+\stackMath
+\def\hatgap{2pt}
+\def\subdown{-2pt}
+\newcommand\what[2][]{%
+\renewcommand\stackalignment{l}%
+\stackon[\hatgap]{#2}{%
+\stretchto{%
+    \scalerel*[\widthof{$#2$}]{\kern-.6pt\bigwedge\kern-.6pt}%
+    {\rule[-\textheight/2]{1ex}{\textheight}}%WIDTH-LIMITED BIG WEDGE
+}{0.5ex}% THIS SQUEEZES THE WEDGE TO 0.5ex HEIGHT
+_{\smash{\belowbaseline[\subdown]{\scriptstyle#1}}}%
+}}
+
+% Default fixed font does not support bold face
+\DeclareFixedFont{\ttb}{T1}{txtt}{bx}{n}{12} % for bold
+\DeclareFixedFont{\ttm}{T1}{txtt}{m}{n}{12}  % for normal
+
+% Custom colors
+\usepackage{color}
+\definecolor{deepblue}{rgb}{0,0,0.5}
+\definecolor{deepred}{rgb}{0.6,0,0}
+\definecolor{deepgreen}{rgb}{0,0.5,0}
+
+
+% Python style for highlighting
+\newcommand\pythonstyle{\lstset{
+language=Python,
+basicstyle=\ttm,
+otherkeywords={self},             % Add keywords here
+keywordstyle=\ttb\color{deepblue},
+emph={MyClass,__init__},          % Custom highlighting
+emphstyle=\ttb\color{deepred},    % Custom highlighting style
+stringstyle=\color{deepgreen},
+frame=tb,                         % Any extra options here
+showstringspaces=false            % 
+}}
+
+% Python environment
+\lstnewenvironment{python}[1][]
+{
+\pythonstyle
+\lstset{#1}
+}
+{}
+
+% Python for external files
+\newcommand\pythonexternal[2][]{{
+\pythonstyle
+\lstinputlisting[#1]{#2}}}
+
+% Python for inline
+\newcommand\pythoninline[1]{{\pythonstyle\lstinline!#1!}}
+
+%% colors
+\usepackage{graphicx,xcolor,lipsum}
+
+
+\usepackage{mathtools}
+
+\usepackage{graphicx}
+\newcommand*{\matminus}{%
+  \leavevmode
+  \hphantom{0}%
+  \llap{%
+    \settowidth{\dimen0 }{$0$}%
+    \resizebox{1.1\dimen0 }{\height}{$-$}%
+  }%
+}
+
+
+\title{MAE290C, Final Project}
+\author{Cesar B Rocha}
+\date{\today}
+
+\begin{document}
+
+\include{mysymbols}
+\maketitle
+
+\section*{Preamble}
+The equation to solve is
+
+\beq
+\label{eq:vort_eqn}
+\p_t \zeta + \sJ\left( \psi, \zeta \right ) = \frac{1}{\Re} \nabla^2 \zeta\com
+\eeq
+where
+\beq
+\label{eq:defns}
+\zeta = \nabla^2\psi \com\qquad u \defn -\p_y \psi\com\qqand v \defn -\p_x \psi\per
+\eeq
+Fourier transforming \eqref{eq:vort_eqn} we obtain
+\beq
+\label{eq:vort_eqn_hat}
+\p_t \what{\zeta} + \what{\sJ\left( \psi, \zeta \right )} = -\frac{\kappa^2}{\Re} \what{\zeta}\com
+\eeq
+where, in a pseudo-spectral spirit, we indicated the Fourier transform of the whole Jacobian instead
+ of  writing the convolution sums, i.e., we evaluate products in physical space, and then transform
+ the Jacobian to Fourier space. Also, in \eqref{eq:vort_eqn_hat}, $\kappa\defn \sqrt{k^2 + l^2}$ is 
+ the isotropic wavenumber. The elliptic problem that relates vorticity and streamfunction is diagonal
+  in Fourier space:
+\beq
+\label{eq:inv_hat}
+\what{\zeta} = -\kappa^2 \what{\psi}\per
+\eeq
+Of course, the inversion is not defined for $\kappa = 0$.  We step \eqref{eq:vort_eqn_hat}-\eqref{eq:inv_hat} forward  in a $2\pi\times 2\pi$ box using a RK3W-$\theta$ scheme. The nonlinear term is fully dealiased using the $\tfrac{2}{3}$ rule \cite{orszag1971}. With $\nmax = 1024$, the effective number of resolved modes is $\nmax_e = 682$.  
+The initial condition is a random field, with a von Karman-like target isotropic spectrum \cite{mcwilliams1984}
+
+\beq
+\label{eq:init_spec}
+|\what{q}_i|^2 = A\,\kappa^2\left[1 + \left(\frac{\kappa}{6}\right)^2\right]^{-2} \per
+\eeq
+The initial spectrum \eqref{eq:init_spec} peaks near $6$, and the constant $A$ is chosen so that
+ the initial kinetic energy is unitary. This entails that the velocity of the
+ energy containing eddies is $O(1)$, thereby guaranteeing that the nondimensionalization in equation
+ \eqref{eq:vort_eqn} holds. The kinetic energy is 
+ \beq
+ \label{eq:ke}
+ E = \tfrac{1}{2} \sum_{k}\sum_{l} \kappa^2 |\psi^2|\per
+ \eeq
+Thus
+\beq
+\label{const}
+A = \left[\sum_{k}\sum_{l}\left[1 + \left(\frac{\kappa}{6}\right)^2\right]^{-2} \right]^{-1}\per
+\eeq
+
+\section*{Diagnostics}
+Besides the kinetic energy in \eqref{eq:ke}, we also diagnose the enstrophy
+\beq
+    Z =\tfrac{1}{2} \sum_{k}\sum_{l} \kappa^4 |\psi^2|\com
+\eeq
+and the CFL condition
+\beq
+\text{CFL} = \frac{u_{max} \dt}{\dx}\com
+\eeq
+where 
+\beq
+\dx \defn \frac{2\pi}{\nmax}\per
+\eeq
+We chose the time-step so the initial CFL is $0.25$.
+
+
+%The non-dimensional Navier-Stokes equations, with constant density, are
+%    \begin{figure}[ht]
+%    \begin{center}
+%    \includegraphics[width=10pc,angle=0]{figs/errrand_0.png} 
+%        \includegraphics[width=10pc,angle=0]{figs/errrand_1.png}  
+%        \includegraphics[width=10pc,angle=0]{figs/errrand_2.png}\\  
+%        \includegraphics[width=10pc,angle=0]{figs/errrand_3.png} 
+%        \includegraphics[width=10pc,angle=0]{figs/errrand_4.png}  
+%        \includegraphics[width=10pc,angle=0]{figs/errrand_5.png}  
+%    \end{center}
+%    \caption{The residual for the first 600 iterations with random $\dt$ between 0 and 2000.}
+%    \label{fig:exps2}
+%    \end{figure}
+
+
+\bibliographystyle{ametsoc2014}
+\bibliography{mae290c.bib}
+
+\end{document}
