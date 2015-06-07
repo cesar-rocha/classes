@@ -1,0 +1,289 @@
+\documentclass[11pt]{article}
+
+%% WRY has commented out some unused packages %%
+%% If needed, activate these by uncommenting
+\usepackage{geometry}                % See geometry.pdf to learn the layout options. There are lots.
+%\geometry{letterpaper}                   % ... or a4paper or a5paper or ... 
+\geometry{a4paper,left=2.5cm,right=2.5cm,top=2.5cm,bottom=2.5cm}
+%\geometry{landscape}                % Activate for rotated page geometry
+%\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
+
+%for figures
+%\usepackage{graphicx}
+
+\usepackage{color}
+\definecolor{mygreen}{RGB}{28,172,0} % color values Red, Green, Blue
+\definecolor{mylilas}{RGB}{170,55,241}
+%% for graphics this one is also OK:
+\usepackage{epsfig}
+
+%% AMS mathsymbols are enabled with
+\usepackage{amssymb,amsmath}
+
+%% more options in enumerate
+\usepackage{enumerate}
+\usepackage{enumitem}
+
+%% insert code
+\usepackage{listings}
+
+\usepackage[utf8]{inputenc}
+
+\usepackage{hyperref}
+
+
+% Default fixed font does not support bold face
+\DeclareFixedFont{\ttb}{T1}{txtt}{bx}{n}{12} % for bold
+\DeclareFixedFont{\ttm}{T1}{txtt}{m}{n}{12}  % for normal
+
+% Custom colors
+\usepackage{color}
+\definecolor{deepblue}{rgb}{0,0,0.5}
+\definecolor{deepred}{rgb}{0.6,0,0}
+\definecolor{deepgreen}{rgb}{0,0.5,0}
+
+
+% Python style for highlighting
+\newcommand\pythonstyle{\lstset{
+language=Python,
+basicstyle=\ttm,
+otherkeywords={self},             % Add keywords here
+keywordstyle=\ttb\color{deepblue},
+emph={MyClass,__init__},          % Custom highlighting
+emphstyle=\ttb\color{deepred},    % Custom highlighting style
+stringstyle=\color{deepgreen},
+frame=tb,                         % Any extra options here
+showstringspaces=false            % 
+}}
+
+% Python environment
+\lstnewenvironment{python}[1][]
+{
+\pythonstyle
+\lstset{#1}
+}
+{}
+
+% Python for external files
+\newcommand\pythonexternal[2][]{{
+\pythonstyle
+\lstinputlisting[#1]{#2}}}
+
+% Python for inline
+\newcommand\pythoninline[1]{{\pythonstyle\lstinline!#1!}}
+
+%\usepackage{epstopdf}
+%\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
+
+
+
+%% colors
+\usepackage{graphicx,xcolor,lipsum}
+
+
+\usepackage{mathtools}
+
+\usepackage{graphicx}
+\newcommand*{\matminus}{%
+  \leavevmode
+  \hphantom{0}%
+  \llap{%
+    \settowidth{\dimen0 }{$0$}%
+    \resizebox{1.1\dimen0 }{\height}{$-$}%
+  }%
+}
+
+
+\title{MAE214, Final Examination}
+\author{Cesar B Rocha}
+\date{\today}
+
+\begin{document}
+
+\include{mysymbols}
+
+\maketitle
+
+\section*{Problem 1}
+
+
+\begin{enumerate}[label=(\alph*)]
+
+    \item First item.
+
+
+\end{enumerate}
+
+
+\section*{Problem 2}
+
+\begin{enumerate}[label=(\alph*)]
+
+    \item \cite{bernardini_etal2014} study the statistics of both mean and turbulent
+        velocity in channel flow using four Direct Numerical Simulation (DNS) experiments.
+        These experiments were performed in four different Reynolds number
+        \beq
+            \Re_\tau \defn \frac{h}{\delta_\nu}\com
+        \eeq
+        where $h$ is the channel half-width, and $\delta_\nu$ is the viscous velocity scale
+        \beq
+            \delta_\nu \defn \frac{\nu}{u_\tau}\com
+        \eeq
+        with $\nu$ the kinematic viscosity and $u_\tau$ the frictional velocity. Notice
+        that $\Re_\tau$ is essentially the ratio of the largest to smallest scale resolve
+        in the DNS experiments. For reference and interpretation of the cited figures,
+        the four experiments are: CH1: $\Re_\tau = 550$ (dashed lines); CH2: $\Re_\tau = 999$
+        (dashed-dotted); CH3: $\Re_\tau = 2022$ (dashed-double-dotted); CH4: $\Re_\tau = 4096$ 
+        (solid). Also for reference, $(x,y,z)$ represent the (streamwise, wall-normal, spanwise)
+        directions, and the associated velocity components are $(u, v, w)$.
+
+        Figure \ref{fig:mean_vel} (a) shows the mean streamwise velocity normalized by inner
+        scales ($\delta_\nu$ for distance form the wall and $u_\tau$ for velocity) for the experiments
+        CH1 through CH4 (lines; the different symbols represent data for laboratory experiments).
+        As expected, one observes a layer where the velocity nearly follows a log-law (as seen
+        from a roughly straight line in the semi-log plot for roughly $30 <y^+<1000$). The main
+        effect of the Reynolds number on the mean velocity profile is that this log-layer increases
+        in extension as the Reynolds number increases. \footnote{This is hard to see in the original
+         size of the figure, but can be easily visualized if one zoom-in their figure 5a in the 
+        original pdf file}. To more quantitatively explore the dependence of the mean velocity profile
+        on the  Reynolds number, the authors present estimates of the log-law diagnostic
+        \beq
+            \Xi = y^+ \frac{\dd u^+}{\dd y^+}\com
+        \eeq
+        which is constant if $u^+$ follow a log-law. Figure \ref{fig:mean_vel} (b) clearly shows
+        that for $y^+>100$, $\Xi$ is far from universal (that is, it strongly depends on the
+        Reynolds number). More specifically, the is a region of linear dependence of $\Xi$ on
+        on the distance form the wall ($y^+ \gtrapprox 600$ to $y/h < 0.5$), and, as discussed by
+        the authors, is roughly consistent refined modification of $\Xi$ for the overlap region
+        as shown with fit of the DNS results to the proposed refined functions. It is clear from
+        figure \ref{fig:mean_vel} (b) that the slope of this linear dependence (see slanted gray 
+        solid lines) decreases with the Reynolds number. A consequence of this empirical observation
+        is a zero slope (i.e., no linear dependence) would be achieved only at infinite  Reynolds number.
+        In other words, a true log-law in the overlap region (for which $\Xi$ is constant) would appear
+        in the limit $\Re_\tau \to \infty$ – this is consistent with the derivation of the log-law,
+        which is an asymptotic results obtain in that limit. The authors also point out that they
+        tested other type of dependences such as power laws, which showed no clear sign of constancy,
+        again suggesting that the log-law is the most robust prediction for the dependence of the
+        mean velocity in this ``matching'' region.
+
+        As for the statistics of the turbulent (fluctuation) velocities, figure \ref{fig:fluctuations} show
+        second-order statistics normalized by the inner scales. These statistics are again not universal.
+        Specifically, the streamwise turbulent velocity clearly increases with the Reynolds number 
+        ($u$). From  figure \eqref{fig:fluctuations} we see the classic shape of $u'^2$ with the distance
+        from the wall which is almost universal for various wall-bounded flows.
+        It seems to me that there may be
+        some little indication of formation of a second, outer peak, in analogy to the experiments of 
+        pipe flow, although the authors never discuss this possibility, nor do they cite Hultmark et al.
+        paper of item (b), and that is unfortunate. It would be interesting to see if the dependence of 
+        a possible secondary peak on the Reynolds number is strong than that of the primary peak
+        (their figure 8), although it may be hard to unambiguously define an outer peak. The other
+        square statistics for the turbulent velocity also how a clear increase with Reynolds number,
+        particularly for relatively large $y^+$. For $y^+$ roughly smaller than  $100$, $v'^2$ starts
+        collapsing, this showing some universality. 
+
+        Yet, another interesting result is the distribution of the production to dissipation ratio
+        with the distance from the wall (Figure \ref{fig:pe}). Apart from the classical inner
+        peak in that ration at about $y^+$, where the is an excess of turbulence generation, one
+        clearly see an increase of that ratio with the Reynolds number in the outer layer, where
+        the authors claim it achieves a plateau. The excess of production means that the excess
+        of turbulent kinetic energy shall be transferred to adjacent layer by turbulent diffusion.
+        It also seems to me that there may be some similarities between this increase in production
+        and the emergence of a secondary, outer peak in velocity variance, which somehow resembles
+        the results of the piper flow experiment. Again, the author did not discuss this possibility.
+
+        Finally, the authors also present and discuss streamwise and spanwise spectra of various 
+        components of velocity. With the increasing reynolds number, there appears to be the 
+        development of a inertial range in the spanwise spectra of streamwise turbulent velocity –
+        this is seem as a plateau in compensated spectral plot (Figure \ref{fig:spec}) for that quantity. This
+         inertial range is very subtle, however, and only spans one decade at maximum (from $k_z \eta$
+         $10^{-2} \text{to} 10^{-1}$, where $k_z\eta$ is the spanwise wavenumber normalized by the Kolmogorov
+         scale). The spectrum of other velocity components in other directions are flatter than the 
+         Kolmogorov $5/3$ prediction. The authors associate this shallow spectra with the excess of
+         production to dissipation in the outer layer.
+
+
+    \item  \cite{hultmark_etal201} study the statistics of both mean and turbulent velocities in
+        piper flow at extreme (!) Reynolds number. The authors perform experiments in the Pricenton
+        super pipe, measurement the turbulent velocities with novel instrumentation that allows
+        for measuring at very small scales. Figure \cite{fig:turb_vel} shows the variance of the
+        streamwise velocity component as a function of distance normal to the wall scales by the
+        inner (a) and outer (b) scales. The magnitude of the turbulence peaks near the wall (the inner)
+        peak, and this peak appears to stay constant from very high to extreme Reynolds numbers. (This 
+        contrasts with the results from item DNS of the channel flow in item (a) –at lower Reynolds
+         number– which showed no tendency towards a constant peak). This results then show compelling
+          evidence that the inner peak scales with the inner variables. It is also clear that a second
+         peak develops (the outer peak), whose magnitude increases with the Reynolds number – the position
+         of this secondary peak also increases with Reynolds number. This brings the interesting possibility         that at even higher Reynolds numbers the outer peak will exceed the inner peak – since this are
+         scaled quantities, of course, the maximum production will still be in the inner region, but much
+         more confined (i.e. the inner peak region becomes more confined with increased Reynolds number). 
+
+        Yes, another interesting result if the log-law dependence of the turbulent velocities in the 
+        matching region when scales by the outer scales (Figure \cite{fig:turb_vel} b). In particular,
+        figure \ref{fig:turb_vel} show compelling evidence that in the matching region (the overlap region 
+        in their nomenclature) both mean streamwise velocity (inner scaled) and turbulence streamwise 
+        velocity (outward scaled) approximately follow a log law – this matching region exists for at
+        least one decade in both cases. This overlap region increases with Reynolds number, and the authors
+        speculate that it may dominate the inner wall flow at larger wavenumbers.  
+
+\end{enumerate}
+
+
+\begin{figure}[ht]
+\begin{center}
+\includegraphics[width=22pc,angle=0]{fig5.png}\\
+\end{center}
+\caption{Figure 5 of \cite{bernardini_etal2014}.}
+\label{fig:mean_vel}
+\end{figure}
+
+\begin{figure}[ht]
+\begin{center}
+\includegraphics[width=27pc,angle=0]{fig7.png}\\
+\end{center}
+\caption{Figure 7 of \cite{bernardini_etal2014}.}
+\label{fig:fluctuations}
+\end{figure}
+
+\begin{figure}[ht]
+\begin{center}
+\includegraphics[width=32pc,angle=0]{fig14.png}\\
+\end{center}
+\caption{Figure 5 of \cite{bernardini_etal2014}.}
+\label{fig:pe}
+\end{figure}
+
+\begin{figure}[ht]
+\begin{center}
+\includegraphics[width=32pc,angle=0]{fig15.png}\\
+\end{center}
+\caption{}
+\label{fig:spec}
+\end{figure}
+
+\begin{figure}[ht]
+\begin{center}
+\includegraphics[width=32pc,angle=0]{fig2.png}\\
+\end{center}
+\caption{Figure 2 from \cite{hultmark_etal201}: Turbulence fluctuations for $\Re =$, 1985, 3334, 5411, 10 481, scaled. Circles show inner and outer peaks. (b) Outer scaled. Only $y^+ > 100$ shown for clarity. The solid line is the log law of the turbulent fluctuations.}
+\label{fig:turb_vel}
+\end{figure}
+
+
+\begin{figure}[ht]
+\begin{center}
+\includegraphics[width=32pc,angle=0]{fig4.png}\\
+\end{center}
+\caption{Figure 4 from \cite{hultmark_etal201}: Comparison of mean velocity and turbulence streamwise fluctuation profiles for $Re^+ = 98 \times10^5$. Red sym-bols are mean velocities, the blue solid line is the log law for the mean velocity, and the black solid line is the power law for the mean velocities as described by McKeon et al. [2]. Blue symbols are the turbulence fluctuations, and the red solid line is the log law for the fluctuations, as reported in this Letter.}
+\label{fig:mean_turb_vel}
+\end{figure}
+
+
+\nocite{pope2000}
+
+% references
+\bibliographystyle{ametsoc2014}
+\bibliography{mae214A.bib}
+
+\end{document}
+
+
