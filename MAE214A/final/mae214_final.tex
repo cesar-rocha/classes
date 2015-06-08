@@ -8,6 +8,11 @@
 %\geometry{landscape}                % Activate for rotated page geometry
 %\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
 
+
+\usepackage{natbib}
+%\usepackage[pdftex]{hyperref}
+%\usepackage{cite}
+
 %for figures
 %\usepackage{graphicx}
 
@@ -27,9 +32,10 @@
 %% insert code
 \usepackage{listings}
 
-\usepackage[utf8]{inputenc}
+\usepackage[utf8x]{inputenc}
 
 \usepackage{hyperref}
+
 
 
 % Default fixed font does not support bold face
@@ -75,8 +81,6 @@ showstringspaces=false            %
 %\usepackage{epstopdf}
 %\DeclareGraphicsRule{.tif}{png}{.png}{`convert #1 `dirname #1`/`basename #1 .tif`.png}
 
-
-
 %% colors
 \usepackage{graphicx,xcolor,lipsum}
 
@@ -109,13 +113,113 @@ showstringspaces=false            %
 
 \begin{enumerate}[label=(\alph*)]
 
-    \item First item.
+    \item The turbulent kinetic energy equation is
+        \beq
+            \label{eq:tke}
+            \frac{\p k}{\p t} + <\vec{U}>\cdot\nabla k = -\nabla\cdot \vec{T}' +
+             \mathcal{P} -\varepsilon \com
+        \eeq
+        the turbulent kinetic energy is
+        \beq    
+             k \defn \frac{1}{2}<u_i u_i>\com
+        \eeq
+        $\mathcal{P}$ is the production is
+        \beq    
+        \mathcal{P}\defn -<u_i u_j> \frac{\p U_j}{\p x_i}\per
+        \eeq
+        and $\varepsilon$ is the dissipation
+        \beq
+            \varepsilon = \nu \left< \frac{\p u_i}{\p x_j}\frac{\p u_i}{\p x_j}\right>\per
+        \eeq
+        Finally, the turbulent energy flux is
+        \beq
+        \vec{T}' \defn \frac{1}{2}<u_iu_ju_j> + \frac{1}{\rho}<u_i p'> -2 \nu <u_j s_{ij}>\per
+        \eeq
+        The statistical homogeneity hypothesis means that the statics of turbulent flow
+        are not function of space, thus the divergence of the transport is $\vec{T}'$ 
+        is identically zero for the uniform shear flow
+        \beq
+            \nabla\cdot \vec{T}' = 0\per
+        \eeq
+        Spatial homogeneity also implies that the advective term is zero since
+        \beq
+            \nabla k = 0\per
+        \eeq
+        Furthermore, the specialized production term for this uniform shear flow is
+        \beq
+        \label{eq:prod}
+        \mathcal{P} = -<u v> \mathcal{S}\com
+        \eeq
+        where we assumed that the uniform shear $\mathcal{S}$ is in the $y$-direction. 
+        
+        
+        With the results above, we have that $k$ is only a function of time, and evolves as
+        \beq    
+        \label{eq:tke_hs}
+        \frac{\dd k}{\dd t} = \mathcal{P} - \varepsilon\com 
+        \eeq
+        with $\mathcal{P}$ and $\varepsilon$ given above. By introducing the turbulence time scale
+        \beq
+            \tau \defn \frac{k}{\varepsilon}\com
+        \eeq
+        we can rewrite \eqref{eq:tke_hs} as
+        \beq
+        \frac{1}{k}\frac{\dd k}{\dd t} = \frac{1}{\tau}\left(\frac{\mathcal{P}}{\varepsilon} - 1
+        \right)\per
+        \eeq
+        This is easily solved if both $\mathcal{P}/\varepsilon$ and $\tau$ are constants (valid if
+        the Reynolds stresses are self-similar), leading 
+        to the result that the turbulent kinetic energy grows exponentially in time
+        \beq
+            \label{eq:exp_tke}
+            k(t) = k(0) \exp\left[\frac{t}{\tau}\left(\frac{\mathcal{P}}{\varepsilon}-1\right)\right]\com
+        \eeq
+        since production exceeds dissipation for this flow.
 
+        \item The $\varepsilon$ equation in the standard $k$-$\varepsilon$ model is
+            \beq
+            \frac{\dd \varepsilon}{\dd t} = C_{\varepsilon,1}\frac{{\varepsilon}}{k}\mathcal{P}
+                - C_{\varepsilon,2} \frac{\varepsilon^2}{k}\per
+            \eeq
+            Combining the $\varepsilon$ equation with the $k$ equation for the homogeneous shear
+            flow \eqref{eq:tke_hs} gives an equation for turbulence time scale $\tau$
+            \beq
+                \frac{\dd \tau}{\dd t} = (C_{\varepsilon,2}-1) -(C_{\varepsilon,1}-1)\frac{\mathcal{P}}{\varepsilon}\per
+            \eeq
+           If the Reynolds stresses are self-similar, then $\tau$ is constant, from which we obtain           \beq
+           \frac{\mathcal{P}}{\varepsilon}  = \frac{C_{\varepsilon,2}-1}{C_{\varepsilon,1}-1} \approx 2.1\com
+           \eeq
+            using the standard values for model constants $C_{\varepsilon,2}$ and 
+            $C_{\varepsilon,2}$ given in \cite{pope2000}. Since in this flow
+            the  statistics are spatially homogeneous, the production to dissipation ratio
+            is associated with the growth rate of the turbulent kinetic energy (see equation \ref{eq:exp_tke}).
+    
+            This value of production to dissipation ratio based on the $k$-$\varepsilon$ model is 
+            significantly larger than results obtained from laboratory experiments and Direct Numerical
+            Simulations quoted by \cite{pope2000}, which vary from 1.4 to 1.8.
+
+            \cite{pope2000} quote results from these laboratory and DNS experiments, in which
+            the Reynolds stresses become self-similar. Thus, the deviatoric Reynolds stresses grow
+            at the same rate as the turbulent kinetic energy. In other words, the normalized anisotropy
+            \beq
+            b_{ij} \defn \frac{<u_i u_j>}{2 k} - \frac{1}{3}\delta_{ij}
+            \eeq
+            is independent of time.
 
 \end{enumerate}
 
 
 \section*{Problem 2}
+
+    Below discussion is provided of the effects of the Reynolds number on wall-bounded flows turbulence,
+     based on results of the two references. These studies take different approaches, and it is unfortunate
+     that the authors did not take a more comprehensive approach to this problem – clearly both DNS and
+     experiments are necessary to understand the correct behavior of the wall-bounded turbulent flows
+     as the Reynolds number increases. There are many similarities in the results, though the DNS
+     experiments span a tighter Reynolds number range, so a directive comparison is not easy. Nevertheless,
+      it is unfortunate that \cite{bernardini_etal2014}, which came out nearly two years after the superpipe      paper, did not discuss potential similarities. The studies are in contradiction in a least one important result, regarding the intensity of the inner peak, which remains constant in \cite{hultmark_etal2012}, but
+      increases in \cite{bernardini_etal2014}. Either this increase is a low-Reynolds number effect, or it
+      represents a fundamental difference between channel and pipe flows.
 
 \begin{enumerate}[label=(\alph*)]
 
@@ -189,7 +293,7 @@ showstringspaces=false            %
         of turbulent kinetic energy shall be transferred to adjacent layer by turbulent diffusion.
         It also seems to me that there may be some similarities between this increase in production
         and the emergence of a secondary, outer peak in velocity variance, which somehow resembles
-        the results of the piper flow experiment. Again, the author did not discuss this possibility.
+        the results of the piper flow experiment. Again, the authors did not discuss this possibility.
 
         Finally, the authors also present and discuss streamwise and spanwise spectra of various 
         components of velocity. With the increasing reynolds number, there appears to be the 
@@ -202,10 +306,10 @@ showstringspaces=false            %
          production to dissipation in the outer layer.
 
 
-    \item  \cite{hultmark_etal201} study the statistics of both mean and turbulent velocities in
-        piper flow at extreme (!) Reynolds number. The authors perform experiments in the Pricenton
+    \item  \cite{hultmark_etal2012} study the statistics of both mean and turbulent velocities in
+        piper flow at extreme (!) Reynolds numbers. The authors perform experiments in the Pricenton
         super pipe, measurement the turbulent velocities with novel instrumentation that allows
-        for measuring at very small scales. Figure \cite{fig:turb_vel} shows the variance of the
+        for measuring at very small scales. Figure \ref{fig:turb_vel} shows the variance of the
         streamwise velocity component as a function of distance normal to the wall scales by the
         inner (a) and outer (b) scales. The magnitude of the turbulence peaks near the wall (the inner)
         peak, and this peak appears to stay constant from very high to extreme Reynolds numbers. (This 
@@ -218,12 +322,12 @@ showstringspaces=false            %
          more confined (i.e. the inner peak region becomes more confined with increased Reynolds number). 
 
         Yes, another interesting result if the log-law dependence of the turbulent velocities in the 
-        matching region when scales by the outer scales (Figure \cite{fig:turb_vel} b). In particular,
-        figure \ref{fig:turb_vel} show compelling evidence that in the matching region (the overlap region 
+        matching region when scales by the outer scales (Figure \ref{fig:turb_vel} b). In particular,
+        figure \ref{fig:mean_turb_vel} show compelling evidence that in the matching region (the overlap region 
         in their nomenclature) both mean streamwise velocity (inner scaled) and turbulence streamwise 
         velocity (outward scaled) approximately follow a log law – this matching region exists for at
         least one decade in both cases. This overlap region increases with Reynolds number, and the authors
-        speculate that it may dominate the inner wall flow at larger wavenumbers.  
+        speculate that it may dominate the inner wall flow at larger Reynolds numbers.  
 
 \end{enumerate}
 
@@ -256,7 +360,7 @@ showstringspaces=false            %
 \begin{center}
 \includegraphics[width=32pc,angle=0]{fig15.png}\\
 \end{center}
-\caption{}
+\caption{Figure 15b of \cite{bernardini_etal2014}.}
 \label{fig:spec}
 \end{figure}
 
@@ -273,16 +377,14 @@ showstringspaces=false            %
 \begin{center}
 \includegraphics[width=32pc,angle=0]{fig4.png}\\
 \end{center}
-\caption{Figure 4 from \cite{hultmark_etal201}: Comparison of mean velocity and turbulence streamwise fluctuation profiles for $Re^+ = 98 \times10^5$. Red sym-bols are mean velocities, the blue solid line is the log law for the mean velocity, and the black solid line is the power law for the mean velocities as described by McKeon et al. [2]. Blue symbols are the turbulence fluctuations, and the red solid line is the log law for the fluctuations, as reported in this Letter.}
+\caption{Figure 4 from \cite{hultmark_etal2012}: Comparison of mean velocity and turbulence streamwise fluctuation profiles for $Re^+ = 98 \times10^5$. Red symbols are mean velocities, the blue solid line is the log law for the mean velocity, and the black solid line is the power law for the mean velocities as described by McKeon et al. [2]. Blue symbols are the turbulence fluctuations, and the red solid line is the log law for the fluctuations, as reported in this Letter.}
 \label{fig:mean_turb_vel}
 \end{figure}
 
 
-\nocite{pope2000}
-
 % references
-\bibliographystyle{ametsoc2014}
 \bibliography{mae214A.bib}
+\bibliographystyle{agu}
 
 \end{document}
 
