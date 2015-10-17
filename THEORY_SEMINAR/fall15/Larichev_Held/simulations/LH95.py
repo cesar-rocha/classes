@@ -90,13 +90,14 @@ def _save_setup(self,):
 # the basic parameters
 params = LH95_params.LHTwoLayer()
 
+
 # model class
 m = pyqg.LayeredModel(nx=params.Nx, nz=params.Nz, U = np.array([params.U1,params.U2]),
                               V=np.array([0.,0.]),L=params.L,f=params.f0,beta=params.beta,
                               rd=params.Ld, H = np.array([params.H1,params.H2]),rek=params.rek,
                               dt=0.001,tmax=params.tmax,twrite=params.twrite, 
-                              tavestart=params.tavestart, ntd=2, delta=params.delta,
-                              hb=params.eta*params.H2,logfile=None)
+                              tavestart=params.tavestart, ntd=4, delta=params.delta,
+                              hb=None,logfile=None)
 
 m.set_q(init_condition(m, sig=1.e-1))
 
@@ -107,18 +108,18 @@ m.tmax = m.tmax
 
 ke = []
 t = []
-patho = "REFERENCE/"
+patho = "REFERENCE"
 k = 1
 
 kmean = 0
 _init_save_snapshots(m,patho)
 
-for i in m.run_with_snapshots(tsnapstart=0, tsnapint=.1):
+for i in m.run_with_snapshots(tsnapstart=0, tsnapint=1.):
 
-    ke.append(m.ke)
+    ke.append(m._calc_ke())
     t.append(m.t)
     
-    if m.cfl> .3:
+    if m._calc_cfl()> .3:
         m.dt = m.dt/5.
        
     _save_snapshots(m)
