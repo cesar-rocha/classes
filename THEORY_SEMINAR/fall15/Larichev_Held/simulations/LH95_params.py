@@ -47,5 +47,5 @@ class LHTwoLayer():
         self.dt = self.Ti/1000.      # time-step [s]
         self.tmax = 4000             # simulation time [s]
         self.twrite=200
-        self.tavestart=2000
+        self.tavestart=1500.
 
