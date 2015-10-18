@@ -9,6 +9,8 @@
 %\geometry{landscape}                % Activate for rotated page geometry
 %\usepackage[parfill]{parskip}    % Activate to begin paragraphs with an empty line rather than an indent
 
+\usepackage{natbib}
+
 %for figures
 %\usepackage{graphicx}
 
@@ -116,82 +118,180 @@ showstringspaces=false            %
 
 \section*{Preamble}
 The equation to solve is
-
 \beq
 \label{eq:vort_eqn}
-\p_t \zeta + \sJ\left( \psi, \zeta \right ) = \frac{1}{\Re} \nabla^2 \zeta\com
+\p_t \zeta + \sJ\left( \psi, \zeta \right ) = \nu \nabla^2 \zeta\com
 \eeq
 where
 \beq
 \label{eq:defns}
 \zeta = \nabla^2\psi \com\qquad u \defn -\p_y \psi\com\qqand v \defn -\p_x \psi\per
 \eeq
+Also in \eqref{eq:vort_eqn} the horizontal Jacobian is $\sJ(A,B)\defn \p_x A \p_y B - \p_y A\p_x B$. In a doubly periodic domain, there exists two conservations laws in the $\nu\to 0$ limit. First,
+we multiply \eqref{eq:vort_eqn} by $\psi$, integrate over the surface, and use periodicity, to obtain an equation
+for the total energy
+\beq
+\label{eq:energy}
+\frac{\dd}{\dd t} \int \int \half |\nabla\psi|^2 \dd S = -\nu \int \int  \zeta^2 \dd S\per
+\eeq
+Note that the integral on the right of \eqref{eq:energy} is twice the exact enstrophy, and
+it is positive definite. Thus the term on the right a sink of energy. 
+
+Similarly,  multiplying the vorticity equation by $\zeta$, and integrating over the surface $S$, we obtain
+the enstrophy equation
+\beq
+\frac{\dd}{\dd t}\int\int \half \zeta^2 \dd S = -\nu \int \int |\nabla \zeta|^2 \dd S\per
+\eeq
+Term on the right is a sink of enstrophy, but this this it is proportional to the square of
+the gradient of vorticity. We therefore expect that  enstrophy will decay much faster than
+energy if sharp gradients are present.
+
+The phenomenology of isotropic two-dimensional turbulence is relatively well-known \citep[e.g.,][]{pedlosky1987}. The absence of
+the vortex stretching as a mechanism to generate enstrophy implies that enstrophy is conserved in the
+$\nu \to 0$ limit, and this severely constrains the evolution of the flow. In particular, the two
+conservations laws above constrain the triad interactions to flux energy upscale (the inverse cascade), 
+whereas enstrophy cascade downscale.
+
+\section*{Computational pseudo-spectral set-up}
 Fourier transforming \eqref{eq:vort_eqn} we obtain
 \beq
 \label{eq:vort_eqn_hat}
-\p_t \what{\zeta} + \what{\sJ\left( \psi, \zeta \right )} = -\frac{\kappa^2}{\Re} \what{\zeta}\com
+\p_t \what{\zeta} + \what{\sJ\left( \psi, \zeta \right )} = -\nu\kappa^2 \what{\zeta}\com
 \eeq
 where, in a pseudo-spectral spirit, we indicated the Fourier transform of the whole Jacobian instead
  of  writing the convolution sums, i.e., we evaluate products in physical space, and then transform
  the Jacobian to Fourier space. Also, in \eqref{eq:vort_eqn_hat}, $\kappa\defn \sqrt{k^2 + l^2}$ is 
- the isotropic wavenumber. The elliptic problem that relates vorticity and streamfunction is diagonal
+ the isotropic wavenumber. The elliptic equation that relates vorticity and streamfunction is diagonal
   in Fourier space:
 \beq
 \label{eq:inv_hat}
 \what{\zeta} = -\kappa^2 \what{\psi}\per
 \eeq
-Of course, the inversion is not defined for $\kappa = 0$.  We step \eqref{eq:vort_eqn_hat}-\eqref{eq:inv_hat} forward  in a $2\pi\times 2\pi$ box using a RK3W-$\theta$ scheme. The nonlinear term is fully dealiased using the $\tfrac{2}{3}$ rule \cite{orszag1971}. With $\nmax = 1024$, the effective number of resolved modes is $\nmax_e = 682$.  
-The initial condition is a random field, with a von Karman-like target isotropic spectrum \cite{mcwilliams1984}
-
+Of course, the inversion is not defined for $\kappa = 0$.  We step \eqref{eq:vort_eqn_hat}-\eqref{eq:inv_hat} forward  in a $2\pi\times 2\pi$ box using a RK3W-$\theta$ scheme. The nonlinear term is fully dealiased using the $\tfrac{2}{3}$ rule. With $\nmax = 1024$, the effective number of resolved modes is $\nmax_e = 682$.  
+The initial condition is random with a von Karman-like target isotropic spectrum \citep{mcwilliams1984}
 \beq
 \label{eq:init_spec}
-|\what{q}_i|^2 = A\,\kappa^2\left[1 + \left(\frac{\kappa}{6}\right)^2\right]^{-2} \per
+|\what{q}_i|^2 = A\,\left[1 + \left(\frac{\kappa}{6}\right)^2\right]^{-2} \per
 \eeq
 The initial spectrum \eqref{eq:init_spec} peaks near $6$, and the constant $A$ is chosen so that
- the initial kinetic energy is unitary. This entails that the velocity of the
- energy containing eddies is $O(1)$, thereby guaranteeing that the nondimensionalization in equation
- \eqref{eq:vort_eqn} holds. The kinetic energy is 
+ the initial kinetic energy is unitary. The kinetic energy is 
  \beq
  \label{eq:ke}
- E = \tfrac{1}{2} \sum_{k}\sum_{l} \kappa^2 |\psi^2|\per
+ E = \tfrac{1}{2} \sum_{k}\sum_{l} \kappa^2 |\psi|^2\per
  \eeq
-Thus
-\beq
-\label{const}
-A = \left[\sum_{k}\sum_{l}\left[1 + \left(\frac{\kappa}{6}\right)^2\right]^{-2} \right]^{-1}\per
-\eeq
-
-\section*{Diagnostics}
 Besides the kinetic energy in \eqref{eq:ke}, we also diagnose the enstrophy
 \beq
-    Z =\tfrac{1}{2} \sum_{k}\sum_{l} \kappa^4 |\psi^2|\com
+    Z =\tfrac{1}{2} \sum_{k}\sum_{l} \kappa^4 |\psi^2|\per
 \eeq
-and the CFL condition
+
+We simulate the vorticity equation at
 \beq
-\text{CFL} = \frac{u_{max} \dt}{\dx}\com
+\Re \defn \frac{U L}{\nu} = 5 \times 10^4\per
+\eeq
+We  $U$ is the root-mean-square velocity and $L$ is the largest length scale resolved
+\beq
+L \defn \frac{2\pi}{k_{min}} = 2 \pi\per
+\eeq
+Since the initial condition is such that the kinetic energy is $0.5$, the rms velocity 
+is $U\approx 1$ and therefore
+\beq
+    \nu = \frac{2 \pi}{\Re} \approx 1.25 \times 10^{-4} \per
+\eeq
+Note that the viscous coefficient simply scales as the inverse of the Reynolds number,
+as one would obtain with appropriate non-dimensionalization of the Navier-Stokes equations.
+
+We choose the time-step such that the CFL number is roughly a quoter:
+\beq
+\text{CFL} = \frac{u_{max} \dt}{\dx}\approx 0.25\com
 \eeq
 where 
 \beq
 \dx \defn \frac{2\pi}{\nmax}\per
 \eeq
-We chose the time-step so the initial CFL is $0.25$.
+
+The pseudo-spectral equation was coded in Fortran 90, using multi-thread FFTW3 to efficiently
+compute fast Fourier transforms. Some critical parts of the code were parallelized using openMP. The experiment described below uses $\nmax = 1024$ (i.e. $682$ effective modes). 
+
+A simulation with $\nmax=2048$ was also performed, but it is
+not described since it was not required (an animation is available at
+\href{http://crocha700.github.io/videos/vorticity2048x2048.m4v}{http://crocha700.github.io/videos/vorticity2048x2048.m4v}; one can see
+much smaller coherent structures than in the $\nmax=1024$ simulation). A $\nmax=4096$ simulation is currently
+running on a SIO server, but making a video for that simulation proved more computationally challenging 
+than running the simulation itself.
+
+\section*{Results}
 
 
-%The non-dimensional Navier-Stokes equations, with constant density, are
-%    \begin{figure}[ht]
-%    \begin{center}
-%    \includegraphics[width=10pc,angle=0]{figs/errrand_0.png} 
-%        \includegraphics[width=10pc,angle=0]{figs/errrand_1.png}  
-%        \includegraphics[width=10pc,angle=0]{figs/errrand_2.png}\\  
-%        \includegraphics[width=10pc,angle=0]{figs/errrand_3.png} 
-%        \includegraphics[width=10pc,angle=0]{figs/errrand_4.png}  
-%        \includegraphics[width=10pc,angle=0]{figs/errrand_5.png}  
-%    \end{center}
-%    \caption{The residual for the first 600 iterations with random $\dt$ between 0 and 2000.}
-%    \label{fig:exps2}
-%    \end{figure}
+\begin{enumerate}
+    \item The compact vortices are formed due to nonlinear interactions. An intrinsic
+        time scale is the eddy turn-over time, which can be defined as \citep[e.g. ][]{mcwilliams1984}
+        \beq
+            \tau \defn \frac{2\pi}{\sqrt{Z}}\com
+        \eeq
+        where $Z$ is the vorticity defined above. For the initial condition used here, we have $Z_i \approx 15.5$,
+        and therefore $\tau \approx 0.6$. We expect that will take a couple of eddy turn-over times for the turbulent
+        flow to start organizing itself into coherent structures. This is indeed observed in our experiment. Figure
+        \ref{fig:init_vort} shows the initial evolution of the random vorticity vorticity. At $t=1$ there are already
+        coherent structures, and the vorticity keep concentrating into larger coherent structures.
+
+\begin{figure}[ht]
+\begin{center}
+\includegraphics[width=15pc,angle=0]{../src/figs/0.png} 
+    \includegraphics[width=15pc,angle=0]{../src/figs/1.png} \\ 
+    \includegraphics[width=15pc,angle=0]{../src/figs/2.png} 
+    \includegraphics[width=15pc,angle=0]{../src/figs/3.png} 
+\end{center}
+\caption{The initial organization of the random initial vorticity into a sea of compact vortices.
+  The colorbar limits are the same for all plots.}
+\label{fig:init_vort}
+\end{figure}
+
+    \item Figure \ref{fig:ke_ens} shows the evolution of energy and enstrophy. As expected, the enstrophy decays
+        much faster than the energy. At time $t=10$, the enstrophy has decayed to about $10\%$ of its initial value.
+        Because of this sharp initial decay in enstrophy, the decay in energy is more significant through $t=10$
+        (recall that the energy decay rate is proportional to the enstrophy – see equation 3). At time $t=10$, the energy is about
+        $92\%$ of its initial value. The evolution of these quadratic quantities is very slow thereafter. 
+
+\begin{figure}[ht]
+\begin{center}
+\includegraphics[width=15pc,angle=0]{../src/figs/ke.png} 
+    \includegraphics[width=15pc,angle=0]{../src/figs/ens.png}
+\end{center}
+\caption{Time series of (a) energy and (b) enstrophy in the domain. These quantities are normalized by
+their initial values: 0.5 for energy and about 120 for enstrophy. As expected, enstrophy decays much
+faster.}
+\label{fig:ke_ens}
+\end{figure}
 
 
+
+    \item Figure \ref{fig:vort} shows the evolution of the vorticity field through $t=100$. As discussed above,
+        the initial random field starts aggregating into a sea of compact vortices. The mechanism is vortex
+        merging of two or more like-sign vortices. The merging process concentrates vorticity but also significantly
+        strain the vorticity field, generating regions of very sharp gradient on the skirts of the merger;
+        viscosity then wipe out the vorticity in these high gradient regions. The vorticity keeps concentrating into fewer, larger vortices. By $t=27$ (when the energy is about $87.5 \%$ of the initial energy), there are only a handful of vortices.
+        At $t=85$ (when the is about $83.5 \%$ of the initial energy) there are only two, opposite sign vortices. From
+        this time on, the evolution is somewhat boring – opposite sign vortices do not merge. The vortices advect
+        each other, and decay super slowly. Snapshots at larger times are very similar: there are only two vortices; 
+        the only notorious difference is that the flow is weaker.
+
+\end{enumerate}
+
+
+\begin{figure}[ht]
+\begin{center}
+\includegraphics[width=15pc,angle=0]{../src/figs/95perc.png} 
+    \includegraphics[width=15pc,angle=0]{../src/figs/90perc.png} \\
+    \includegraphics[width=15pc,angle=0]{../src/figs/87perc.png}     
+    \includegraphics[width=15pc,angle=0]{../src/figs/85perc.png} \\
+    \includegraphics[width=15pc,angle=0]{../src/figs/83perc.png}     
+    \includegraphics[width=15pc,angle=0]{../src/figs/82perc.png} 
+\end{center}
+\caption{The evolution of the vorticity field. After about $t=65$, the field consists of only two, opposite sign vortices which advect one another and decay very slowly. The colorbar limits are the same for all plots.}
+\label{fig:vort}
+\end{figure}
+
+\newpage
 \bibliographystyle{ametsoc2014}
 \bibliography{mae290c.bib}
 

@@ -130,7 +130,8 @@ and
 where $\bu$ is the velocity, $p$ is the dynamic pressure, and $\Re$ is the Reynolds number. We use the following
  notation for the discrete linear operators
  \beq
-    \sD \approx \nabla\cdot\com\qquad  \sG \approx\nabla \com\qqand\sL =  \sD \sG\com
+ \label{eq:defns}
+    \sD \approx \nabla\cdot\com\qquad  \sG \approx\nabla \com\qqand\sL \approx \nabla\cdot\nabla\com
  \eeq   
  where $\sD$, $\sG$ and $\sL$ should be understood as matrices.
 
@@ -232,7 +233,7 @@ where
 \end{align}
 Hence
 \beq
-    \label{eq:ns_d_3}
+    \label{eq:lu}
 \begin{bmatrix*} 
         \sA & \bf{0}\\
         \sD  & -\sL \dt
@@ -249,74 +250,262 @@ Hence
         \bf{0}\\
     \end{bmatrix*}\com
 \eeq
-and therefore the approximate solution is
-\begin{align}
-    \label{eq:ns_d_4}
-    \begin{bmatrix*} 
-        \bu^{n+1}\\
-        p^{n+1}
-    \end{bmatrix*} =& 
+%and therefore the approximate solution is
+%\begin{align}
+%    \begin{bmatrix*} 
+%        \bu^{n+1}\\
+%        p^{n+1}
+%    \end{bmatrix*} =& 
+%    \begin{bmatrix*} 
+%        \sI &  \sG \dt\\
+%    {\bf 0} & \sI 
+%    \end{bmatrix*}^{-1}
+%    \begin{bmatrix*} 
+%        \sA & \bf{0}\\
+%        \sD  & -\sL \dt
+%    \end{bmatrix*}^{-1}
+%    \begin{bmatrix*} 
+%        \bu^{n}-\bN(\bu^n)\dt\\
+%        \bf{0}\\
+%    \end{bmatrix*} \\
+%    = & 
+%     \begin{bmatrix*} 
+%        \sI &  -\sG \dt\\
+%    {\bf 0} & \sI 
+%    \end{bmatrix*}
+%     \begin{bmatrix*} 
+%         \sA^{-1} &  \bf{0}\\
+%         \frac{\sL^{-1}\sD\sA^{-1}}{\dt} & -\frac{\sL^{-1}}{\dt} 
+%    \end{bmatrix*}
+%        \begin{bmatrix*} 
+%        \bu^{n}-\bN(\bu^n)\dt\\
+%        \bf{0}\\
+%    \end{bmatrix*}
+%    \per
+%\end{align}
+%Of course, the expression above assume that all matrices are invertible, which may not be true. To show the equivalence  to the fractional time step method, we work with \eqref{eq:lu}. 
+
+The LU factorization  makes clear that we can solve for $\bu^{n+1}$ and $p^{n+1}$ in two steps
+\beq
+\label{eq:lu2}
     \begin{bmatrix*} 
         \sI &  \sG \dt\\
     {\bf 0} & \sI 
-    \end{bmatrix*}^{-1}
+    \end{bmatrix*}
     \begin{bmatrix*} 
+        \bu^{n+1}\\
+        p^{n+1}\\
+    \end{bmatrix*} 
+    =
+    \begin{bmatrix*} 
+     \bu^*\\
+     p^{n+1}
+    \end{bmatrix*}\com
+\eeq
+where
+\beq
+\label{eq:lu3}
+       \begin{bmatrix*} 
         \sA & \bf{0}\\
         \sD  & -\sL \dt
-    \end{bmatrix*}^{-1}
+\end{bmatrix*}
+\begin{bmatrix*}  
+    \bu^{*}\\
+        p^{n+1}\\
+\end{bmatrix*} 
+    =
     \begin{bmatrix*} 
-        \bu^{n}-\bN(\bu^n)\dt\\
-        \bf{0}\\
-    \end{bmatrix*} \\
-    = & 
-     \begin{bmatrix*} 
-        \sI &  -\sG \dt\\
-    {\bf 0} & \sI 
-    \end{bmatrix*}
-     \begin{bmatrix*} 
-         \sA^{-1} &  \bf{0}\\
-         \frac{\sL^{-1}\sD\sA^{-1}}{\dt} & -\frac{\sL^{-1}}{\dt} 
-    \end{bmatrix*}
-        \begin{bmatrix*} 
-        \bu^{n}-\bN(\bu^n)\dt\\
-        \bf{0}\\
-    \end{bmatrix*}
-    \per
-\end{align}
-
+        \bu^n -\dt\bN(\bu^n)\\
+         0
+    \end{bmatrix*}\per
+\eeq
+Clearly, \eqref{eq:lu3} is equivalent to the first substep of the fractional method:
 The first substep of the fractional method solves the problem without the pressure term
 \beq
-    \frac{\bu^{*}-\bu^{n}}{\Delta t} =- \bN(\bu^{n}) - \frac{1}{\Re} \sL \bu^{*}\per
+    \frac{\bu^{*}-\bu^{n}}{\Delta t} =- \bN(\bu^{n}) + \frac{1}{\Re} \sL \bu^{*}\per
 \eeq
 Hence
 \beq
 \bu^{*}  =   \sA^{-1}(\bu^n-\dt\bN(\bu^n))\com
 \eeq
-which is the first row of $\sL^{-1}\bu^n$. The pressure in the fractional method is determined by
+Then \eqref{eq:lu2} calculates the pressure and updates the velocity 
 \beq
-p = \frac{\sL^{-1}\sD\bu^*}{\dt}\com
+\label{eq:pequation}
+p^{n+1} = \frac{\sL^{-1}\sD\bu^*}{\dt} = \frac{\sG^{-1}\bu^*}{\dt}\com
 \eeq
-which is, to $\mathcal{O}(\dt)$, the second row of $\sU^{-1}\sL^{-1}\bu^n$. The updated velocity is then the
- first row of $\sU^{-1}\sL^{-1}\bu^n$
+which is the second row of \eqref{eq:lu}, and
+\beq
+\label{eq:un1}
+ \bu^{n+1} = \bu^* - \dt \sG p^{n+1}\per 
+\eeq
+
+\item The fractional step method applies no-slip and no-normal flow conditions in the first step (i.e., on $\bu^*$)
+     and no-normal flow condition on the second step (i.e., on $\bu^{n+1}$). From the LU decomposition shown above 
+     it is clear that $\bu^*$ doesn't need to satisfy boundary conditions, because it is merely an intermediate variable, introduced to easily solve the system. Using the LU-factorization approach, boundary conditions (no-slip and no-normal flow) must only be enforced on $\bu^{n+1}$.
+
+    \item The analogy does not hold if $\sL\neq\sD\sG$. 
+
+        In particular, in the implication for the pressure equation is
+        \beq
+                p^{n+1} = \frac{\sL^{-1}\sD\bu^*}{\dt} \neq \frac{\sG^{-1}\bu^*}{\dt}\com
+        \eeq
+        and consequently
+        \beq
+            \sL p^{n+1}\neq \frac{\sD \sG \bu^*}{\dt}\per
+        \eeq
+        For the NS equation, $\sL\neq\sD\sG$ implies mass non-conservation, as discussed below.
+
+ \item  If $\sL \neq \sD \sG$, then $\bu^{n+1}$ does not satisfy mass conservation. Taking the divergence of 
+      \eqref{eq:un1}, we obtain
+      \beq
+      \label{eq:nondiv}
+      \sD \bu^{n+1} = \sD \bu^* - \dt \sD\sG p^{n+1}\per
+      \eeq
+      The right-hand side of \eqref{eq:nondiv} is only zero if $\sL = \sD\sG$. Operating on \eqref{eq:pequation} 
+       with $\sL$ and using the result to eliminate $\bu^*$ in \eqref{eq:nondiv}, we obtain
+       \beq
+       \sD \bu^{n+1} = \dt (\sL - \sD\sG)p^{n+1}\per
+       \eeq
+        Clearly  $(\sL - \sD\sG)p^{n+1}$ is the rate of volume gain/loss per time-step.
+
+    \item In this case, the LU-decomposition leads to
+        \beq
+\label{eq:lu4}
+    \begin{bmatrix*} 
+        \sI &  \sG \dt\\
+    {\bf 0} & \sI 
+    \end{bmatrix*}
+    \begin{bmatrix*} 
+        \bu^{n+1}\\
+        p^{n+1}\\
+    \end{bmatrix*} 
+    =
+    \begin{bmatrix*} 
+     \bu^*\\
+     \phi^{n+1}
+    \end{bmatrix*}\com
+\eeq
+where
+\beq
+\label{eq:lu5}
+       \begin{bmatrix*} 
+        \sA & \bf{0}\\
+        \sD  & -\sL \dt
+\end{bmatrix*}
+\begin{bmatrix*}  
+    \bu^{*}\\
+        \phi^{n+1}\\
+\end{bmatrix*} 
+    =
+    \begin{bmatrix*} 
+        \bu^n -\dt\bN(\bu^n)-\dt\sG p^n\\
+         0
+    \end{bmatrix*}\per
+\eeq
+From \eqref{eq:lu5} we have
+\beq
+\sD \bu^* = \dt \frac \sL \phi^{n+1}\per
+\eeq
+Recalling that $\sA = \sI - \tfrac{\dt}{\Re}\sL$. Thus from \eqref{eq:lu4}, for $\sA\sG\dt$ to be consistent with the
+ NS equations to second-order in time, we must have
  \beq
- \bu^{n+1} = \bu^* - \dt \sG p^{n+1} = \bu^* - \sG \sL^{-1}\sD\sA^{-1}\bu^*\per 
+ \label{eq:sign}
+ p^{n+1} = p^{n} + \phi^{n+1} -\frac{\dt}{\Re}\sL\phi^{n+1} = p^{n} + \phi^{n+1} -\frac{1}{\Re}\sD \bu^*\per
  \eeq
-
-\item They are equivalent only to $\mathcal{O}(\dt)$.
-
-
 \end{enumerate}
     
 
-%    \begin{figure}[ht]
-%    \begin{center}
-%    \includegraphics[width=17pc,angle=0]{pb3/experiments/pb3_3/figs/burgers_phys_16.png} 
-%    \includegraphics[width=17pc,angle=0]{pb3/experiments/pb3_3/figs/burgers_phys_64.png}\\
-%    \includegraphics[width=17pc,angle=0]{pb3/experiments/pb3_3/figs/burgers_phys_128.png}
-%    \includegraphics[width=17pc,angle=0]{pb3/experiments/pb3_3/figs/burgers_phys_2048.png}
-%    \end{center}
-%    \caption{Results in physical domain from simulation of 1D Burgers equations with $\nu = 10^{-3}$ and various N.}
-%    \label{fig:pb3_3_phys}
-%    \end{figure}
+\section*{Problem 2}
+
+    \begin{enumerate}
+        
+            \item We have
+                \beq
+                    u_{i-1} - 2u_{i} + u_{i+1} = f_i\com
+                \eeq
+                where $i=1, 2, 3, \ldots, 1024$, and we used $\dx = 1$. 
+
+            \item To solve the problem by relaxation we add a time dependence
+                \beq
+                    \p_t u_i = \sL u_i - f_i\com
+                \eeq
+                where $\sL$ is the second-order discrete operator above, and discretize it
+                using Crank-Nicolson
+                \beq
+                \left(\sI - \tfrac{\dt}{2}\sL\right)u_i^{n+1} = \left(\sI + \tfrac{\dt}{2}\sL\right)u_i^{n} - \dt f_i\per
+                \eeq
+                We then iterate prescribing a $\dt$ and using the Thomas' algorithm to solve for the tridiagonal system
+                at every iteration. With $\dt 100$, the solution converges within $10^{-4}$ (as measure by the infinite norm of the residual) after  $12766$ iterations. With $\dt 500$, the convergence is much faster ($5929$ iterations), and again slower at $\dt = 1000$ ($11858$ iterations).
+
+            \item Figure \ref{fig:exps} shows the residual for the different $\dt$s every 100 iterations for the first
+                 600 iterations. Clearly, $\dt=100$ converges very fast for highwavenumbers, and painfully slowly for
+                 low wavenumbers. On the other hand, the largest timestep $dt=1000$ converges extremely fast for low wavenumbers but very slowly for large wavenumbers. Of course, $\dt=500$ is in between those extrema, and convergence for both large and small wavenumbers is relatively similar. This is the reason $\dt=500$ converges faster (see item a).
+
+            \item The optimum time step that balances convergence for low and large wavenumbers is
+
+                \beq
+                \dt_{\text{opt}} = 2 \frac{\dx^2}{\pi^2} \nmax = 2\frac{1024}{\pi^2}\approx 208.
+                \eeq
+            This number is simply a geometric mean between the optimal time step for convergence of the  largest wavenumber and optimal time step for convergence of the lowest wavenumber. Using this timestep, the solution converges to within $10^{-4}$ after $6527$ iterations, which is the same order of magnitude (but larger) than using $\dt=500$. The structure of the residual is clearly a compromise between that for $\dt=100$ and $\dt=500$.
+
+        \item  Repeating the solution changing the time step every iteration, $\dt=2000\dd \xi$, where $\dd \xi$ is a random variable uniformly distributed between 0 and 1, converges much faster than all other values of $\dt$ explored above. The solution converges to within $10^{-4}$ after $2926$ iterations.   The reason for this faster convergence is that, as shown above, each wavenumber converges faster at different time step, so by randomly choosing, convergence is more rapidly achieved. Figure \ref{fig:exps2} shows the residual every 100 iterations for the first 600 iterations. Clearly, the residual is damped randomly. There is no bias towards high or low wavenumbers decaying faster. For example, at iterations 600, the residual has both low and high wavenumbers.
+
+            Multi-grid methods take advantage of the fact that wavenumbers converge  at different rates. After the residual of the largest wavenumbers has converged, the remaining residual is iterated successively in coarser grids, and then prolonged back successfully into finner grids to find the solution. Repeating this cycle leads to convergence rates much faster than other iterative methods. 
+
+    \end{enumerate}
+
+    \begin{figure}[ht]
+    \begin{center}
+    \includegraphics[width=10pc,angle=0]{figs/err100_0.png}  
+    \includegraphics[width=10pc,angle=0]{figs/err500_0.png}  
+    \includegraphics[width=10pc,angle=0]{figs/err1000_0.png}  \\ 
+        \includegraphics[width=10pc,angle=0]{figs/err100_1.png}  
+    \includegraphics[width=10pc,angle=0]{figs/err500_1.png}  
+    \includegraphics[width=10pc,angle=0]{figs/err1000_1.png}  \\
+        \includegraphics[width=10pc,angle=0]{figs/err100_2.png}  
+    \includegraphics[width=10pc,angle=0]{figs/err500_2.png}  
+    \includegraphics[width=10pc,angle=0]{figs/err1000_2.png}  \\
+        \includegraphics[width=10pc,angle=0]{figs/err100_3.png}  
+    \includegraphics[width=10pc,angle=0]{figs/err500_3.png}  
+    \includegraphics[width=10pc,angle=0]{figs/err1000_3.png}  \\
+        \includegraphics[width=10pc,angle=0]{figs/err100_4.png}  
+    \includegraphics[width=10pc,angle=0]{figs/err500_4.png}  
+    \includegraphics[width=10pc,angle=0]{figs/err1000_4.png}  \\
+        \includegraphics[width=10pc,angle=0]{figs/err100_5.png}  
+    \includegraphics[width=10pc,angle=0]{figs/err500_5.png}  
+    \includegraphics[width=10pc,angle=0]{figs/err1000_5.png}  \\ 
+    \end{center}
+    \caption{The residual for the first 600 iterations. Clearly, 
+        $\dt=100$ converges faster with for high wavenumbers (and convergence of low wavenumber is painfully slow), whereas $\dt=1000$ converges faster for low wavenumbers (and painfully slowly for large wavenumbers).}
+    \label{fig:exps}
+    \end{figure}
+
+
+    \begin{figure}[ht]
+    \begin{center}
+    \includegraphics[width=10pc,angle=0]{figs/erropt_0.png} 
+        \includegraphics[width=10pc,angle=0]{figs/erropt_1.png}  
+        \includegraphics[width=10pc,angle=0]{figs/erropt_2.png}\\  
+        \includegraphics[width=10pc,angle=0]{figs/erropt_3.png} 
+        \includegraphics[width=10pc,angle=0]{figs/erropt_4.png}  
+        \includegraphics[width=10pc,angle=0]{figs/erropt_5.png}  
+    \end{center}
+    \caption{The residual for the first 600 iterations with $\dt = \dt_{\text{opt}}\approx 208$.}
+    \label{fig:exps1}
+    \end{figure}
+
+
+    \begin{figure}[ht]
+    \begin{center}
+    \includegraphics[width=10pc,angle=0]{figs/errrand_0.png} 
+        \includegraphics[width=10pc,angle=0]{figs/errrand_1.png}  
+        \includegraphics[width=10pc,angle=0]{figs/errrand_2.png}\\  
+        \includegraphics[width=10pc,angle=0]{figs/errrand_3.png} 
+        \includegraphics[width=10pc,angle=0]{figs/errrand_4.png}  
+        \includegraphics[width=10pc,angle=0]{figs/errrand_5.png}  
+    \end{center}
+    \caption{The residual for the first 600 iterations with random $\dt$ between 0 and 2000.}
+    \label{fig:exps2}
+    \end{figure}
 
 \end{document}

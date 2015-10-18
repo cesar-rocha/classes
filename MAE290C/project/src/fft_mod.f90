@@ -81,9 +81,7 @@ subroutine init_plan_rfft2(m,n,ntd,plan)
     ! plan forward 2d fft for real input
     call dfftw_plan_dft_r2c_2d(plan,m,n,x,xhat,FFTW_PATIENT)
     
-    deallocate(x)
-
-
+    deallocate(x,xhat)
 
 end subroutine init_plan_rfft2
 
@@ -108,7 +106,7 @@ subroutine init_plan_irfft2(m,n,ntd,plan)
     ! plan forward 2d fft for real input
     call dfftw_plan_dft_c2r_2d(plan,m,n,xhat,x,FFTW_PATIENT)
 
-    deallocate(x)
+    deallocate(x,xhat)
 
 end subroutine init_plan_irfft2
 
@@ -249,12 +247,12 @@ end subroutine init_plan_irfft2
         integer :: i, j
 
         do j=1,n/2
-            k(:,j) = j-1
-            k(:,j+n/2) = j-n/2-1
+            k(:,j) = j-1.d0
+            k(:,j+n/2) = j-n/2-1.d0
         end do
 
         do i=1,n/2+1
-          l(i,:) = i-1
+          l(i,:) = i-1.d0
         end do
 
     end subroutine rfft2_wavenumber

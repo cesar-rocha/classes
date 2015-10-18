@@ -18,10 +18,11 @@ except ImportError:
 
 class BTModel(object):
 
-    """ A class that represents the 2D model """
+    """ A class that represents the 2D NS model
+            in vorticity formulation """
 
     def __init__(
-
+            # grid parameters
             self,
             nx = 256,
             ny=None,
@@ -32,12 +33,14 @@ class BTModel(object):
             # timestepping parameters
             dt=.0025,               # numerical timestep
             twrite=100,             # interval for cfl and ke printout (in timesteps)
-            tsave=100,              # interval to save (in timesteps)
             tmax=100.,              # total time of integration
             filt=True,              # spectral filter flag
             use_fftw=True,
-            ntd = 1,
+            ntd = 1,                # number of threads for fftw
+            # filter or dealiasing (False for 2/3 rule)
             use_filter=True,
+            # saving parameters
+            tsave=100,              # interval to save (in timesteps)
             save2disk=True):
 
         if ny is None: ny = nx
@@ -69,8 +72,7 @@ class BTModel(object):
         self.tsave = tsave
         self.nsave_max = int(np.ceil(self.nmax/tsave))
         self.save2disk = save2disk
-        self.nsave = 0
-        
+        self.nsave = 0 
 
         # fourier settings
         self._init_kxky()
@@ -79,13 +81,12 @@ class BTModel(object):
         self.fnz = self.kappa2 != 0
         self.kappa2i = np.zeros_like(self.kappa2)   # inversion not defined at kappa=0
         self.kappa2i[self.fnz] = self.kappa2[self.fnz]**-1
-        
-        self.use_filter = use_filter
-    
+         
         # exponential filter or dealising
+        self.use_filter = use_filter        
         self._init_filter()
 
-        # other
+        # fftw
         self.use_fftw = use_fftw
         self.ntd = ntd
 
@@ -175,7 +176,7 @@ class BTModel(object):
         #    self.qh = self.filt*(self.qh + 1.5* self.nl1h  -0.5 * self.nl2h)
         #    self.nl2h = self.nl1h.copy()
 
-        # forward euler
+        # forward euler (just for testing)
         #self.qh = self.qh - self.dt*self.jacobian()
  
     def _allocate_variables(self):
@@ -261,6 +262,7 @@ class BTModel(object):
         """ Compute the Jacobian in conservative form """
 
         self._invert()
+        self.ph = self.filt*self.ph
         self.q = self.ifft2(self.qh)
         self.u = self.ifft2(-self.lj*self.ph) 
         self.v = self.ifft2( self.kj*self.ph)
@@ -298,8 +300,6 @@ class BTModel(object):
             self.filt = np.ones_like(self.kappa2)
             self.filt[self.nx/3:2*self.nx/3,:] = 0.
             self.filt[:,self.ny/3:] = 0.
-
-
 
     # init netcdf output file
     def _init_fno(self):

@@ -21,11 +21,11 @@ program test
     logical :: debug
     integer(kind=8) :: tclock1, tclock2, clock_rate
 
-    n = 1024
-    ntd = 4  ! number of threads for fft
-    nmax = 100
+    n = 256
+    ntd = 1  ! number of threads for fft
+    nmax = 1000
 
-    allocate(A(n+2,n), Af(n+2,n))  ! need to pad two rows, since fortran stores
+    allocate(A(n,n), Af(n,n))  ! need to pad two rows, since fortran stores
     allocate(Ah(n/2+1,n))          !    by column
 
     debug = .false.
@@ -38,21 +38,20 @@ program test
     call cpu_time(t3)   ! start cpu timer
 
     ! initialize fft plans
-    call init_plan_rfft2_ip(n,n,ntd,plan_forward)
-    call init_plan_irfft2_ip(n,n,ntd,plan_backward)
+    call init_plan_rfft2(n,n,ntd,plan_forward)
+    call init_plan_irfft2(n,n,ntd,plan_backward)
 
     call cpu_time(t4)   ! end cpu timer
-
 
     call cpu_time(t1)   ! start cpu timer
 
     do j = 1,nmax
 
-        !call rfft2(A,Ah,n,n,plan_forward)
-        !call irfft2(Ah,A,n,n,plan_backward)
+        call rfft2(A,Ah,n,n,plan_forward)
+        call irfft2(Ah,A,n,n,plan_backward)
 
-        call rfft2_ip(A,n,n,plan_forward)
-        call irfft2_ip(A,n,n,plan_backward)
+        !call rfft2_ip(A,n,n,plan_forward)
+        !call irfft2_ip(A,n,n,plan_backward)
 
     enddo
 

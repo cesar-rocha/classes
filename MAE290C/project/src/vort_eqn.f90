@@ -90,6 +90,18 @@ program vort_eqn
     q = qi
     call rfft2(q,qh,ny,nx,plan_forward)
 
+    ! set up initial condition with KE = 0.5
+    print *, "Setting initial condition"
+    call set_random_init(nx,ny,qh,kappa2)
+    call invert(qh,ph,ny,nx,kappa2i) 
+    call calc_diag(nx,ny,dx,dt,ph,kappa2,ke,ens)
+    qh = qh/dsqrt(2.d0*ke)
+
+    ! save initial condition and kappa2 to disk
+    qho = qh
+    call irfft2(qho,q,ny,nx,plan_backward)
+
+
     do j=1,nx
         write (20,*) q(:,j)
         write (21,*) kappa2(:,j)
@@ -123,7 +135,7 @@ program vort_eqn
 
         endif
 
-    end do
+    enddo
 
 end program vort_eqn
 
@@ -286,3 +298,34 @@ subroutine stepforward(m,n,k,l,kappa2,kappa2i,ph,qh,dt,planf,planb,filt,Lin)
     qh = filt*( ( (1.d0 + a3*Lin)/(1.d0 - b3*Lin) )*qho - c3*dt*jh - d2*dt*jhold )
 
 end subroutine stepforward
+
+! set random initial condition
+subroutine set_random_init(nx,ny,qh,kappa2)
+
+    implicit none
+
+    integer, intent(in) :: nx, ny
+    real (kind=8), dimension(ny/2+1,nx), intent(in) :: kappa2
+    complex (kind=8), dimension(ny/2+1,nx), intent(out) :: qh
+
+    integer :: i,j    
+    real (kind=8) :: cmag, cphaser, cphasei
+    complex (kind=8), parameter :: ii = cmplx(0.d0,1.d0)
+
+    call random_seed()
+    do j=1,nx
+
+        do i=1,ny/2+1
+    
+            call random_number(cphaser)
+            call random_number(cphasei)
+
+            cmag = 1.d0/dsqrt(1.d0 + kappa2(i,j)/36.d0)
+            qh(i,j) = cmag*(cphaser-0.5d0) + ii*cmag*(cphasei-0.5d0)
+
+        end do
+
+    end do
+    qh(1,1) = 0.d0
+
+end subroutine set_random_init

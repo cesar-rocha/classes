@@ -65,9 +65,7 @@ I claim no originality to the content of these notes.  In particular, I'm loosel
 
 \begin{itemize}
 
-    \item \textit{Spectral methods in fluid dynamics} by Canuto et al.;
-
-    \item \textit{Computational techniques in fluid dynamics} by Fletcher et al.;
+    \item \textit{Spectral methods: Fundamentals in single domains} by Canuto et al.;
 
     \item \textit{Numerical Renaissance} by Bewley;
 
@@ -108,7 +106,7 @@ We consider a one-dimensional linear version of \eqref{eq:ns}, and drop the pres
 where $c$ is a constant speed. Fourier transforming in the $x$-direction we obtain
 \beq
 \label{eq:oned_ns_h}
-\p_t\hat{u} =\underbrace{ (-\ii c\,k + \nu k^2)}_{\defn \lambda} \hat{u}\com
+\p_t\hat{u} =\underbrace{ -(\ii c\,k + \nu k^2)}_{\defn \lambda} \hat{u}\com
 \eeq
 where $k$ is the wavenumber. \eqref{eq:oned_ns} is an eigenproblem with eigenvalue $\lambda$. Decaying solutions have $\Re\left(\lambda\right) < 0$, and numerical schemes must represent this behavior. Figure \ref{fig:eigs_nu} shows the eigenvalue as a function of $\nu$. A $\nu$ increases the real part of the eigenvalue becomes more negative, whereas for very small $\nu$ the eigenvalue are almost purely imaginary. This example illustrates one of the challenges for time marching numerical schemes. These schemes should have stability regions that comprise large negative real number and the imaginary axis. 
 
@@ -458,14 +456,15 @@ s = \frac{1-r^{\nmax}}{1 - r}\com\qquad r \neq 1\per
 \eeq
 Now
 \beq
-r^\nmax = \ee^{\ii 2\pi(n-s)} = 0\per
+r^\nmax = \ee^{\ii 2\pi(n-s)} = 1\com\qquad\text{if}\qquad n \neq s + m\,\nmax\com
 \eeq
+where $m$ is an integer.
 Thus
 \beq
 \label{eq:orthogonal_dce}
 \sum_{j=0}^{N-1} \ee^{\ii \left(\frac{2\pi}{\nmax}(n-s)\,j\right)} =  
 \begin{cases}
-0:& n = s + m \nmax\com\qquad m=0\pm 1 \pm 2 \pm3\ldots\,;\\
+\nmax:& n = s + m \nmax\com\qquad m=0\pm 1 \pm 2 \pm3\ldots\,;\\
     0:& \text{otherwise}\per
 \end{cases}
 \eeq
@@ -511,7 +510,7 @@ A potential problem in spectral methods is aliasing of unresolved high-frequency
 The Parseval's relation essentially says that the total energy in physical space is equal to the total energy in Fourier space
 \beq
 \label{eq:parseval}
-\sum_{j=0}^{\nmax-1} u_ju_j^* = \nmax \sum_{n=-\nmax/2}^{\nmax/2-1}\!\! \frac{|\hat{u}_n|^2}{2}\per
+\sum_{j=0}^{\nmax-1} u_ju_j^* = \nmax \sum_{n=-\nmax/2}^{\nmax/2-1}\!\! |\hat{u}_n|^2\per
 \eeq
 The proof of this relationship is simple. We introduce the inverse DFT definition \eqref{eq:idft} into \eqref{eq:parseval}
 \begin{align}
@@ -1047,6 +1046,104 @@ Finally, the pressure at step $n+1$ is
 \beq
 p^{n+1} = p^3 + \phi^3 -\frac{1}{\Re} \frac{\beta_3}{\alpha_3+\beta_3}\sD\bu^{***}\per
 \eeq
+
+\section{Solving large algebraic systems}
+As we have seen, working with incompressible Navier-Stokes equations give rise to a Poisson 
+ problem to be solve every time step. The discrete version of this problem is a large  system
+  of algebraic equations, whose solution is computationally costly. In this section, we explore
+  some of the main iterative approaches to solve such systems.
+
+\subsection{Relaxation}
+    The problem to solve is
+    \beq
+        \label{eq:poisson}
+        \lap \phi = f\com
+    \eeq
+    where f is a given function of space. In the relaxation method, we add time dependence to
+     the problem
+    \beq
+        \label{eq:poisson_time}
+        \p_t \phi = \lap \phi - f\com
+    \eeq
+    and look for the steady solution. Because we are not interested in the transients, we simply
+    step this system forward using an implicit scheme, given an initial guess. Because the true
+     solution is steady, this is equivalent of solving for the residual due to the initial guess
+     \beq
+        \p_t r = \lap r\per
+     \eeq
+    In Fourier space we have
+    \beq
+        \hat{r}_k = \hat{r} \ee^{-k^2 t}\per
+    \eeq
+    Clearly, high wavenumbers $k$ converge faster that low wavenumbers, since the residual of the
+     former decays faster.
+
+\subsection{Alternate direction implicit}
+For two-dimensional or three-dimensional problems, we generally simplify the problem by making an
+ operator split
+ \beq
+    \label{eq:operator_split}
+    [\sI - \dt (\sL_x + \sL_y)] = [\sI - \dt\sL_x ][\sI - \dt\sL_y] + 2 \sL_x \sL_y \dt^2 \com 
+ \eeq
+    where $\sL_x$ and $\sL_y$ are the discrete Laplacian operator in each direction. The split above
+     is accurate to second-order in time, which is the accuracy of a Crank-Nicolson scheme. We then
+      solve the problem in two steps
+      \beq
+            [\sI-\dt\sL_x] r^* = r^n\com
+      \eeq
+      and
+      \beq
+      [\sI-\dt\sL_y] r^{n+1} = r^*\per
+      \eeq
+    These two step are much easier to solve than the original problem because they're series of 
+     tri-diagonal systems. This ADI scheme can be embedded in the Crank-Nicolson scheme
+     \begin{align}
+         [\sI - \tfrac{\dt}{2}\sL_x] r^* =& [\sI + \tfrac{\dt}{2}\sL_y] r^n\\
+         [\sI - \tfrac{\dt}{2}\sL_y] r^{n+1} =& [\sI + \tfrac{\dt}{2}\sL_x] r^*\per
+    \end{align}
+    Notice that the growth factor at each sub-steps is
+    \beq
+        \sigma_k = \frac{1-k^2\tfrac{\dt}{2}}{1 + k^2\tfrac{\dt}{2}}\per
+    \eeq
+    Figure \eqref{fig:gf_adi} shows the absolute values of the growth factor $|\sigma_k|$ as a function
+     of time step for various values of $k \dx$. As can be seen, different wavenumbers have distinct 
+      optimum time steps. The optimum time step for low wavenumbers is typically very large; the contrary
+       is true for very small wavenumbers:
+
+       \begin{align}
+            \delta_{max} = \dt \left(\frac{\pi}{\dx}\right)^2 = \dt k_{max}^2\com\\
+            \delta_{min} = \dt \left(\frac{\pi}{\dx}\right)^2 = \dt k_{min}^2=\frac{\delta_{max}}{\nmax^2}\com
+        \end{align}
+
+\begin{figure}[ht]
+\begin{center}
+    \includegraphics[width=20pc,angle=0]{figs/growth_factor_adi_cn.png}
+\end{center}
+\caption{The growth factor of the ADI-CN method for various values of $k \dx$.}
+\label{fig:gf_adi}
+\end{figure}
+
+(SOME SUTFF AND DON'T UNDERSTAND WHERE IT COMES FROM. FOR INSTANCE HOW TO OBTAIN THIS DELTA -8, ETC)
+
+The optimum $\dt$ is then
+\beq
+\dt_{\text{opt}} = 2\frac{\dx^2}{\pi^2} \nmax = 2\frac{L_x \Delta x}{\pi^2}\com
+\eeq
+which is the geometric mean between the extrema.  An estimative of the number of iterations
+ required for convergence within machine precision is
+ \beq
+        \left|\frac{r^{n+1}-r^n}{r^0}\right| = \text{Rel. err.}\per
+ \eeq
+    Thus
+    \beq
+    \log \text{Rel. err.} = \log \text{tol.} = n \log(\epsilon-1)\com
+    \eeq
+    where
+    \beq
+        \epsilon = 1 - 2 \frac{\delta_{max}}{\nmax^2} = 1 - \frac{4}{\nmax}\per
+    \eeq
+
+    We can always sweep randomly through the $\dt$ space. In this case, it can be shown that we obtain a faster convergence ($\nmax^{1/2}$).
 
 \end{document}
 
