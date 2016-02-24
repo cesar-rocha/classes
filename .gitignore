@@ -1,2 +1,16 @@
 *.jpg
 *.png
+*.pdf
+*.zip
+*.aux
+*.out
+*.blg
+*.log
+*.bbl
+*.h5
+*.nc
+*.pyc
+*.ipynb_checkpoints*
+*.o
+*.npz
+*.mod
