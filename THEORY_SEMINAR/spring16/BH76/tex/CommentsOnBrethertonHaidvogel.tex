@@ -109,17 +109,97 @@ showstringspaces=false            %
 \usepackage{import}
 \import{/Users/crocha/Dropbox/tex/}{symbols}
 
-\title{Notes on \\ {\it Two-dimensional turbulence above topography }\\ by Bretherton and Haidvogel}
+\title{Notes on \\ {\it Two-dimensional turbulence above topography, JFM 1976 }\\ by Bretherton and Haidvogel}
 \date{}
 \author{Cesar B Rocha}
 \date{\today}
 
 \begin{document}
 
+\renewcommand{\lap}{\nabla^2}
+\renewcommand{\mu}{k_0^{2}}
 
 \maketitle
 
 \newcommand{\BH}{\text{Bretherton and Haidvogel }}
+
+\section{Phenomenology of two-dimensional turbulence}
+
+The two invariants of the two-dimensional system are (kinetic) energy
+\beq
+\label{energy}
+E = \half \iint |\nabla \psi|^2  \dd x \, \dd y \per
+\eeq
+and enstrophy
+\beq
+\label{energy}
+Q = \half \iint q^2  \dd x \, \dd y \com
+\eeq
+where
+\beq
+q = \lap \psi + h\per
+\eeq
+
+\section{A minimum enstrophy principle}
+
+\BH start by asking: ``what is the flow pattern which minimizes Q for a given E?''.
+That is, one minimizes the
+functional Q given the constrain E to obtain (see Appendix A)
+
+\begin{align}
+\label{minimize}
+\delta Q + \mu \delta E &=  \iint \left[ q \lap \sigma  + \mu (\nabla \psi \cdot \nabla \sigma)\right]\, \dd x\, \dd y \\
+\label{mini2}
+                                 &=  \iint \lap \left( \lap \psi  + h - \mu \psi \right) \sigma \, \dd x\, \dd y = 0\com
+\end{align}
+where $\lambda^{-2}$ is a Lagrange multiplier and $\sigma$ is an arbitrary function. To obtain \eqref{mini2} from \eqref{minimize}
+we use integration by parts and harmless boundary conditions (doubly periodic or no flux), e.g.,
+\beq
+\iint \nabla \psi \cdot \nabla \sigma \dd x \dd y = \underbrace{\iint \nabla \cdot \left( 
+\sigma \nabla \psi \right) \dd x \, \dd y}_{=0} - \iint \sigma \nabla^2 \psi \dd x \, \dd y \per 
+\eeq
+Given the arbitrariness of $\sigma$ and assuming a doubly periodic domain, \eqref{mini2} reduces to the 
+elliptic problem
+\beq
+\label{ellip}
+\left(\mu - \lap \right)\psi = h \per
+\eeq
+In Fourier space, \eqref{ellip} reduces to
+\beq
+\label{ellip_fourier}
+\hat \psi = \frac{\hat{h}}{\mu +  k^2 + l^2}\per
+\eeq
+
+\clearpage
+
+\appendix 
+\section{Algebra leading to \eqref{minimize}}
+Let
+\beq
+\psi \to \psi + \alpha \sigma \com
+\eeq
+so that
+\beq
+q \to q + \alpha \lap \sigma \com
+\eeq
+where $\alpha$ is a small parameter and $\sigma$ is an arbitrary solution for the streamfunction.
+We now minimize the functional
+\beq
+S = Q + \mu E\com
+\eeq
+with respect to $\alpha$. That is, we require 
+\beq
+\frac{\dd S}{\dd \alpha} = 0\com \text{for all } \sigma\per
+\eeq
+We obtain
+\beq
+\iint \left[ q \lap \sigma  + \mu (\nabla \psi \cdot \nabla \sigma)\right]\, \dd x\, \dd y + \alpha 
+\iint \left[ (\lap \sigma )^2 + |\nabla \sigma|^2\right]\dd x \, \dd y = 0 \per
+\eeq
+Thus, the leading order (in $\alpha$) constrain is
+\beq
+\delta S = \delta (Q + \mu E) =  \iint \left[ q \lap \sigma  + \mu (\nabla \psi \cdot \nabla \sigma)\right]\, \dd x\, \dd y = 0\per
+\eeq
 
 
 %\begin{figure}[ht]
