@@ -1,0 +1,461 @@
+\documentclass{beamer}
+\batchmode
+\usepackage{media9}
+\usepackage[english]{babel}
+\usepackage{multicol}
+\usepackage{multirow}
+\usepackage{ulem}
+\usepackage{blindtext}
+\usepackage{beamerthemesplit}
+\usetheme{Frankfurt}
+\usepackage[]{graphicx}
+\usepackage{tikz}
+\usepackage{xcolor}
+\usepackage{transparent}
+\usepackage{pgf}
+\usepackage{hyperref}
+\usetikzlibrary{arrows,shapes}
+\usetikzlibrary{fadings}
+\usepackage{fancybox}
+\usepackage{caption}
+\usepackage{cancel}
+
+
+%%%% COLORS
+% presentation style
+\definecolor{top_bar_1}{RGB}{40,40,40}
+\definecolor{top_bar_2}{RGB}{130,10,0}
+\definecolor{soft_orange}{RGB}{243,164,1}
+\definecolor{orange}{RGB}{255,127,0}
+\definecolor{ose2}{RGB}{230,230,230}
+\definecolor{ose3}{RGB}{0,150,10}
+\definecolor{climatology}{RGB}{130,130,130}
+\definecolor{soft_gray}{RGB}{200,200,200}
+
+%%%% SETTING NEW COLORS
+\setbeamercolor{title}{fg=white,bg=top_bar_2}
+\setbeamercolor{section in head/foot}{fg=soft_orange,bg=top_bar_1}
+\setbeamercolor{frametitle}{fg=white,bg=top_bar_2}
+\setbeamercolor{section in toc}{fg=top_bar_2}
+\setbeamercolor{structure}{fg=top_bar_2}
+
+\usebackgroundtemplate{%
+\tikz[overlay,remember picture] \node[opacity=0.04, at=(current page.center)] {
+   \includegraphics[width=\paperwidth]{images/siologo.png}};
+}
+
+% get rid of navigation buttons
+\beamertemplatenavigationsymbolsempty
+\setbeamertemplate{footline}[]
+
+\newcommand{\iBu}{\left(\tfrac{f_0}{N}\right)^2}
+\newcommand{\sig}{\left(\frac{\partial h}{\partial \rho}\right)}
+
+\begin{document}
+
+\include{symbols}
+
+
+\title[The Gent-McWilliams parameterization]{\LARGE{\bf The {\Huge Gent-McWilliams} parameterization
+of  {\Huge eddy buoyancy fluxes}}}
+\subtitle{}
+\author[PO theory seminar, SIO, fall 2016]{(as told by Cesar)}
+\institute[shortinst]{~~~~~~~{\bf Gent} $\&$ {\bf McWilliams}, \textit{JPO}, 1990
+                    \hspace{.4cm}  {\bf Griffies}, \textit{JPO}, 1998\\
+                    ~~~~~~(The most cited JPO paper $\star$)~~~~~~~~~~~~~~~~~~~~~
+                    ~~~~~~~~}
+\date{}
+% mugshots
+\titlegraphic{\vspace{-.75cm}\includegraphics[width=2.1cm]{images/gent.png}\hspace*{.4cm}~%
+   \includegraphics[width=1.85cm]{images/mcwilliams.png}
+   \hspace*{.4cm}~%
+      \includegraphics[width=2.05cm]{images/griffies.png}
+}
+
+%
+% title slide
+%
+
+\frame{\titlepage}
+
+%
+% introduction
+%
+
+\section{The problem}
+
+\begin{frame}{Climate models are devoid of mesoscale eddies}
+{In 1990, ocean models had ``coarse resolution'' (many still do today)}
+\begin{center}
+{\includegraphics[width=.85\textwidth]{images/different_resolutions.png}}
+\end{center}
+\flushright{\small Source: Hallberg \& Gnanadesikan.~~~~~~~~~~}
+\end{frame}
+
+\section{Mixing in isopycnal coordinates}
+
+\subsection{Density coordinates}
+\begin{frame}{Density (buoyancy) coordinates}
+{}
+\begin{center}
+{\includegraphics[width=.9\textwidth]{images/density_coordinates.png}}
+\end{center}
+\vspace{-.25cm}
+$$
+f(x,y,z,t) = f(\tilde x, \tilde y, \tilde \rho, \tilde t)\,, \qquad
+f_x = f_{\tilde x} + \rho_x f_{\tilde \rho}\,, \qquad f_z =\rho_z f_{\tilde \rho}\,, \qquad \cdots
+$$
+\flushright{(cf. Young, {\it JPO}, 2012.)}
+\end{frame}
+
+\subsection{Eddy-resolving models}
+
+\begin{frame}{Eddy-resolving models}
+\vspace{-.2cm}
+\onslide<1->\begin{exampleblock}{The adiabatic thickness equation [cf. Young's $\sigma$ equation (Y37)]}
+\begin{equation}\tag{GM1}
+  \frac{\partial}{\partial t} \frac{\partial h}{\partial \rho} + \nabla_{\!\!\rho} \cdot
+  \left(\frac{\partial h}{\partial \rho} \mathbf{u} \right) = 0\,.
+\end{equation}
+\end{exampleblock}
+
+\onslide<2->\begin{exampleblock}{The adiabatic tracer $\tau$ equation}
+\begin{equation}\tag{GM2}
+\underbrace{\left(\frac{\partial }{\partial t} + \mathbf{u}\cdot\nabla_{\!\!\rho}\right)}_{\defn D/D t}\tau
+ = \underbrace{\left( \frac{\partial h}{\partial \rho}\right)^{-1}\nabla_{\!\!\rho} \cdot
+ \left(\mu \frac{\partial h}{\partial \rho} \mathbf{J}
+ \cdot \nabla_{\!\!\rho} \tau \right)}_{\defn R(\tau)} \,,
+\end{equation}
+with the matrix $\mathbf{J}$ defined in (GM4).
+
+\end{exampleblock}
+
+
+\onslide<3->\begin{block}{Sloppy notation {\sc alert}}
+\vspace{-.35cm}
+\begin{equation}
+  \nabla_{\!\!\rho} \theta = \theta_{\tilde x}~ \mathbf{e}_1 + \theta_{\tilde y}~ \mathbf{e}_2\com
+  \qquad \nabla \cdot \mathbf{f} =  \left( \frac{\partial h}{\partial \rho}\right)^{-1}   \nabla_{\!\!\rho} \cdot
+\left[ \left(\frac{\partial h}{\partial \rho}\right)\mathbf{f}\right]\per \nonumber
+\end{equation}
+\end{block}
+
+\end{frame}
+
+\begin{frame}{Eddy-resolving models}
+\vspace{-.125cm}
+\begin{exampleblock}{Three important properties (GM90)}
+Between any two isopycnals, the system conserves
+
+\begin{enumerate}
+\item [\bf A.] {\bf All moments of density $\rho$ and the volume}.
+\item [\bf B.] {\bf The domain-average tracer concentration $\tau$}.
+\end{enumerate}
+
+$R(\rho) = 0$ (no isopycnal mixing of density), so that
+
+\begin{enumerate}
+\item [\bf C.] {\bf The density identically satisfies the tracer equation}:
+\vspace{-.275cm}
+ $$\frac{D \rho}{D t} = \rho_t + u\rho_{\tilde x} + v\rho_{\tilde y}= 0\per$$
+\end{enumerate}
+
+\end{exampleblock}
+
+
+\onslide<2->\begin{block}{The thickness balance of eddy-resolving models (GM90)}
+In statistical steady state:
+\vspace{-.2cm}
+\beq\tag{GM5}
+\nabla_{\!\!\rho}\cdot \left(\frac{\partial \bar h}{\partial \rho}\bar{\mathbf{u}}\right)
+ + \overline{ \nabla_{\!\!\rho}\cdot \left(\frac{\partial h'}{\partial \rho}{\mathbf{u'}}\right)} \approx 0\com
+\eeq
+\end{block}
+
+\end{frame}
+
+
+\subsection{Non-eddy-resolving models}
+\begin{frame}{Non-eddy-resolving models}
+
+\begin{block}{The non-eddy-resolving thickness equation}
+\beq\tag{GM6}
+\frac{\partial}{\partial t}\frac{\partial h}{\partial \rho} +
+\nabla_{\!\!\rho}\cdot \left(\frac{\partial  h}{\partial \rho}{\mathbf{u}}\right)
++ \nabla_{\!\!\rho}\cdot \mathbf{F} = 0 \per
+\eeq
+with the eddy thickness ``flux''  $\mathbf{F}$.
+\end{block}
+
+\onslide<2->\begin{block}{Choices for parameterizing $\mathbf{F}$}
+\begin{enumerate}
+\item {\bf Adiabatic} (but compressible) {\bf flow}.
+\item {\bf Incompressible} (but diabatic) {\bf flow}.
+\end{enumerate}
+\end{block}
+
+\onslide<3->\begin{exampleblock}{The GM90 choice: (2) incompressible flow}
+\beq\tag{GM7}
+\frac{D\rho}{D t} = Q\com
+\eeq
+with the non-conservative density source Q.
+\end{exampleblock}
+
+\end{frame}
+
+\subsection{Eddy velocity}
+
+\begin{frame}{Non-eddy-resolving models}
+\begin{exampleblock}{The GM90 choice: (2) incompressible (quasi-adiabatic) flow}
+%\vspace{-.25cm}
+\beq\tag{GM8}
+\frac{\partial h}{\partial \rho}Q = \int^{\tilde \rho}\nabla_{\!\!\rho}\cdot \mathbf{F} ~~\dd \tilde \rho\per
+\eeq
+\end{exampleblock}
+\begin{exampleblock}{The GM90 choice: non-conservative source in the tracer equation}
+\beq\tag{GM10}
+\underbrace{\left(\p_t + u\p_x + v\p_y + Q\p_{\tilde \rho}\right)}_{\defn D/D t}\tau
+ = R(\tau) + \sig^{-1}\!\!\!E(\tau)\per
+\eeq
+\end{exampleblock}
+\end{frame}
+
+\begin{frame}{Non-eddy-resolving models}
+\begin{exampleblock}{The GM90 choice: non-conservative source in the tracer equation}
+\vspace{-.1cm}
+\beq\tag{GM10}
+{\left(\p_t + u\p_x + v\p_y + Q\p_{ \rho}\right)}\tau
+ = R(\tau) + \sig^{-1}\!\!\!E(\tau)\per
+\eeq
+\end{exampleblock}
+\begin{exampleblock}{The choice that satisfies property {\bf B}}
+\beq\tag{GM11}
+E(\tau) = \frac{\p}{\p \rho}\left[\sig  Q \tau \right] + \nabla_{\!\! \rho}\cdot
+\mathbf{G} \per
+\eeq
+\end{exampleblock}
+\begin{exampleblock}{The choice that satisfies property {\bf C}}
+\beq\tag{GM12}
+\sig Q = E(\rho)\per
+\eeq
+\end{exampleblock}
+
+\end{frame}
+
+
+\begin{frame}{Non-eddy-resolving models}
+\begin{exampleblock}{The ``flux'' $\mathbf{G}$ satisfy}
+\beq\tag{GM13}
+\nabla_\rho\cdot[\rho \mathbf{F} + \mathbf{G}(\rho)] = 0\com
+\eeq
+so that the simplest solution is
+\beq
+\mathbf{G}(\tau) = -\tau\mathbf{F}\per\nonumber
+\eeq
+\end{exampleblock}
+
+\begin{block}{The non-eddy-resolving tracer equation}
+\beq\tag{GM14}
+\left(\p_t + \mathbf{u}\cdot\nabla_{\!\!\rho}\right)\tau + \underbrace{\sig^{-1}\!\!\!\mathbf{F}}_{\text{Eddy velocity}}\cdot\nabla_{\!\!\rho}\tau
+ = R(\tau)\per
+\eeq
+Recall: $\mathbf{F} = \overline{\sig' \mathbf{u'}}$.
+\end{block}
+
+\end{frame}
+
+\begin{frame}{Non-eddy-resolving models}
+\begin{exampleblock}{The simple choice for $\mathbf{F}$}
+\beq\tag{GM15}
+\mathbf{F} = -\frac{\partial}{\partial \rho}(\kappa \nabla_{\!\!\rho}h)\com
+\eeq
+with thickness diffusivity $\kappa$.
+\end{exampleblock}
+
+\begin{block}{It is simple, but is it justified?}
+If anything, this choice makes $Q$ a local function:
+\beq\tag{GM16}
+\sig Q = - \nabla_{\!\!\rho}\cdot(\kappa \nabla_{\!\!\rho}h)\per
+\eeq
+\end{block}
+\end{frame}
+\subsection{The skew flux}
+
+\begin{frame}{The GM skew flux}
+
+\begin{exampleblock}{Tracer equation}
+\beq\tag{G1}
+(\p_t + \mathbf{u}\cdot\nabla)T = R(T)\com
+\eeq
+with tracer T (temperature, salinity, or passive), and the mixing operator
+\beq\tag{G2}
+R(T) = \p_m(J^{mn}\p_n T)\per
+\eeq
+\end{exampleblock}
+
+\begin{block}{The second-order mixing tensor $\mathbf{J}$}
+\begin{enumerate}
+    \item [\bf $K^{mn}$] Symmetric (diffusive) part: $K^{mn} = (J^{mn}+J^{nm})/2$.
+    \item [\bf $A^{mn}$] Anti-symmetric (advective) part: $A^{mn} = (J^{mn}-J^{nm})/2$.
+\end{enumerate}
+\end{block}
+
+\end{frame}
+
+\begin{frame}{The GM skew flux}
+\begin{exampleblock}{Two forms of the stirring operator}
+\begin{align}
+R_A(T) = \p_m(\underbrace{A^{mn}\p_n T}_{\defn -{F}^m_{skew}}) = (\p_m A^{mn})\p_n T +
+\cancelto{0}{A^{mn}\p_n\p_m T}\tag{G7}\\
+= \p_n[\underbrace{(\p_m A^{mn}) T}_{\defn - {F}_{adv}^n}] - \cancelto{0}{T \p_m \p_nA^{mn}}\tag{G3}
+\end{align}
+\end{exampleblock}
+\end{frame}
+
+\begin{frame}{The GM skew flux}
+\begin{exampleblock}{The advective flux $\mathbf{F}_{adv}$}
+\beq
+\tag{G4}{F}_{adv}^n = U^n_\star A^{mn}\com
+\eeq
+with the non-divergent eddy velocity $U_\star^n$:  $\p_n U_\star^n= -\p_n \p_m A^{mn} = 0$.
+\beq
+\tag{G6}\mathbf{F}_{adv} = T(\nabla \times \boldsymbol{\psi})\com
+\eeq
+with the vector streamfunction $A^{nm}\defn \ep^{mnp}\psi_p$\per
+\end{exampleblock}
+\end{frame}
+
+\begin{frame}{The GM skew flux}
+\begin{block}{The skew flux $\mathbf{F}_{skew}$}
+The skew flux
+\beq
+\tag{G8}
+{F}_{skew}^m = -A^{mn} \p_n T
+\eeq
+is perpendicular the tracer surfaces
+\beq
+\tag{G9}
+\nabla T\cdot \mathbf{F}_{skew} = -(\p_m T) A^{mn} (\p_n T) = 0\per
+\eeq
+Thus
+\beq
+\tag{G10}
+{F}_{skew}^m = -\nabla T \times \boldsymbol{\psi}\com
+\eeq
+and
+\beq
+\tag{G11}
+\mathbf{F}_{adv} = \mathbf{F}_{skew} + \nabla \times (T \boldsymbol{\psi})\per
+\eeq
+\end{block}
+
+\end{frame}
+
+\begin{frame}{The GM skew flux}
+\begin{block}{GM choice [Recall, in density coordinates, $\mathbf{F} = -\frac{\partial}{\partial \rho}(\kappa \nabla_{\!\!\rho}h)$]}
+\beq\tag{G14}
+\mathbf{A} = A^{mn}=\begin{bmatrix}
+0 & 0 & -\kappa S_x\\
+0 & 0 & - \kappa S_y\\
+\kappa S_x & \kappa S_y & 0\\
+\end{bmatrix}\com
+\eeq
+with the isopycnal slope $\mathbf{S}\defn -\nabla_h \cdot \rho/\p_z\rho$. Thus
+\begin{align}
+\tag{G15}&\mathbf{F}_{adv} = T \nabla \times (\mathbf{k}\times \kappa S) = T \mathbf{U}_\star\com\\
+\tag{G16}&\mathbf{F}_{skew} = -\nabla T \times (\mathbf{k}\times \kappa \mathbf{S}) = \kappa \mathbf{S}\p_zT
+- \mathbf{k}(\kappa \mathbf{S}\cdot \nabla_h T)\per
+\end{align}
+\end{block}
+\end{frame}
+
+
+
+\section{Summary}
+
+\begin{frame}{Take home (or dump)}
+\begin{block}{Summary}
+\begin{itemize}
+\item Quasi-adiabatic parameterization.
+\item Tracer stirring performed by total (mean + eddy) velocity.
+\item Tracer mixing can be equivalently represented by advective or skew fluxes.
+\item (GM90: unclear, if not inconsistent, paper.)
+\end{itemize}
+\end{block}
+
+\begin{exampleblock}{Long live GM}
+\begin{center}
+There once was an ocean model called MOM,\\
+That occasionally used to bomb,\\
+But eddy advection, and much less convection,\\
+Turned it into a stable NCOM.\\
+\end{center}
+\vspace{-.75cm}
+\flushright{(Limerick by Peter Gent)}
+\end{exampleblock}
+
+\end{frame}
+
+\begin{frame}{The future of climate modeling: GM $^\star 1990$ --- $^\dagger 2020$?}
+{The ocean component will fully resolve mesoscales eddies}
+\begin{center}
+{\includegraphics[width=.85\textwidth]{images/future_models.jpg}}
+\end{center}
+\flushright{\small Source: Los Alamos National Laboratory.~~~~~~}
+\end{frame}
+
+\begin{frame}{But...}
+{There is always something to parameterize}
+Snapshot of vorticity in a ``fine-scale-resolving'' (1 km) model
+\begin{center}
+{\includegraphics[width=.85\textwidth]{images/vorticity_llc4320.png}}
+\end{center}
+\flushright{\small Visualization credit: Ryan Abernathey.~~~~~~~~~~}
+\end{frame}
+
+\section{Discussion questions}
+\begin{frame}{Topics of discussion}{(Or things to think about in the privacy of your own study)}
+
+\begin{block}{How to determine the GM coefficient $\kappa$?}
+\begin{enumerate}
+  \item[i.] Is it spatially variable? (Yes)
+  \item[ii.] It is sign definite?
+  \item[iii.] How does it relate to eddy diffusivities estimated from data?
+\end{enumerate}
+\end{block}
+
+\begin{exampleblock}{Why was GM successful?}
+\begin{enumerate}
+  \item[i.] Is GM physically grounded or was GM lucky?
+  \item[ii.] Can we transfer some of the GM experience for parameterizing finer scales?
+\end{enumerate}
+\end{exampleblock}
+
+\begin{block}{GM and TEM/TWA}
+  Y12 argues that eddy fluxes should be in the momentum equations.
+  How do we reconcile GM with Y12?
+\end{block}
+\end{frame}
+
+\section{References}
+
+\begin{frame}{Useful references}{Clearer than the original 1990 GM paper}
+\begin{block}{Better interpretations of the GM parameterization}
+  \begin{itemize}
+    \item Gent et al., {\it JPO}, 1996, \href{http://google.com}{Parameterizing
+    eddy-induced tracer transports in ocean circulation models}.
+    \item {Gent}, {\it OM}, 2011, \href{http://www.sciencedirect.com/science/article/pii/S1463500310001253}{ The
+     GM parameterization: 20/20 hindsight}.
+  \end{itemize}
+\end{block}
+\vspace{.5cm}
+\begin{exampleblock}{Beyond GM}
+  \begin{itemize}
+    \item Marshall et al., {\it JPO}, 2012, \href{http://journals.ametsoc.org/doi/abs/10.1175/JPO-D-11-048.1}{ A
+          Framework for Parameterizing Eddy Potential Vorticity Fluxes}.
+  \end{itemize}
+\end{exampleblock}
+\end{frame}
+
+
+\end{document}
