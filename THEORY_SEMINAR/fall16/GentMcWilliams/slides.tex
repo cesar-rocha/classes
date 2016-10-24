@@ -20,7 +20,6 @@
 \usepackage{caption}
 \usepackage{cancel}
 
-
 %%%% COLORS
 % presentation style
 \definecolor{top_bar_1}{RGB}{40,40,40}
@@ -39,10 +38,12 @@
 \setbeamercolor{section in toc}{fg=top_bar_2}
 \setbeamercolor{structure}{fg=top_bar_2}
 
-\usebackgroundtemplate{%
-\tikz[overlay,remember picture] \node[opacity=0.04, at=(current page.center)] {
-   \includegraphics[width=\paperwidth]{images/siologo.png}};
-}
+%\usebackgroundtemplate{%
+%\tikz[overlay,remember picture] \node[opacity=0.04, at=(current page.center)] {
+%   \includegraphics[width=\paperwidth]{images/siologo.png}};
+%}
+
+\pdfpageattr{/Group <</S /Transparency /I true /CS /DeviceRGB>>}
 
 % get rid of navigation buttons
 \beamertemplatenavigationsymbolsempty
@@ -59,7 +60,8 @@
 \title[The Gent-McWilliams parameterization]{\LARGE{\bf The {\Huge Gent-McWilliams} parameterization
 of  {\Huge eddy buoyancy fluxes}}}
 \subtitle{}
-\author[PO theory seminar, SIO, fall 2016]{(as told by Cesar)}
+\author[PO theory seminar, SIO, fall 2016]{(as told by Cesar)\\\vspace{.2cm} slides at
+ \href{http://tinyurl.com/POTheory-GM}{\textcolor{blue}{tinyurl.com/POTheory-GM}} \vspace{-.25cm}}
 \institute[shortinst]{~~~~~~~{\bf Gent} $\&$ {\bf McWilliams}, \textit{JPO}, 1990
                     \hspace{.4cm}  {\bf Griffies}, \textit{JPO}, 1998\\
                     ~~~~~~(The most cited JPO paper $\star$)~~~~~~~~~~~~~~~~~~~~~
@@ -93,6 +95,36 @@ of  {\Huge eddy buoyancy fluxes}}}
 \end{frame}
 
 \section{Mixing in isopycnal coordinates}
+
+\subsection{A stroll through GM}
+
+\begin{frame}{A stroll through GM}
+\onslide<2->\begin{block}{Along-isopynal eddy fluxes}
+\beq
+\overline{\mathbf{u}'\rho'}\cdot \nabla\bar{\rho} =
+\overline{\mathbf{u}'_h\rho'}\cdot \nabla_h\bar{\rho} + \overline{w'\rho'}~\bar{\rho}_z\approx 0\per\nonumber
+\eeq
+\end{block}
+
+\onslide<3->\begin{exampleblock}{The parameterization}
+\beq
+\textbf{Ansatz}:\quad\overline{\mathbf{u}_h'\rho'} = -\kappa \nabla_h \bar{\rho}\quad \Longrightarrow\quad
+\overline{w'\rho'} = \kappa \frac{|\nabla_h \bar{\rho}|^2}{{\bar{\rho}}^2_z} \bar{\rho}_z
+\per\nonumber
+\eeq
+\end{exampleblock}
+
+\onslide<4->\begin{block}{Properties of the parameterization}
+\begin{enumerate}
+\item  Preserves moments of $\rho$.
+\item  Releases available potential energy (cf. baroclinic instability).
+\end{enumerate}
+\end{block}
+\begin{center}
+{\includegraphics[width=.55\textwidth]{images/bci.png}}
+\end{center}
+\end{frame}
+
 
 \subsection{Density coordinates}
 \begin{frame}{Density (buoyancy) coordinates}
@@ -332,7 +364,7 @@ The skew flux
 \tag{G8}
 {F}_{skew}^m = -A^{mn} \p_n T
 \eeq
-is perpendicular the tracer surfaces
+is perpendicular to the tracer surfaces
 \beq
 \tag{G9}
 \nabla T\cdot \mathbf{F}_{skew} = -(\p_m T) A^{mn} (\p_n T) = 0\per
@@ -352,15 +384,15 @@ and
 \end{frame}
 
 \begin{frame}{The GM skew flux}
-\begin{block}{GM choice [Recall, in density coordinates, $\mathbf{F} = -\frac{\partial}{\partial \rho}(\kappa \nabla_{\!\!\rho}h)$]}
+\begin{block}{The GM choice [Recall, in density coordinates, $\mathbf{F} = -\frac{\partial}{\partial \rho}(\kappa \nabla_{\!\!\rho}h)$]}
 \beq\tag{G14}
-\mathbf{A} = A^{mn}=\begin{bmatrix}
-0 & 0 & -\kappa S_x\\
-0 & 0 & - \kappa S_y\\
-\kappa S_x & \kappa S_y & 0\\
+\mathbf{A} = A^{mn}=\kappa\begin{bmatrix}
+0 & 0 & - S_x\\
+0 & 0 & - S_y\\
+S_x & S_y & 0\\
 \end{bmatrix}\com
 \eeq
-with the isopycnal slope $\mathbf{S}\defn -\nabla_h \cdot \rho/\p_z\rho$. Thus
+with the isopycnal slope $\mathbf{S}\defn -\nabla_h \rho/\p_z\rho$. Thus
 \begin{align}
 \tag{G15}&\mathbf{F}_{adv} = T \nabla \times (\mathbf{k}\times \kappa S) = T \mathbf{U}_\star\com\\
 \tag{G16}&\mathbf{F}_{skew} = -\nabla T \times (\mathbf{k}\times \kappa \mathbf{S}) = \kappa \mathbf{S}\p_zT
@@ -369,6 +401,36 @@ with the isopycnal slope $\mathbf{S}\defn -\nabla_h \cdot \rho/\p_z\rho$. Thus
 \end{block}
 \end{frame}
 
+
+\begin{frame}{GM + Redi}
+  \begin{exampleblock}{GM stirring + Redi diffusion (with diffusivity A)}
+    \begin{align}\tag{G27}
+      \mathbf{J} = J^{mn}&= \begin{bmatrix}
+      A & 0 &  (A-\kappa) S_x\\
+      0 & A & (A-\kappa) S_y\\
+      (A+\kappa)S_x & A S_y & A\\
+      \end{bmatrix}\\ &=
+      \underbrace{\begin{bmatrix}
+      A & 0 &  A S_x\\
+      0 & A & A S_y\\
+      A S_x & A S_y & A |\mathbf{S}|^2\\
+      \end{bmatrix}}_{= K^{mn}} +
+      \underbrace{\begin{bmatrix}
+      0 & 0 &  -\kappa S_x\\
+      0 & 0 & -\kappa S_y\\
+      \kappa S_x & \kappa S_y & 0\\
+      \end{bmatrix}}_{= A^{mn}}\nonumber\com
+    \end{align}
+  \end{exampleblock}
+
+  \begin{block}{The tracer equation}
+  \beq
+  (\p_t + \mathbf{u}\cdot \nabla)T = \underbrace{\p_m (K^{mn}\p_n T)}_{\text{Redi diffusion}}
+   +  \underbrace{\p_m (A^{mn}\p_n T)}_{\text{GM stirring}}  \nonumber\per
+  \eeq
+  \end{block}
+
+\end{frame}
 
 
 \section{Summary}
@@ -415,7 +477,7 @@ Snapshot of vorticity in a ``fine-scale-resolving'' (1 km) model
 
 \section{Discussion questions}
 \begin{frame}{Topics of discussion}{(Or things to think about in the privacy of your own study)}
-
+\vspace{-.1cm}
 \begin{block}{How to determine the GM coefficient $\kappa$?}
 \begin{enumerate}
   \item[i.] Is it spatially variable? (Yes)
@@ -425,21 +487,29 @@ Snapshot of vorticity in a ``fine-scale-resolving'' (1 km) model
 \end{block}
 
 \begin{exampleblock}{Why was GM successful?}
-\begin{enumerate}
-  \item[i.] Is GM physically grounded or was GM lucky?
-  \item[ii.] Can we transfer some of the GM experience for parameterizing finer scales?
-\end{enumerate}
+ Can we transfer some of the GM experience to parameterizations of finer scales?
 \end{exampleblock}
 
-\begin{block}{GM and TEM/TWA}
-  Y12 argues that eddy fluxes should be in the momentum equations.
-  How do we reconcile GM with Y12?
+\begin{block}{GM does not parameterize momentum fluxes and $\overline{b'^2}/{N^2}$...}
+\vspace{-.2cm}
+\begin{align}
+\overline{u'q'} &= ~~~ \left(\overline{u'v'}\right)_x + \half \left[(\overline{v'^2 - u'^2})-\tfrac{\overline{b'^2}}{N^2}\right]_y
++ \left(f_0 \tfrac{\overline{u'b'}}{N^2}\right)_z\nonumber\\
+\overline{v'q'} &= - \left(\overline{u'v'}\right)_y + \half \left[(\overline{v'^2 - u'^2})+\tfrac{\overline{b'^2}}{N^2}\right]_x +
+ \left(f_0 \tfrac{\overline{v'b'}}{N^2}\right)_z\nonumber
+\end{align}
 \end{block}
 \end{frame}
 
 \section{References}
 
-\begin{frame}{Useful references}{Clearer than the original 1990 GM paper}
+\begin{frame}{Useful references}{Clearer than the original GM paper}
+
+\begin{exampleblock}{Redi diffusion}
+   Redi, {\it JPO}, 1982, Isopycnal mixing by coordinate rotation.
+\end{exampleblock}
+\vspace{.5cm}
+
 \begin{block}{Better interpretations of the GM parameterization}
   \begin{itemize}
     \item Gent et al., {\it JPO}, 1996, \href{http://google.com}{Parameterizing
@@ -452,7 +522,7 @@ Snapshot of vorticity in a ``fine-scale-resolving'' (1 km) model
 \begin{exampleblock}{Beyond GM}
   \begin{itemize}
     \item Marshall et al., {\it JPO}, 2012, \href{http://journals.ametsoc.org/doi/abs/10.1175/JPO-D-11-048.1}{ A
-          Framework for Parameterizing Eddy Potential Vorticity Fluxes}.
+          Framework for parameterizing eddy potential vorticity fluxes}.
   \end{itemize}
 \end{exampleblock}
 \end{frame}
